@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "KJwXvLC/sRNsW8Bi3CvJUQvX/4FKCfwkS+cFQGfrDHU=",
+  "Source": "keepscape-api",
+  "BasePath": "_content/keepscape-api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
