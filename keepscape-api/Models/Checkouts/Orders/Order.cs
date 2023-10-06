@@ -9,7 +9,7 @@ namespace keepscape_api.Models
         public Guid ProductId { get; set; }
         public Guid BaseImageId { get; set; }
         public int Quantity { get; set; }
-        public string Description { get; set; } = string.Empty;
+        public string? CustomizedMessage { get; set; } = string.Empty;
         public decimal Total { get; set; }
         public DeliveryStatus Status { get; set; } = DeliveryStatus.Pending;
         public virtual BaseImage? BaseImage { get; set; }
