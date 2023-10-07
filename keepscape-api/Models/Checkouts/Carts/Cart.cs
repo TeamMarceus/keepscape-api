@@ -1,4 +1,4 @@
-﻿using keepscape_api.Models.BaseModels;
+﻿using keepscape_api.Models.Primitives;
 
 namespace keepscape_api.Models
 {
@@ -6,6 +6,6 @@ namespace keepscape_api.Models
     {
         public Guid BuyerProfileId { get; set; }
         public virtual BuyerProfile? BuyerProfile{ get; set; }
-        public virtual ICollection<CartItem>? CartItems { get; set; }
+        public virtual ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
     }
 }

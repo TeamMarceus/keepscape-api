@@ -1,5 +1,5 @@
 ﻿using keepscape_api.Enums;
-using keepscape_api.Models.BaseModels;
+using keepscape_api.Models.Primitives;
 
 namespace keepscape_api.Models
 {
@@ -9,6 +9,6 @@ namespace keepscape_api.Models
         public Guid BaseImageId { get; set; }
         public ApplicationStatus Status { get; set; } = ApplicationStatus.Pending;
         public virtual BaseImage? BaseImage { get; set; }
-        public virtual SellerProfile? SellerProfile{ get; set; }
+        public virtual SellerProfile? SellerProfile { get; set; }
     }
 }

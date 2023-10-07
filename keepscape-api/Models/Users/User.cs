@@ -1,5 +1,5 @@
 ﻿using keepscape_api.Enums;
-using keepscape_api.Models.BaseModels;
+using keepscape_api.Models.Primitives;
 
 namespace keepscape_api.Models
 {

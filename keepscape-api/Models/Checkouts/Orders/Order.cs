@@ -1,5 +1,5 @@
 ﻿using keepscape_api.Enums;
-using keepscape_api.Models.BaseModels;
+using keepscape_api.Models.Primitives;
 
 namespace keepscape_api.Models
 {
@@ -15,6 +15,6 @@ namespace keepscape_api.Models
         public virtual BaseImage? BaseImage { get; set; }
         public virtual BuyerProfile? BuyerProfile { get; set; }
         public virtual Product? Product { get; set; }
-        public virtual ICollection<OrderDeliveryLog>? OrderDeliveryLogs { get; set; }
+        public virtual ICollection<OrderDeliveryLog> OrderDeliveryLogs { get; set; } = new List<OrderDeliveryLog>();
     }
 }

@@ -1,5 +1,5 @@
 ﻿using keepscape_api.Models;
-using keepscape_api.Models.BaseModels;
+using keepscape_api.Models.Primitives;
 using keepscape_api.Models.Images;
 using Microsoft.EntityFrameworkCore;
 
@@ -39,10 +39,19 @@ namespace keepscape_api.Data
         {
             foreach (var entry in ChangeTracker.Entries())
             {
+                
                 if (entry.Entity is ISoftDeletable && entry.State == EntityState.Deleted)
                 {
                     entry.State = EntityState.Modified;
                     ((ISoftDeletable)entry.Entity).DateTimeDeleted = DateTime.Now;
+                }
+                if (entry.Entity is Base && entry.State == EntityState.Added)
+                {
+                    ((Base)entry.Entity).DateTimeCreated = DateTime.Now;
+                }
+                if (entry.Entity is Base && entry.State == EntityState.Modified)
+                {
+                    ((Base)entry.Entity).DateTimeUpdated = DateTime.Now;
                 }
             }
         }

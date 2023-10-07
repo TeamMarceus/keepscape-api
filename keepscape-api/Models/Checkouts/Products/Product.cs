@@ -1,4 +1,4 @@
-﻿using keepscape_api.Models.BaseModels;
+﻿using keepscape_api.Models.Primitives;
 using keepscape_api.Models.Images;
 
 namespace keepscape_api.Models

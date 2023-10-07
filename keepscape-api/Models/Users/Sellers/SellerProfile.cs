@@ -1,8 +1,8 @@
-﻿using keepscape_api.Models.BaseModels;
+﻿using keepscape_api.Models.Primitives;
 
 namespace keepscape_api.Models
 {
-    public class SellerProfile : Base
+    public class SellerProfile : Base, IProfile
     {
         public Guid UserId { get; set; }
         public Guid SellerApplicationId { get; set; }

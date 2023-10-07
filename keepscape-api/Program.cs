@@ -1,10 +1,16 @@
 using keepscape_api.Configurations;
 using keepscape_api.Data;
+using keepscape_api.Repositories;
+using keepscape_api.Repositories.Generics;
+using keepscape_api.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using keepscape_api.Models;
+using keepscape_api.Services.Users;
+using Google.Cloud.Storage.V1;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +21,10 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
 ConfigureServices(builder.Services, builder.Configuration);
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -35,6 +44,7 @@ app.Run();
 
 void ConfigureServices(IServiceCollection services, IConfiguration configuration)
 {
+    services.AddRouting(options => options.LowercaseUrls = true);
     services.AddCors(options =>
     {
         options.AddDefaultPolicy(builder =>
@@ -84,27 +94,41 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
                 new List<string>()
             }
         });
+    });
+    services.Configure<JwtConfig>(configuration.GetSection("JwtConfig"));
 
-        services.Configure<JwtConfig>(configuration.GetSection("JwtConfig"));
-
-        services.AddAuthentication(options => {
-            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        }).AddJwtBearer(options => {
-            options.TokenValidationParameters = new TokenValidationParameters
-            {
-                // Your token validation parameters
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
-                ValidIssuer = configuration["JwtConfig:Issuer"],
-                ValidAudience = configuration["JwtConfig:Audience"],
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtConfig:Secret"]!))
-            };
-        });
-
-        services.AddTransient<APIDbContext>();
+    services.AddAuthentication(options => {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    }).AddJwtBearer(options => {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            // Your token validation parameters
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = configuration["JwtConfig:Issuer"],
+            ValidAudience = configuration["JwtConfig:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtConfig:Secret"]!))
+        };
     });
 
+    services.AddTransient<APIDbContext>();
+    services.AddSingleton(sp => StorageClient.Create());
+
+    services.AddScoped<IBalanceRepository, BalanceRepository>();
+    services.AddScoped<ICartRepository, CartRepository>();
+    services.AddScoped<ICategoryRepository<PlaceCategory>, CategoryRepository<PlaceCategory>>();
+    services.AddScoped<ICategoryRepository<ProductCategory>, CategoryRepository<ProductCategory>>();
+    services.AddScoped<IConfirmationCodeRepository,  ConfirmationCodeRepository>();
+    services.AddScoped<IOrderRepository, OrderRepository>();
+    services.AddScoped<IProductRepository, ProductRepository>();
+    services.AddScoped<IProfileRepository<BuyerProfile>, BuyerProfileRepository>();
+    services.AddScoped<IProfileRepository<SellerProfile>, SellerProfileRepository>();
+    services.AddScoped<ITokenRepository, TokenRepository>();
+    services.AddScoped<IUserRepository, UserRepository>();
+    services.AddScoped<ISellerApplicationRepository, SellerApplicationRepository>();
+
+    services.AddScoped<IUserService, UserService>();
 }

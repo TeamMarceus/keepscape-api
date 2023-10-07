@@ -37,7 +37,7 @@ namespace keepscape_api.Migrations
 
                     b.HasIndex("ProductsId");
 
-                    b.ToTable("ProductProductCategory");
+                    b.ToTable("ProductProductCategory", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.Announcement", b =>
@@ -60,7 +60,7 @@ namespace keepscape_api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Announcements");
+                    b.ToTable("Announcements", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.Balance", b =>
@@ -87,7 +87,7 @@ namespace keepscape_api.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Balances");
+                    b.ToTable("Balances", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.BalanceHistory", b =>
@@ -113,7 +113,7 @@ namespace keepscape_api.Migrations
 
                     b.HasIndex("BalanceId");
 
-                    b.ToTable("BalanceHistories");
+                    b.ToTable("BalanceHistories", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.BaseImage", b =>
@@ -136,7 +136,7 @@ namespace keepscape_api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("BaseImages");
+                    b.ToTable("BaseImages", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.BuyerCategoryPreference", b =>
@@ -167,7 +167,7 @@ namespace keepscape_api.Migrations
 
                     b.HasIndex("ProductCategoryId");
 
-                    b.ToTable("BuyerCategoryPreferences");
+                    b.ToTable("BuyerCategoryPreferences", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.BuyerProfile", b =>
@@ -176,27 +176,7 @@ namespace keepscape_api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("BuyerAltMobileNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("BuyerDeliveryAddress")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("BuyerDeliveryFullName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("BuyerDescription")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("BuyerInterests")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("BuyerPreferences")
+                    b.Property<string>("AltMobileNumber")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -209,6 +189,26 @@ namespace keepscape_api.Migrations
                     b.Property<DateTime>("DateTimeUpdated")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("DeliveryAddress")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DeliveryFullName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Interests")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Preferences")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
@@ -217,7 +217,7 @@ namespace keepscape_api.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("BuyerProfiles");
+                    b.ToTable("BuyerProfiles", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.Cart", b =>
@@ -240,7 +240,7 @@ namespace keepscape_api.Migrations
                     b.HasIndex("BuyerProfileId")
                         .IsUnique();
 
-                    b.ToTable("Carts");
+                    b.ToTable("Carts", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.CartItem", b =>
@@ -274,7 +274,7 @@ namespace keepscape_api.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("CartItems");
+                    b.ToTable("CartItems", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.ConfirmationCode", b =>
@@ -303,7 +303,7 @@ namespace keepscape_api.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ConfirmationCodes");
+                    b.ToTable("ConfirmationCodes", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.Images.ProductImage", b =>
@@ -330,7 +330,7 @@ namespace keepscape_api.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductImages");
+                    b.ToTable("ProductImages", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.Order", b =>
@@ -376,7 +376,7 @@ namespace keepscape_api.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Orders", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.OrderDeliveryLog", b =>
@@ -402,7 +402,7 @@ namespace keepscape_api.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("OrderDeliveryLogs");
+                    b.ToTable("OrderDeliveryLogs", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.PlaceCategory", b =>
@@ -420,7 +420,7 @@ namespace keepscape_api.Migrations
                     b.Property<DateTime>("DateTimeUpdated")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("RegionName")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -428,7 +428,7 @@ namespace keepscape_api.Migrations
 
                     b.HasIndex("BaseImageId");
 
-                    b.ToTable("PlaceCategories");
+                    b.ToTable("PlaceCategories", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.Product", b =>
@@ -479,7 +479,7 @@ namespace keepscape_api.Migrations
 
                     b.HasIndex("SellerProfileId");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.ProductCategory", b =>
@@ -497,7 +497,7 @@ namespace keepscape_api.Migrations
                     b.Property<DateTime>("DateTimeUpdated")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("ProductCategoryName")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -505,7 +505,7 @@ namespace keepscape_api.Migrations
 
                     b.HasIndex("BaseImageId");
 
-                    b.ToTable("ProductCategories");
+                    b.ToTable("ProductCategories", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.ProductReview", b =>
@@ -539,7 +539,7 @@ namespace keepscape_api.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductReviews");
+                    b.ToTable("ProductReviews", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.SellerApplication", b =>
@@ -569,7 +569,7 @@ namespace keepscape_api.Migrations
                     b.HasIndex("BaseImageId")
                         .IsUnique();
 
-                    b.ToTable("SellerApplications");
+                    b.ToTable("SellerApplications", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.SellerProfile", b =>
@@ -606,7 +606,7 @@ namespace keepscape_api.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("SellerProfiles");
+                    b.ToTable("SellerProfiles", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.Token", b =>
@@ -639,7 +639,7 @@ namespace keepscape_api.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Tokens");
+                    b.ToTable("Tokens", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.User", b =>
@@ -692,7 +692,7 @@ namespace keepscape_api.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("ProductProductCategory", b =>
