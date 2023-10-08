@@ -1,17 +1,15 @@
 ﻿using keepscape_api.Data;
 using keepscape_api.Models;
-using keepscape_api.Repositories.Generics;
 using keepscape_api.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace keepscape_api.Repositories
 {
-    public class SellerApplicationRepository : BaseRepository<SellerApplication>, ISellerApplicationRepository, IQueryableRepository<SellerApplication>
+    public class SellerApplicationRepository : BaseRepository<SellerApplication>, ISellerApplicationRepository
     {
         public SellerApplicationRepository(APIDbContext context) : base(context)
         {
         }
-        // oVerride methods
         public override async Task<IEnumerable<SellerApplication>> GetAllAsync()
         {
             return await _dbSet

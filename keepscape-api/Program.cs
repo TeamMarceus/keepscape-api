@@ -11,6 +11,7 @@ using System.Text;
 using keepscape_api.Models;
 using keepscape_api.Services.Users;
 using Google.Cloud.Storage.V1;
+using keepscape_api.Services.BaseImages;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -125,10 +126,12 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
     services.AddScoped<IOrderRepository, OrderRepository>();
     services.AddScoped<IProductRepository, ProductRepository>();
     services.AddScoped<IProfileRepository<BuyerProfile>, BuyerProfileRepository>();
-    services.AddScoped<IProfileRepository<SellerProfile>, SellerProfileRepository>();
+    services.AddScoped<ISellerProfileRepository, SellerProfileRepository>();
     services.AddScoped<ITokenRepository, TokenRepository>();
     services.AddScoped<IUserRepository, UserRepository>();
     services.AddScoped<ISellerApplicationRepository, SellerApplicationRepository>();
+    services.AddScoped<IBaseImageRepository, BaseImageRepository>();
 
     services.AddScoped<IUserService, UserService>();
+    services.AddScoped<IBaseImageService, BaseImageService>();
 }

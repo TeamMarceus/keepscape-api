@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace keepscape_api.Repositories
 {
-    public class OrderRepository : BaseRepository<Order>, IOrderRepository, IQueryableRepository<Order>
+    public class OrderRepository : BaseRepository<Order>, IOrderRepository
     {
         public OrderRepository(APIDbContext context) : base(context)
         {

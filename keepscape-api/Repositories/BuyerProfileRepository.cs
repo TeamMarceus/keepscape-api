@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace keepscape_api.Repositories
 {
-    public class BuyerProfileRepository : BaseRepository<BuyerProfile>, IProfileRepository<BuyerProfile>, IQueryableRepository<BuyerProfile>
+    public class BuyerProfileRepository : BaseRepository<BuyerProfile>, IProfileRepository<BuyerProfile>
     {
         public BuyerProfileRepository(APIDbContext context) : base(context)
         {

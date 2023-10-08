@@ -24,6 +24,7 @@ namespace keepscape_api.Dtos.Users
     public record UserResponseSellerDto : UserResponseBaseDto
     {
         public Guid SellerProfileId { get; init; }
+        public Guid SellerApplicationId { get; init; }
         public string SellerName { get; init; } = string.Empty;
         public string Description { get; init; } = string.Empty;
         public string UserType { get; init; } = Enums.UserType.Seller.ToString();

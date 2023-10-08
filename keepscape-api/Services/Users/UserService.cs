@@ -4,6 +4,7 @@ using keepscape_api.Enums;
 using keepscape_api.Models;
 using keepscape_api.Repositories.Generics;
 using keepscape_api.Repositories.Interfaces;
+using keepscape_api.Services.BaseImages;
 using Microsoft.AspNetCore.Identity;
 
 namespace keepscape_api.Services.Users
@@ -12,14 +13,26 @@ namespace keepscape_api.Services.Users
     {
         private readonly IUserRepository _userRepository;
         private readonly IProfileRepository<BuyerProfile> _buyerProfileRepository;
-        private readonly IProfileRepository<SellerProfile> _sellerProfileRepository;
+        private readonly ISellerProfileRepository _sellerProfileRepository;
+        private readonly ISellerApplicationRepository _sellerApplicationRepository;
+        private readonly IBaseImageService _baseImageService;
+        private readonly IBaseImageRepository _baseImageRepository;
         private readonly IMapper _mapper;
 
-        public UserService(IUserRepository userRepository, IProfileRepository<BuyerProfile> buyerProfileRepository, IProfileRepository<SellerProfile> sellerProfileRepository, IMapper mapper)
+        public UserService(IUserRepository userRepository,          
+            IProfileRepository<BuyerProfile> buyerProfileRepository, 
+            ISellerProfileRepository sellerProfileRepository, 
+            ISellerApplicationRepository sellerApplicationRepository,
+            IBaseImageService baseImageService,
+            IBaseImageRepository baseImageRepository,
+            IMapper mapper)
         {
             _userRepository = userRepository;
             _buyerProfileRepository = buyerProfileRepository;
             _sellerProfileRepository = sellerProfileRepository;
+            _sellerApplicationRepository = sellerApplicationRepository;
+            _baseImageService = baseImageService;
+            _baseImageRepository = baseImageRepository;
             _mapper = mapper;
         }
 
@@ -141,16 +154,24 @@ namespace keepscape_api.Services.Users
             {
                 var newUser = _mapper.Map<User>(seller);
                 newUser.UserType = UserType.Seller;
-                newUser.SellerProfile = _mapper.Map<SellerProfile>(seller);
                 newUser.Password = passwordHasher.HashPassword(newUser, seller.Password);
 
-                var createdUser = await _userRepository.AddAsync(newUser);
-
-                if (createdUser == null)
+                newUser.SellerProfile = new SellerProfile
                 {
-                    return null;
-                }
+                    Name = seller.SellerName,
+                    Description = seller.Description,
+                    DateTimeCreated = DateTime.Now,
+                };
 
+                newUser.SellerProfile.SellerApplication = new SellerApplication
+                {
+                    DateTimeCreated = DateTime.Now,
+                    BaseImage = await _baseImageService.Upload("seller-applications", seller.BaseImage),
+                    Status = ApplicationStatus.Pending,
+                    SellerProfile = newUser.SellerProfile
+                };
+
+                var createdUser = await _userRepository.AddAsync(newUser);
                 return _mapper.Map<UserResponseSellerDto>(createdUser);
             }
 

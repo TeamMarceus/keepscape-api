@@ -1,11 +1,12 @@
 ﻿using keepscape_api.Data;
 using keepscape_api.Models;
 using keepscape_api.Repositories.Generics;
+using keepscape_api.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace keepscape_api.Repositories
 {
-    public class SellerProfileRepository : BaseRepository<SellerProfile>, IProfileRepository<SellerProfile>, IQueryableRepository<SellerProfile>
+    public class SellerProfileRepository : BaseRepository<SellerProfile>, ISellerProfileRepository
     {
         public SellerProfileRepository(APIDbContext context) : base(context)
         {

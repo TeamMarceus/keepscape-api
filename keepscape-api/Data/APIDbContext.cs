@@ -96,6 +96,11 @@ namespace keepscape_api.Data
                 .Property(e => e.Status)
                 .HasConversion<string>();
             modelBuilder.Entity<SellerApplication>()
+                .HasOne(sa => sa.SellerProfile)
+                .WithOne(s => s.SellerApplication)
+                .HasForeignKey<SellerApplication>(sa => sa.SellerProfileId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<SellerApplication>()
                 .HasOne(sa => sa.BaseImage)
                 .WithOne()
                 .HasForeignKey<SellerApplication>(sa => sa.BaseImageId)

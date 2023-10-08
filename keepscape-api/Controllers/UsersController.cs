@@ -20,7 +20,7 @@ namespace keepscape_api.Controllers
         }
 
 
-        [HttpPost("register/buyer")]
+        [HttpPost("buyers/register")]
         [AllowAnonymous]
         public async Task<IActionResult> Register(UserCreateBuyerDto userRegisterDto)
         {
@@ -48,9 +48,10 @@ namespace keepscape_api.Controllers
             }
         }
 
-        [HttpPost("register/seller")]
+        [HttpPost("sellers/register")]
+        [Consumes("multipart/form-data")]
         [AllowAnonymous]
-        public async Task<IActionResult> Register(UserCreateSellerDto userRegisterDto)
+        public async Task<IActionResult> Register([FromForm]UserCreateSellerDto userRegisterDto)
         {
             try
             {
