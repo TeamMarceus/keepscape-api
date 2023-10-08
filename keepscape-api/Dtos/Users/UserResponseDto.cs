@@ -7,6 +7,7 @@ namespace keepscape_api.Dtos.Users
         public Guid Id { get; init; }
         public string FirstName { get; init; } = string.Empty;
         public string LastName { get; init; } = string.Empty;
+        public string Email { get; init; } = string.Empty;
     }
 
     public record UserResponseBuyerDto : UserResponseBaseDto

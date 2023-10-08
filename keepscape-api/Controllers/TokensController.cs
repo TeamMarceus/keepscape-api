@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+﻿using keepscape_api.Dtos.Tokens;
+using keepscape_api.Enums;
+using keepscape_api.Services.Tokens;
+using keepscape_api.Services.Users;
+using Microsoft.AspNetCore.Mvc;
 
 namespace keepscape_api.Controllers
 {
@@ -8,36 +10,153 @@ namespace keepscape_api.Controllers
     [ApiController]
     public class TokensController : ControllerBase
     {
-        // GET: api/<TokensController>
-        [HttpGet]
-        public IEnumerable<string> Get()
+        private readonly ILogger<TokenService> _logger;
+        private readonly ITokenService _tokenService;
+        private readonly IUserService _userService;
+
+        public TokensController(ILogger<TokenService> logger, ITokenService tokenService, IUserService userService)
         {
-            return new string[] { "value1", "value2" };
+            _logger = logger;
+            _tokenService = tokenService;
+            _userService = userService;
         }
 
-        // GET api/<TokensController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        [HttpPost("acquire")]
+        public async Task<IActionResult> Acquire([FromBody] TokenCreateDto tokenCreateDto)
         {
-            return "value";
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var userStatus = await _userService.GetStatus(tokenCreateDto.Email);
+
+                if (userStatus == UserStatus.Banned)
+                {
+                    return Forbid("User is banned.");
+                }
+
+                if (userStatus == UserStatus.NotFound)
+                {
+                    return BadRequest("User not found.");
+                }
+
+                if (userStatus == UserStatus.Pending)
+                {
+                    return Unauthorized("User is pending.");
+                }
+
+                var tokenResponseDto = await _tokenService.Create(tokenCreateDto);
+
+                if (tokenResponseDto == null)
+                {
+                    return BadRequest("Invalid credentials.");
+                }
+
+                return Ok(tokenResponseDto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_tokenService.Create)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
         }
 
-        // POST api/<TokensController>
-        [HttpPost]
-        public void Post([FromBody] string value)
+        [HttpPost("verify")]
+        public async Task<IActionResult> Verify([FromBody] TokenVerifyDto tokenVerifyDto)
         {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var isVerified = await _tokenService.Verify(tokenVerifyDto);
+
+                if (!isVerified)
+                {
+                    return BadRequest(isVerified);
+                }
+
+                return Ok(isVerified);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_tokenService.Verify)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
         }
 
-        // PUT api/<TokensController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpPost("revoke")]
+        public async Task<IActionResult> Revoke([FromQuery] string refreshToken)
         {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var isRevoked = await _tokenService.Revoke(refreshToken);
+
+                if (!isRevoked)
+                {
+                    return BadRequest(isRevoked);
+                }
+
+                return Ok(isRevoked);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_tokenService.Revoke)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
         }
 
-        // DELETE api/<TokensController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        [HttpPost("refresh")]
+        public async Task<IActionResult> Refresh([FromBody] TokenRefreshDto tokenRefreshDto)
         {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var userStatus = await _userService.GetStatus(tokenRefreshDto.UserId);
+
+                if (userStatus == UserStatus.Banned)
+                {
+                    return Forbid("User is banned.");
+                }
+
+                if (userStatus == UserStatus.NotFound)
+                {
+                    return BadRequest("User not found.");
+                }
+
+                if (userStatus == UserStatus.Pending)
+                {
+                    return Unauthorized("User is pending.");
+                }
+
+                var tokenResponseDto = await _tokenService.Refresh(tokenRefreshDto);
+
+                if (tokenResponseDto == null)
+                {
+                    return BadRequest("Cannot refresh token.");
+                }
+
+                return Ok(tokenResponseDto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_tokenService.Refresh)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
         }
     }
 }

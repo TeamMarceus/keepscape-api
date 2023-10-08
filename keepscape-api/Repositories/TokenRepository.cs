@@ -21,11 +21,17 @@ namespace keepscape_api.Repositories
         }
         public async Task<Token?> GetLatestTokenByUserGuid(Guid userId)
         {
-            return await _dbSet.Where(t => t.UserId == userId).OrderByDescending(t => t.DateTimeCreated).FirstOrDefaultAsync();
+            return await _dbSet
+                .Include(t => t.User)
+                .Where(t => t.UserId == userId)
+                .OrderByDescending(t => t.DateTimeCreated)
+                .FirstOrDefaultAsync();
         }
         public async Task<Token?> GetTokenByRefreshToken(string refreshToken)
         {
-            return await _dbSet.FirstOrDefaultAsync(t => t.RefreshToken == refreshToken);
+            return await _dbSet
+                .Include(t => t.User)
+                .FirstOrDefaultAsync(t => t.RefreshToken == refreshToken);
         }
     }
 }

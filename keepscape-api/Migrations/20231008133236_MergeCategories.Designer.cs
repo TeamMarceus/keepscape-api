@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using keepscape_api.Data;
 
@@ -11,9 +12,11 @@ using keepscape_api.Data;
 namespace keepscape_api.Migrations
 {
     [DbContext(typeof(APIDbContext))]
-    partial class APIDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231008133236_MergeCategories")]
+    partial class MergeCategories
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -286,7 +289,7 @@ namespace keepscape_api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("BaseImageId")
+                    b.Property<Guid>("BaseImageId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("DateTimeCreated")
@@ -810,7 +813,9 @@ namespace keepscape_api.Migrations
                 {
                     b.HasOne("keepscape_api.Models.BaseImage", "BaseImage")
                         .WithMany()
-                        .HasForeignKey("BaseImageId");
+                        .HasForeignKey("BaseImageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("BaseImage");
                 });

@@ -1,4 +1,5 @@
 ﻿using keepscape_api.Data;
+using keepscape_api.Enums;
 using keepscape_api.Models;
 using keepscape_api.QueryModels;
 using keepscape_api.Repositories.Interfaces;
@@ -10,6 +11,31 @@ namespace keepscape_api.Repositories
     {
         public ProductRepository(APIDbContext context) : base(context) 
         {
+        }
+
+        public async Task<bool> AddProductReview(ProductReview productReview)
+        {
+            var product = await _context.Products
+    .FirstOrDefaultAsync(p => p.Id == productReview.ProductId);
+
+            if (product == null)
+            {
+                return false;
+            }
+
+            _context.ProductReviews.Add(productReview);
+            await _context.SaveChangesAsync();
+
+            var productReviews = await _context.ProductReviews
+                .Where(pr => pr.ProductId == productReview.ProductId)
+                .ToListAsync();
+            var averageRating = productReviews.Average(pr => pr.Rating);
+
+            product.Rating = (decimal)averageRating;
+
+            await _context.SaveChangesAsync();
+
+            return true;
         }
 
         public async Task<IEnumerable<Product>> Get(ProductQueryParameters productQueryParameters)
@@ -30,11 +56,14 @@ namespace keepscape_api.Repositories
             }
             if (productQueryParameters.Category != null)
             {
-                query = query.Where(p => p.ProductCategories.Any(pc => pc.Name == productQueryParameters.Category));
+                query = query.Where(p => p.ProductCategories
+                .Any(pc => pc.Type == CategoryType.Categories && pc.Name == productQueryParameters.Category));
+                
             }
             if (productQueryParameters.Province != null)
             {
-                query = query.Where(p => p.PlaceCategory != null && p.PlaceCategory.Name == productQueryParameters.Province);
+                query = query.Where(p => p.ProductCategories
+                .Any(pc => pc.Type == CategoryType.Provinces && pc.Name == productQueryParameters.Province));
             }
             if (productQueryParameters.Search != null)
             {
@@ -69,10 +98,8 @@ namespace keepscape_api.Repositories
             return await _dbSet
                 .Include(p => p.ProductImages)
                     .ThenInclude(pi => pi.BaseImage)
-                .Include(p => p.PlaceCategory)
-                .Include(p => p.SellerProfile)
                 .Include(p => p.ProductCategories)
-                    .ThenInclude(pc => pc.Name)
+                .Include(p => p.SellerProfile)
                 .OrderByDescending(p => p.DateTimeCreated)  
                 .ToListAsync();
         }

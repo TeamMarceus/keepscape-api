@@ -17,8 +17,11 @@ namespace keepscape_api.Services.Tokens
         private readonly ITokenRepository _tokenRepository;
         private readonly IUserRepository _userRepository;
         private readonly JwtConfig _jwtConfig;
-       
-        public TokenService(ITokenRepository tokenRepository, IUserRepository userRepository, IOptionsSnapshot<JwtConfig> jwtConfig)
+
+        public TokenService(
+            ITokenRepository tokenRepository,
+            IUserRepository userRepository,
+            IOptionsSnapshot<JwtConfig> jwtConfig)
         {
             _tokenRepository = tokenRepository;
             _userRepository = userRepository;
@@ -50,7 +53,7 @@ namespace keepscape_api.Services.Tokens
                 await _tokenRepository.UpdateAsync(latestToken);
             }
 
-            return GenerateToken(user);
+            return await GenerateToken(user);
         }
 
         public async Task<bool> Revoke(string refreshToken)
@@ -67,11 +70,23 @@ namespace keepscape_api.Services.Tokens
             return await _tokenRepository.UpdateAsync(token);
         }
 
-        public Task<bool> Verify(TokenVerifyDto tokenVerifyDto)
+        public async Task<bool> Verify(TokenVerifyDto tokenVerifyDto)
         {
-            throw new NotImplementedException();
+            var refreshToken = await _tokenRepository.GetTokenByRefreshToken(tokenVerifyDto.RefreshToken);
+
+            if (
+                refreshToken == null ||
+                refreshToken.IsRevoked ||
+                refreshToken.ExpiresAt < DateTime.UtcNow ||
+                refreshToken.User.Id != tokenVerifyDto.UserId
+            )
+            {
+                return false;
+            }
+
+            return true;
         }
-        private TokenResponseDto GenerateToken(User user)
+        private async Task<TokenResponseDto> GenerateToken(User user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_jwtConfig.Secret);
@@ -87,16 +102,26 @@ namespace keepscape_api.Services.Tokens
                     new Claim(JwtRegisteredClaimNames.Aud, _jwtConfig.Audience!),
                     new Claim(JwtRegisteredClaimNames.Iss, _jwtConfig.Issuer!)
                 }),
-                Expires = DateTime.UtcNow.AddMinutes(_jwtConfig.AccessTokenExpirationMinutes),
+                Expires = DateTime.UtcNow.AddMinutes(_jwtConfig.ExpirationMinutes),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
             var acessToken = tokenHandler.WriteToken(tokenHandler.CreateToken(tokenDescriptor));
             var refreshToken = GenerateRefreshToken();
 
+            var token = new Token
+            {
+                UserId = user.Id,
+                AccessToken = acessToken,
+                RefreshToken = refreshToken,
+                ExpiresAt = DateTime.UtcNow.AddMinutes(_jwtConfig.ExpirationMinutes),
+                IsRevoked = false,
+            };
+
+            await _tokenRepository.AddAsync(token);
             return new TokenResponseDto
             {
                 AccessToken = acessToken,
-                RefreshToken = refreshToken
+                RefreshToken = refreshToken,
             };
         }
         private string GenerateRefreshToken()
@@ -105,6 +130,37 @@ namespace keepscape_api.Services.Tokens
             using var rng = RandomNumberGenerator.Create();
             rng.GetBytes(randomNumber);
             return Convert.ToBase64String(randomNumber);
+        }
+
+        public async Task<TokenResponseDto?> Refresh(TokenRefreshDto tokenRefreshDto)
+        {
+            var verify = await Verify(new TokenVerifyDto
+            {
+                UserId = tokenRefreshDto.UserId,
+                RefreshToken = tokenRefreshDto.RefreshToken
+            });
+
+            if (!verify)
+            {
+                return null;
+            }
+
+            var user = await _userRepository.GetByIdAsync(tokenRefreshDto.UserId);
+
+            if (user == null)
+            {
+                return null;
+            }
+
+            var latestToken = await _tokenRepository.GetLatestTokenByUserGuid(user.Id);
+
+            if (latestToken != null)
+            {
+                latestToken.IsRevoked = true;
+                await _tokenRepository.UpdateAsync(latestToken);
+            }
+
+            return await GenerateToken(user);
         }
     }
 }

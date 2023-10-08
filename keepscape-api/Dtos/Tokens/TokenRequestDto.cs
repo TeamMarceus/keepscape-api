@@ -7,8 +7,6 @@ namespace keepscape_api.Dtos.Tokens
         [Required]
         public Guid UserId { get; init; }
         [Required]
-        public string AccessToken { get; init; } = string.Empty;
-        [Required]
         public string RefreshToken { get; init; } = string.Empty;
     }
 
@@ -20,6 +18,15 @@ namespace keepscape_api.Dtos.Tokens
 
         [Required]
         public string Password { get; init; } = string.Empty;
+    }
+
+    public record TokenRefreshDto
+    {
+        [Required]
+        public Guid UserId { get; set; }
+
+        [Required]
+        public string RefreshToken { get; set; } = string.Empty;
     }
 
 }

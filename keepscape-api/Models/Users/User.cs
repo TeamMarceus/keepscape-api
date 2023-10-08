@@ -17,7 +17,7 @@ namespace keepscape_api.Models
         public virtual BuyerProfile? BuyerProfile { get; set; }
         public virtual SellerProfile? SellerProfile { get; set; }
         public virtual Balance? Balance { get; set; }
-        public virtual ICollection<ConfirmationCode>? ConfirmationCodes { get; set; }
-        public virtual ICollection<Token>? Tokens { get; set; }
+        public virtual ICollection<ConfirmationCode> ConfirmationCodes { get; set; } = new List<ConfirmationCode>();
+        public virtual ICollection<Token> Tokens { get; set; } = new List<Token>();
     }
 }

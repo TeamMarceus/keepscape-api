@@ -12,6 +12,9 @@ using keepscape_api.Models;
 using keepscape_api.Services.Users;
 using Google.Cloud.Storage.V1;
 using keepscape_api.Services.BaseImages;
+using keepscape_api.Services.Tokens;
+using keepscape_api.Models.Categories;
+using keepscape_api.Services.Products;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -120,8 +123,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 
     services.AddScoped<IBalanceRepository, BalanceRepository>();
     services.AddScoped<ICartRepository, CartRepository>();
-    services.AddScoped<ICategoryRepository<PlaceCategory>, CategoryRepository<PlaceCategory>>();
-    services.AddScoped<ICategoryRepository<ProductCategory>, CategoryRepository<ProductCategory>>();
+    services.AddScoped<ICategoryRepository, CategoryRepository>();
     services.AddScoped<IConfirmationCodeRepository,  ConfirmationCodeRepository>();
     services.AddScoped<IOrderRepository, OrderRepository>();
     services.AddScoped<IProductRepository, ProductRepository>();
@@ -133,5 +135,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
     services.AddScoped<IBaseImageRepository, BaseImageRepository>();
 
     services.AddScoped<IUserService, UserService>();
+    services.AddScoped<ITokenService, TokenService>();
     services.AddScoped<IBaseImageService, BaseImageService>();
+    services.AddScoped<IProductService, ProductService>();
 }

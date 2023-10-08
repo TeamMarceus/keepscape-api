@@ -92,7 +92,7 @@ namespace keepscape_api.Controllers
 
                 if (userStatus == UserStatus.Banned)
                 {
-                    return Unauthorized("User is banned.");
+                    return Forbid("User is banned.");
                 }
 
                 if (userStatus == UserStatus.NotFound)

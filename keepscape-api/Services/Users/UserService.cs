@@ -14,60 +14,30 @@ namespace keepscape_api.Services.Users
         private readonly IUserRepository _userRepository;
         private readonly IProfileRepository<BuyerProfile> _buyerProfileRepository;
         private readonly ISellerProfileRepository _sellerProfileRepository;
-        private readonly ISellerApplicationRepository _sellerApplicationRepository;
         private readonly IBaseImageService _baseImageService;
-        private readonly IBaseImageRepository _baseImageRepository;
         private readonly IMapper _mapper;
 
         public UserService(IUserRepository userRepository,          
             IProfileRepository<BuyerProfile> buyerProfileRepository, 
             ISellerProfileRepository sellerProfileRepository, 
-            ISellerApplicationRepository sellerApplicationRepository,
             IBaseImageService baseImageService,
-            IBaseImageRepository baseImageRepository,
             IMapper mapper)
         {
             _userRepository = userRepository;
             _buyerProfileRepository = buyerProfileRepository;
             _sellerProfileRepository = sellerProfileRepository;
-            _sellerApplicationRepository = sellerApplicationRepository;
             _baseImageService = baseImageService;
-            _baseImageRepository = baseImageRepository;
             _mapper = mapper;
         }
 
         public async Task<UserStatus> GetStatus(string email)
         {
-            var user = await _userRepository.GetUserByEmailAsync(email);
+            return await GetStatus(await _userRepository.GetUserByEmailAsync(email));
+        }
 
-            if (user == null)
-            {
-                return UserStatus.NotFound;
-            }
-
-            if (user.IsBanned)
-            {
-                return UserStatus.Banned;
-            }
-
-            if (user.UserType == UserType.Seller)
-            {
-                var sellerProfile = await _sellerProfileRepository.GetProfileByUserGuid(user.Id);
-
-                if (sellerProfile == null || 
-                    sellerProfile.SellerApplication == null ||
-                    sellerProfile.SellerApplication.Status == ApplicationStatus.Pending)
-                {
-                    return UserStatus.Pending;
-                }
-
-                if (sellerProfile.SellerApplication.Status == ApplicationStatus.Rejected)
-                {
-                    return UserStatus.Banned;
-                }
-            }
-
-            return UserStatus.OK;
+        public async Task<UserStatus> GetStatus(Guid id)
+        {
+            return await GetStatus(await _userRepository.GetByIdAsync(id));       
         }
 
         public async Task<UserResponseBaseDto?> Login(UserLoginDto userLoginDto)
@@ -123,6 +93,11 @@ namespace keepscape_api.Services.Users
             return null;
         }
 
+        public Task<bool> Logout(Guid userId)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<UserResponseBaseDto?> Register(UserCreateBaseDto userCreateDto)
         {
             var user = await _userRepository.GetUserByEmailAsync(userCreateDto.Email);
@@ -132,47 +107,14 @@ namespace keepscape_api.Services.Users
                 return null;
             }
 
-            var passwordHasher = new PasswordHasher<User>();
             if (userCreateDto is UserCreateBuyerDto buyer)
             {
-                var newUser = _mapper.Map<User>(buyer);
-                newUser.UserType = UserType.Buyer;
-                newUser.BuyerProfile = _mapper.Map<BuyerProfile>(buyer);
-                newUser.Password = passwordHasher.HashPassword(newUser, buyer.Password);
-
-                var createdUser = await _userRepository.AddAsync(newUser);
-
-                if (createdUser == null)
-                {
-                    return null;
-                }
-
-                return _mapper.Map<UserResponseBuyerDto>(createdUser);
+                return await RegisterUser(buyer);
             }
 
             if (userCreateDto is UserCreateSellerDto seller)
             {
-                var newUser = _mapper.Map<User>(seller);
-                newUser.UserType = UserType.Seller;
-                newUser.Password = passwordHasher.HashPassword(newUser, seller.Password);
-
-                newUser.SellerProfile = new SellerProfile
-                {
-                    Name = seller.SellerName,
-                    Description = seller.Description,
-                    DateTimeCreated = DateTime.Now,
-                };
-
-                newUser.SellerProfile.SellerApplication = new SellerApplication
-                {
-                    DateTimeCreated = DateTime.Now,
-                    BaseImage = await _baseImageService.Upload("seller-applications", seller.BaseImage),
-                    Status = ApplicationStatus.Pending,
-                    SellerProfile = newUser.SellerProfile
-                };
-
-                var createdUser = await _userRepository.AddAsync(newUser);
-                return _mapper.Map<UserResponseSellerDto>(createdUser);
+                return await RegisterSeller(seller);
             }
 
             return null;
@@ -189,11 +131,6 @@ namespace keepscape_api.Services.Users
 
             if (userUpdateDto is UserUpdateBuyerDto buyer)
             {
-                if (user.BuyerProfile == null)
-                {
-                    return null;
-                }
-
                 UpdateBuyer(ref user, buyer);
 
                 return _mapper.Map<UserResponseBuyerDto>(user);
@@ -201,10 +138,6 @@ namespace keepscape_api.Services.Users
 
             if (userUpdateDto is UserUpdateSellerDto seller)
             {
-                if (user.SellerProfile == null)
-                {
-                    return null;
-                }
 
                 UpdateSeller(ref user, seller);
 
@@ -241,25 +174,102 @@ namespace keepscape_api.Services.Users
             throw new NotImplementedException();
         }
 
+        private async Task<UserStatus> GetStatus(User? user)
+        {
+            if (user == null)
+            {
+                return UserStatus.NotFound;
+            }
+
+            if (user.IsBanned)
+            {
+                return UserStatus.Banned;
+            }
+
+            if (user.UserType == UserType.Seller)
+            {
+                var sellerProfile = await _sellerProfileRepository.GetProfileByUserGuid(user.Id);
+
+                if (sellerProfile == null ||
+                    sellerProfile.SellerApplication == null ||
+                    sellerProfile.SellerApplication.Status == ApplicationStatus.Pending)
+                {
+                    return UserStatus.Pending;
+                }
+
+                if (sellerProfile.SellerApplication.Status == ApplicationStatus.Rejected)
+                {
+                    return UserStatus.Banned;
+                }
+            }
+
+            return UserStatus.OK;
+        }
+        private async Task<UserResponseBuyerDto> RegisterUser(UserCreateBuyerDto userCreateBuyerDto)
+        {
+            var passwordHasher = new PasswordHasher<User>();
+
+            var newUser = _mapper.Map<User>(userCreateBuyerDto);
+            newUser.UserType = UserType.Buyer;
+            newUser.Password = passwordHasher.HashPassword(newUser, userCreateBuyerDto.Password);
+            
+            
+            newUser.BuyerProfile = _mapper.Map<BuyerProfile>(userCreateBuyerDto);
+            newUser.BuyerProfile.Cart = new Cart
+            {
+                BuyerProfile = newUser.BuyerProfile
+            };
+
+            var createdUser = await _userRepository.AddAsync(newUser);
+
+            return _mapper.Map<UserResponseBuyerDto>(createdUser);
+        }
+
+        private async Task<UserResponseSellerDto> RegisterSeller(UserCreateSellerDto userCreateSellerDto)
+        {
+            var passwordHasher = new PasswordHasher<User>();
+
+            var newUser = _mapper.Map<User>(userCreateSellerDto);
+            newUser.UserType = UserType.Seller;
+            newUser.Password = passwordHasher.HashPassword(newUser, userCreateSellerDto.Password);
+
+            newUser.SellerProfile = new SellerProfile
+            {
+                Name = userCreateSellerDto.SellerName,
+                Description = userCreateSellerDto.Description,
+                DateTimeCreated = DateTime.Now,
+            };
+
+            newUser.SellerProfile.SellerApplication = new SellerApplication
+            {
+                DateTimeCreated = DateTime.Now,
+                BaseImage = await _baseImageService.Upload("seller-applications", userCreateSellerDto.BaseImage),
+                Status = ApplicationStatus.Pending,
+                SellerProfile = newUser.SellerProfile
+            };
+
+            var createdUser = await _userRepository.AddAsync(newUser);
+            return _mapper.Map<UserResponseSellerDto>(createdUser);
+        }
         private void UpdateBuyer(ref User user, UserUpdateBuyerDto buyer)
         {
-            if (buyer.FirstName != null)
+            if (!string.IsNullOrEmpty(buyer.FirstName))
             {
                 user.FirstName = buyer.FirstName;
             }
-            if (buyer.LastName != null)
+            if (!string.IsNullOrEmpty(buyer.LastName))
             {
                 user.LastName = buyer.LastName;
             }
-            if (buyer.Preferences != null)
+            if (!string.IsNullOrEmpty(buyer.Preferences))
             {
                 user.BuyerProfile!.Preferences = buyer.Preferences;
             }
-            if (buyer.Interests != null)
+            if (!string.IsNullOrEmpty(buyer.Interests))
             {
                 user.BuyerProfile!.Interests = buyer.Interests;
             }
-            if (buyer.Description != null)
+            if (!string.IsNullOrEmpty(buyer.Description))
             {
                 user.BuyerProfile!.Description = buyer.Description;
             }
@@ -267,11 +277,11 @@ namespace keepscape_api.Services.Users
 
         private void UpdateSeller(ref User user, UserUpdateSellerDto seller)
         {
-            if (seller.Description != null)
+            if (!string.IsNullOrEmpty(seller.Description))
             {
                 user.SellerProfile!.Description = seller.Description;
             }
-            if (seller.SellerName != null)
+            if (!string.IsNullOrEmpty(seller.SellerName))
             {
                 user.SellerProfile!.Name = seller.SellerName;
             }

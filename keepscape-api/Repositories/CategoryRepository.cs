@@ -1,28 +1,36 @@
 ﻿using keepscape_api.Data;
+using keepscape_api.Enums;
 using keepscape_api.Models.Categories;
-using keepscape_api.Repositories.Generics;
+using keepscape_api.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace keepscape_api.Repositories
 {
-    public class CategoryRepository<T> : BaseRepository<T>, ICategoryRepository<T> where T : BaseCategory
+    public class CategoryRepository : BaseRepository<BaseCategory>, ICategoryRepository
     {
         public CategoryRepository(APIDbContext context) : base(context)
         {
         }
-        public override async Task<IEnumerable<T>> GetAllAsync()
+        public override async Task<IEnumerable<BaseCategory>> GetAllAsync()
         {
             return await _dbSet
                 .Include(t => t.BaseImage)
                 .ToListAsync();
         }
-        public override async Task<T?> GetByIdAsync(Guid id)
+        public override async Task<BaseCategory?> GetByIdAsync(Guid id)
         {
             return await _dbSet
                 .Include(t => t.BaseImage)
                 .FirstOrDefaultAsync(t => t.Id == id);
         }
-        public async Task<T?> GetCategoryByNameAsync(string name)
+
+        public async Task<BaseCategory?> GetCategoriesByTypeName(CategoryType type)
+        {
+            return await _dbSet.Include(t => t.BaseImage)
+                .FirstOrDefaultAsync(t => t.Type == type);
+        }
+
+        public async Task<BaseCategory?> GetCategoryByNameAsync(string name)
         {
             return await _dbSet
                 .Include(t => t.BaseImage)

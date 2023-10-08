@@ -6,6 +6,7 @@ namespace keepscape_api.Services.Tokens
     {
         Task<TokenResponseDto?> Create(TokenCreateDto tokenCreateDto);
         Task<bool> Verify(TokenVerifyDto tokenVerifyDto);
+        Task<TokenResponseDto?> Refresh(TokenRefreshDto tokenRefreshDto);
         Task<bool> Revoke(string refreshToken);
     }
 }

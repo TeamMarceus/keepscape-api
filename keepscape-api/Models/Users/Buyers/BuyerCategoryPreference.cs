@@ -1,4 +1,5 @@
-﻿using keepscape_api.Models.Primitives;
+﻿using keepscape_api.Models.Categories;
+using keepscape_api.Models.Primitives;
 
 namespace keepscape_api.Models
 {
@@ -8,6 +9,6 @@ namespace keepscape_api.Models
         public Guid ProductCategoryId { get; set; }
         public string Description { get; set; } = string.Empty;
         public virtual BuyerProfile? BuyerProfile{ get; set; }
-        public virtual ProductCategory? ProductCategory { get; set; }
+        public virtual BaseCategory? Category { get; set; }
     }
 }
