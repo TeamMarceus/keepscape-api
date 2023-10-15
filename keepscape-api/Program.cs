@@ -13,8 +13,8 @@ using keepscape_api.Services.Users;
 using Google.Cloud.Storage.V1;
 using keepscape_api.Services.BaseImages;
 using keepscape_api.Services.Tokens;
-using keepscape_api.Models.Categories;
 using keepscape_api.Services.Products;
+using keepscape_api.Services.ConfirmationCodes;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +40,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors();
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
@@ -100,14 +103,15 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
         });
     });
     services.Configure<JwtConfig>(configuration.GetSection("JwtConfig"));
+    services.Configure<CodeConfig>(configuration.GetSection("CodeConfig"));
 
-    services.AddAuthentication(options => {
+    services.AddAuthentication(options => 
+    {
         options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
         options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     }).AddJwtBearer(options => {
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            // Your token validation parameters
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateLifetime = true,
@@ -118,12 +122,19 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
         };
     });
 
+    services.AddAuthorization(options =>
+    {
+        options.AddPolicy("Admin", policy => policy.RequireClaim("Role", "Admin"));
+        options.AddPolicy("Seller", policy => policy.RequireClaim("Role", "Seller"));
+        options.AddPolicy("Buyer", policy => policy.RequireClaim("Role", "Buyer"));
+    });
     services.AddTransient<APIDbContext>();
     services.AddSingleton(sp => StorageClient.Create());
 
     services.AddScoped<IBalanceRepository, BalanceRepository>();
     services.AddScoped<ICartRepository, CartRepository>();
     services.AddScoped<ICategoryRepository, CategoryRepository>();
+    services.AddScoped<IPlaceRepository, PlaceRepository>();
     services.AddScoped<IConfirmationCodeRepository,  ConfirmationCodeRepository>();
     services.AddScoped<IOrderRepository, OrderRepository>();
     services.AddScoped<IProductRepository, ProductRepository>();
@@ -138,4 +149,5 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
     services.AddScoped<ITokenService, TokenService>();
     services.AddScoped<IBaseImageService, BaseImageService>();
     services.AddScoped<IProductService, ProductService>();
+    services.AddScoped<IConfirmationCodeService, ConfirmationCodeService>();
 }

@@ -90,9 +90,19 @@ namespace keepscape_api.Dtos.Users
         public string ConfirmNewPassword { get; init; } = string.Empty;
     }
 
-    public record class UserUpdatePasswordWithCodeDto : UserUpdatePasswordDto
+    public record class UserUpdatePasswordWithCodeDto 
     {
         [Required]
         public string Code { get; init; } = string.Empty;
+        [Required]
+        [MinLength(6, ErrorMessage = $"{nameof(NewPassword)} too short")]
+        [MaxLength(20, ErrorMessage = $"{nameof(NewPassword)} can have at most 20 characters")]
+        public string NewPassword { get; init; } = string.Empty;
+        [Required]
+        [Compare("NewPassword", ErrorMessage = "Passwords do not match")]
+        public string ConfirmNewPassword { get; init; } = string.Empty;
+        [Required]
+        [EmailAddress]
+        public string Email { get; init; } = string.Empty;
     }
 }

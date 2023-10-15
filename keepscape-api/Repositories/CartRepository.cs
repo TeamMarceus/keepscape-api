@@ -15,8 +15,7 @@ namespace keepscape_api.Repositories
             return await _dbSet
                 .Include(c => c.CartItems)
                     .ThenInclude(ci => ci.Product)
-                        .ThenInclude(p => p!.ProductImages)
-                            .ThenInclude(pi => pi.BaseImage)
+                        .ThenInclude(p => p!.Images)
                 .ToListAsync();
         }
         public override async Task<Cart?> GetByIdAsync(Guid id)
@@ -24,8 +23,7 @@ namespace keepscape_api.Repositories
             return await _dbSet
                 .Include(c => c.CartItems)
                     .ThenInclude(ci => ci.Product)
-                        .ThenInclude(p => p!.ProductImages)
-                            .ThenInclude(pi => pi.BaseImage)
+                        .ThenInclude(p => p!.Images)
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
         public async Task<Cart?> CreateCartItemByCartId(Guid cartId, CartItem cartItem)
@@ -47,8 +45,7 @@ namespace keepscape_api.Repositories
             var cart = await _dbSet
                 .Include(t => t.CartItems)
                     .ThenInclude(t => t.Product)
-                        .ThenInclude(t => t!.ProductImages)
-                            .ThenInclude(t => t.BaseImage)
+                        .ThenInclude(t => t!.Images)
                 .AsSplitQuery()
                 .FirstOrDefaultAsync(t => t.BuyerProfileId == buyerProfileId);
 

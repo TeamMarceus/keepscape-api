@@ -6,35 +6,22 @@ using Microsoft.EntityFrameworkCore;
 
 namespace keepscape_api.Repositories
 {
-    public class CategoryRepository : BaseRepository<BaseCategory>, ICategoryRepository
+    public class CategoryRepository : BaseRepository<Category>, ICategoryRepository
     {
         public CategoryRepository(APIDbContext context) : base(context)
         {
         }
-        public override async Task<IEnumerable<BaseCategory>> GetAllAsync()
+        public override async Task<IEnumerable<Category>> GetAllAsync()
         {
             return await _dbSet
                 .Include(t => t.BaseImage)
                 .ToListAsync();
         }
-        public override async Task<BaseCategory?> GetByIdAsync(Guid id)
+        public override async Task<Category?> GetByIdAsync(Guid id)
         {
             return await _dbSet
                 .Include(t => t.BaseImage)
                 .FirstOrDefaultAsync(t => t.Id == id);
-        }
-
-        public async Task<BaseCategory?> GetCategoriesByTypeName(CategoryType type)
-        {
-            return await _dbSet.Include(t => t.BaseImage)
-                .FirstOrDefaultAsync(t => t.Type == type);
-        }
-
-        public async Task<BaseCategory?> GetCategoryByNameAsync(string name)
-        {
-            return await _dbSet
-                .Include(t => t.BaseImage)
-                .FirstOrDefaultAsync(t => t.Name == name);
         }
 
         public async Task<int> GetCategoryCountAsync()

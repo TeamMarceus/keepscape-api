@@ -1,6 +1,5 @@
 ﻿using keepscape_api.Models;
 using keepscape_api.Models.Primitives;
-using keepscape_api.Models.Images;
 using Microsoft.EntityFrameworkCore;
 using keepscape_api.Models.Checkouts.Products;
 using keepscape_api.Models.Categories;
@@ -18,10 +17,10 @@ namespace keepscape_api.Data
         public DbSet<OrderDeliveryLog> OrderDeliveryLogs { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<ProductReview> ProductReviews { get; set; }
-        public DbSet<BaseCategory> Categories { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<Place> Places { get; set; }
         public DbSet<ConfirmationCode> ConfirmationCodes { get; set; }
         public DbSet<BaseImage> BaseImages { get; set; }
-        public DbSet<ProductImage> ProductImages { get; set; }
         public DbSet<Token> Tokens { get; set; }
         public DbSet<BuyerCategoryPreference> BuyerCategoryPreferences { get; set; }
         public DbSet<BuyerProfile> BuyerProfiles { get; set; }
@@ -68,7 +67,6 @@ namespace keepscape_api.Data
             ApplySoftDeleteFilter<Product>(modelBuilder);
             modelBuilder.Entity<CartItem>().HasQueryFilter(ci => !ci.Product!.DateTimeDeleted.HasValue);
             modelBuilder.Entity<ProductReview>().HasQueryFilter(pr => !pr.Product!.DateTimeDeleted.HasValue);
-            modelBuilder.Entity<ProductImage>().HasQueryFilter(pi => !pi.Product!.DateTimeDeleted.HasValue);
             modelBuilder.Entity<ProductReport>().HasQueryFilter(pi => !pi.Product!.DateTimeDeleted.HasValue);
 
             // User
@@ -89,11 +87,6 @@ namespace keepscape_api.Data
                 .HasOne(s => s.User)
                 .WithOne(u => u.SellerProfile)
                 .HasForeignKey<SellerProfile>(s => s.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-            modelBuilder.Entity<SellerProfile>()
-                .HasOne(s => s.SellerApplication)
-                .WithOne(sa => sa.SellerProfile)
-                .HasForeignKey<SellerProfile>(s => s.SellerApplicationId)
                 .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<SellerApplication>()
                 .Property(e => e.Status)
@@ -151,17 +144,20 @@ namespace keepscape_api.Data
                 .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired(false);
             modelBuilder.Entity<Product>()
-                .HasMany(p => p.ProductCategories)
+                .HasMany(p => p.Categories)
                 .WithMany(pc => pc.Products);
             modelBuilder.Entity<Product>()
-                .HasMany(p => p.ProductReviews)
-                .WithOne(pr => pr.Product)
-                .HasForeignKey(pr => pr.ProductId)
+                .HasMany(p => p.Images)
+                .WithOne();
+            modelBuilder.Entity<Product>()
+                .HasOne(p => p.Place)
+                .WithMany(pc => pc.Products)
+                .HasForeignKey(p => p.PlaceId)
                 .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<Product>()
-                .HasMany(p => p.ProductImages)
-                .WithOne(i => i.Product)
-                .HasForeignKey(i => i.ProductId)
+                .HasMany(p => p.Reviews)
+                .WithOne(pr => pr.Product)
+                .HasForeignKey(pr => pr.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<Product>()
                 .Property(p => p.Price)
@@ -169,12 +165,6 @@ namespace keepscape_api.Data
             modelBuilder.Entity<Product>()
                 .Property(p => p.Rating)
                 .HasPrecision(18, 2);
-            modelBuilder.Entity<ProductImage>()
-                .HasOne(i => i.BaseImage)
-                .WithMany()
-                .HasForeignKey(i => i.BaseImageId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired(true);
             modelBuilder.Entity<ProductReport>()
                 .HasOne(pr => pr.User)
                 .WithMany()
@@ -186,10 +176,7 @@ namespace keepscape_api.Data
                 .WithMany()
                 .HasForeignKey(pr => pr.ProductGuid)
                 .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired(true);
-            modelBuilder.Entity<BaseCategory>()
-                .Property(e => e.Type)
-                .HasConversion<string>();    
+                .IsRequired(true); 
 
             // Cart
             modelBuilder.Entity<Cart>()

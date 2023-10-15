@@ -90,32 +90,6 @@ namespace keepscape_api.Controllers
             }
         }
 
-        [HttpPost("revoke")]
-        public async Task<IActionResult> Revoke([FromQuery] string refreshToken)
-        {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
-                var isRevoked = await _tokenService.Revoke(refreshToken);
-
-                if (!isRevoked)
-                {
-                    return BadRequest(isRevoked);
-                }
-
-                return Ok(isRevoked);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"{nameof(_tokenService.Revoke)} threw an exception");
-                return StatusCode(500, "Internal server error");
-            }
-        }
-
         [HttpPost("refresh")]
         public async Task<IActionResult> Refresh([FromBody] TokenRefreshDto tokenRefreshDto)
         {

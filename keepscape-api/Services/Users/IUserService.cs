@@ -12,6 +12,6 @@ namespace keepscape_api.Services.Users
         Task<UserResponseBaseDto?> Update(Guid userId, UserUpdateBaseDto userUpdateDto);
         Task<bool> UpdatePassword(Guid userId, UserUpdatePasswordDto userUpdatePasswordDto);
         Task<bool> UpdatePasswordWithCode(UserUpdatePasswordWithCodeDto userUpdatePasswordWithCodeDto);
-        Task<bool> Logout(Guid userId);
+        Task Logout(Guid userId);
     }
 }

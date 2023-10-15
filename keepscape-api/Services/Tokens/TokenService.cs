@@ -162,5 +162,18 @@ namespace keepscape_api.Services.Tokens
 
             return await GenerateToken(user);
         }
+
+        public async Task RevokeLatestByUserId(Guid userId)
+        {
+            var token = await _tokenRepository.GetLatestTokenByUserGuid(userId);
+
+            if (token == null)
+            {
+                return;
+            }
+
+            token.IsRevoked = true;
+            await _tokenRepository.UpdateAsync(token);
+        }
     }
 }

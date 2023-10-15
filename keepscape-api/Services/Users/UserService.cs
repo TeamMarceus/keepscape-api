@@ -5,6 +5,8 @@ using keepscape_api.Models;
 using keepscape_api.Repositories.Generics;
 using keepscape_api.Repositories.Interfaces;
 using keepscape_api.Services.BaseImages;
+using keepscape_api.Services.ConfirmationCodes;
+using keepscape_api.Services.Tokens;
 using Microsoft.AspNetCore.Identity;
 
 namespace keepscape_api.Services.Users
@@ -15,18 +17,24 @@ namespace keepscape_api.Services.Users
         private readonly IProfileRepository<BuyerProfile> _buyerProfileRepository;
         private readonly ISellerProfileRepository _sellerProfileRepository;
         private readonly IBaseImageService _baseImageService;
+        private readonly ITokenService _tokenService;
+        private readonly IConfirmationCodeService _confirmationCodeService;
         private readonly IMapper _mapper;
 
         public UserService(IUserRepository userRepository,          
             IProfileRepository<BuyerProfile> buyerProfileRepository, 
             ISellerProfileRepository sellerProfileRepository, 
             IBaseImageService baseImageService,
+            ITokenService tokenService,
+            IConfirmationCodeService confirmationCodeService,
             IMapper mapper)
         {
             _userRepository = userRepository;
             _buyerProfileRepository = buyerProfileRepository;
             _sellerProfileRepository = sellerProfileRepository;
             _baseImageService = baseImageService;
+            _tokenService = tokenService;
+            _confirmationCodeService = confirmationCodeService;
             _mapper = mapper;
         }
 
@@ -93,9 +101,9 @@ namespace keepscape_api.Services.Users
             return null;
         }
 
-        public Task<bool> Logout(Guid userId)
+        public async Task Logout(Guid userId)
         {
-            throw new NotImplementedException();
+            await _tokenService.RevokeLatestByUserId(userId);
         }
 
         public async Task<UserResponseBaseDto?> Register(UserCreateBaseDto userCreateDto)
@@ -109,7 +117,7 @@ namespace keepscape_api.Services.Users
 
             if (userCreateDto is UserCreateBuyerDto buyer)
             {
-                return await RegisterUser(buyer);
+                return await RegisterBuyer(buyer);
             }
 
             if (userCreateDto is UserCreateSellerDto seller)
@@ -169,9 +177,26 @@ namespace keepscape_api.Services.Users
             return await _userRepository.UpdateAsync(user);
         }
 
-        public Task<bool> UpdatePasswordWithCode(UserUpdatePasswordWithCodeDto userUpdatePasswordWithCodeDto)
+        public async Task<bool> UpdatePasswordWithCode(UserUpdatePasswordWithCodeDto userUpdatePasswordWithCodeDto)
         {
-            throw new NotImplementedException();
+            var user = await _userRepository.GetUserByEmailAsync(userUpdatePasswordWithCodeDto.Email);
+
+            if (user == null)
+            {
+                return false;
+            }
+
+            var confirmationCodeValid = await _confirmationCodeService.Verify(userUpdatePasswordWithCodeDto.Email, userUpdatePasswordWithCodeDto.Code);
+
+            if (!confirmationCodeValid)
+            {
+                return false;
+            }
+
+            var passwordHasher = new PasswordHasher<User>();
+            user.Password = passwordHasher.HashPassword(user, userUpdatePasswordWithCodeDto.NewPassword);
+
+            return await _userRepository.UpdateAsync(user);
         }
 
         private async Task<UserStatus> GetStatus(User? user)
@@ -205,7 +230,7 @@ namespace keepscape_api.Services.Users
 
             return UserStatus.OK;
         }
-        private async Task<UserResponseBuyerDto> RegisterUser(UserCreateBuyerDto userCreateBuyerDto)
+        private async Task<UserResponseBuyerDto> RegisterBuyer(UserCreateBuyerDto userCreateBuyerDto)
         {
             var passwordHasher = new PasswordHasher<User>();
 

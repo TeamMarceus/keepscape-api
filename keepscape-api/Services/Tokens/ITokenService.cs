@@ -8,5 +8,6 @@ namespace keepscape_api.Services.Tokens
         Task<bool> Verify(TokenVerifyDto tokenVerifyDto);
         Task<TokenResponseDto?> Refresh(TokenRefreshDto tokenRefreshDto);
         Task<bool> Revoke(string refreshToken);
+        Task RevokeLatestByUserId(Guid userId);
     }
 }

@@ -5,8 +5,10 @@ namespace keepscape_api.Services.Products
 {
     public interface IProductService
     {
-        Task<IEnumerable<ProductCategoryListDto>> GetProductCategories();
-        Task<IEnumerable<ProductResponseDto>> Get(ProductQueryParameters productQueryParameters);
-        Task<IEnumerable<ProductResponseDto>> GetALl();
+        Task<ProductResponseDto?> Create(Guid sellerId, ProductCreateDto productCreateDto);
+        Task<IEnumerable<ProductCategoryPlaceDto>> GetPlaceCategories();
+        Task<IEnumerable<ProductCategoryPlaceDto>> GetProductCategories();
+        Task<IEnumerable<ProductResponseHomeDto>> Get(ProductQueryParameters productQueryParameters);
+        Task<IEnumerable<ProductResponseDto>> GetAll();
     }
 }

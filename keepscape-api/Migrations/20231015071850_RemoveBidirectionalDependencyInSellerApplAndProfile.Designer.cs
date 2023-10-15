@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using keepscape_api.Data;
 
@@ -11,9 +12,11 @@ using keepscape_api.Data;
 namespace keepscape_api.Migrations
 {
     [DbContext(typeof(APIDbContext))]
-    partial class APIDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231015071850_RemoveBidirectionalDependencyInSellerApplAndProfile")]
+    partial class RemoveBidirectionalDependencyInSellerApplAndProfile
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -25,19 +28,19 @@ namespace keepscape_api.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("CategoryProduct", b =>
+            modelBuilder.Entity("BaseCategoryProduct", b =>
                 {
-                    b.Property<Guid>("CategoriesId")
+                    b.Property<Guid>("ProductCategoriesId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("ProductsId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("CategoriesId", "ProductsId");
+                    b.HasKey("ProductCategoriesId", "ProductsId");
 
                     b.HasIndex("ProductsId");
 
-                    b.ToTable("CategoryProduct");
+                    b.ToTable("BaseCategoryProduct");
                 });
 
             modelBuilder.Entity("keepscape_api.Models.Announcement", b =>
@@ -285,7 +288,7 @@ namespace keepscape_api.Migrations
                     b.ToTable("CartItems");
                 });
 
-            modelBuilder.Entity("keepscape_api.Models.Categories.Category", b =>
+            modelBuilder.Entity("keepscape_api.Models.Categories.BaseCategory", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -301,6 +304,10 @@ namespace keepscape_api.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Type")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -309,32 +316,6 @@ namespace keepscape_api.Migrations
                     b.HasIndex("BaseImageId");
 
                     b.ToTable("Categories");
-                });
-
-            modelBuilder.Entity("keepscape_api.Models.Categories.Place", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("BaseImageId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("DateTimeCreated")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("DateTimeUpdated")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BaseImageId");
-
-                    b.ToTable("Places");
                 });
 
             modelBuilder.Entity("keepscape_api.Models.Checkouts.Products.ProductReport", b =>
@@ -506,9 +487,6 @@ namespace keepscape_api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("PlaceId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<decimal>("Price")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
@@ -524,8 +502,6 @@ namespace keepscape_api.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("PlaceId");
 
                     b.HasIndex("SellerProfileId");
 
@@ -719,11 +695,11 @@ namespace keepscape_api.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("CategoryProduct", b =>
+            modelBuilder.Entity("BaseCategoryProduct", b =>
                 {
-                    b.HasOne("keepscape_api.Models.Categories.Category", null)
+                    b.HasOne("keepscape_api.Models.Categories.BaseCategory", null)
                         .WithMany()
-                        .HasForeignKey("CategoriesId")
+                        .HasForeignKey("ProductCategoriesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -759,7 +735,7 @@ namespace keepscape_api.Migrations
             modelBuilder.Entity("keepscape_api.Models.BaseImage", b =>
                 {
                     b.HasOne("keepscape_api.Models.Product", null)
-                        .WithMany("Images")
+                        .WithMany("ProductImages")
                         .HasForeignKey("ProductId");
                 });
 
@@ -771,7 +747,7 @@ namespace keepscape_api.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("keepscape_api.Models.Categories.Category", "Category")
+                    b.HasOne("keepscape_api.Models.Categories.BaseCategory", "Category")
                         .WithMany()
                         .HasForeignKey("CategoryId");
 
@@ -821,16 +797,7 @@ namespace keepscape_api.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("keepscape_api.Models.Categories.Category", b =>
-                {
-                    b.HasOne("keepscape_api.Models.BaseImage", "BaseImage")
-                        .WithMany()
-                        .HasForeignKey("BaseImageId");
-
-                    b.Navigation("BaseImage");
-                });
-
-            modelBuilder.Entity("keepscape_api.Models.Categories.Place", b =>
+            modelBuilder.Entity("keepscape_api.Models.Categories.BaseCategory", b =>
                 {
                     b.HasOne("keepscape_api.Models.BaseImage", "BaseImage")
                         .WithMany()
@@ -909,17 +876,10 @@ namespace keepscape_api.Migrations
 
             modelBuilder.Entity("keepscape_api.Models.Product", b =>
                 {
-                    b.HasOne("keepscape_api.Models.Categories.Place", "Place")
-                        .WithMany("Products")
-                        .HasForeignKey("PlaceId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
                     b.HasOne("keepscape_api.Models.SellerProfile", "SellerProfile")
                         .WithMany("Products")
                         .HasForeignKey("SellerProfileId")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Place");
 
                     b.Navigation("SellerProfile");
                 });
@@ -933,7 +893,7 @@ namespace keepscape_api.Migrations
                         .IsRequired();
 
                     b.HasOne("keepscape_api.Models.Product", "Product")
-                        .WithMany("Reviews")
+                        .WithMany("ProductReviews")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1003,11 +963,6 @@ namespace keepscape_api.Migrations
                     b.Navigation("CartItems");
                 });
 
-            modelBuilder.Entity("keepscape_api.Models.Categories.Place", b =>
-                {
-                    b.Navigation("Products");
-                });
-
             modelBuilder.Entity("keepscape_api.Models.Order", b =>
                 {
                     b.Navigation("OrderDeliveryLogs");
@@ -1015,9 +970,9 @@ namespace keepscape_api.Migrations
 
             modelBuilder.Entity("keepscape_api.Models.Product", b =>
                 {
-                    b.Navigation("Images");
+                    b.Navigation("ProductImages");
 
-                    b.Navigation("Reviews");
+                    b.Navigation("ProductReviews");
                 });
 
             modelBuilder.Entity("keepscape_api.Models.SellerProfile", b =>

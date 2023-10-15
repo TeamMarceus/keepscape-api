@@ -16,7 +16,7 @@ namespace keepscape_api.Repositories
         public async Task<bool> AddProductReview(ProductReview productReview)
         {
             var product = await _context.Products
-    .FirstOrDefaultAsync(p => p.Id == productReview.ProductId);
+                .FirstOrDefaultAsync(p => p.Id == productReview.ProductId);
 
             if (product == null)
             {
@@ -40,32 +40,32 @@ namespace keepscape_api.Repositories
 
         public async Task<IEnumerable<Product>> Get(ProductQueryParameters productQueryParameters)
         {
-            var query =  _dbSet
-                .Include(p => p.ProductImages)
-                .ThenInclude(pi => pi.BaseImage)
+            var query = _dbSet
+                .Include(p => p.Images)
                 .Include(p => p.SellerProfile)
-                .Include(p => p.ProductReviews)
-                    .ThenInclude(pr => pr.BuyerProfile)
-                        .ThenInclude(bp => bp!.User)
+                .Include(p => p.Categories)
+                .Include(p => p.Place)
+                .Where(p => p.IsHidden == false && 
+                p.Quantity > 0 && 
+                p.SellerProfile!.SellerApplication!.Status == ApplicationStatus.Approved)
                 .AsSplitQuery()
-                .AsQueryable();
+                .AsNoTracking();
             
             if (productQueryParameters.SellerId != null)
             {
                 query = query.Where(p => p.SellerProfileId == productQueryParameters.SellerId);
             }
-            if (productQueryParameters.Category != null)
+            if (!string.IsNullOrEmpty(productQueryParameters.Category))
             {
-                query = query.Where(p => p.ProductCategories
-                .Any(pc => pc.Type == CategoryType.Categories && pc.Name == productQueryParameters.Category));
-                
+                query = query.Where(p => p.Categories
+                .Any(pc => pc.Name == productQueryParameters.Category));
             }
-            if (productQueryParameters.Province != null)
+            if (!string.IsNullOrEmpty(productQueryParameters.Province))
             {
-                query = query.Where(p => p.ProductCategories
-                .Any(pc => pc.Type == CategoryType.Provinces && pc.Name == productQueryParameters.Province));
+                query = query.Where(p => p.Place!.Name
+                == productQueryParameters.Province);
             }
-            if (productQueryParameters.Search != null)
+            if (!string.IsNullOrEmpty(productQueryParameters.Search))
             {
                 query = query.Where(p => p.Name.Contains(productQueryParameters.Search));
             }
@@ -75,11 +75,11 @@ namespace keepscape_api.Repositories
             }
             if (productQueryParameters.MinPrice != null)
             {
-                   query = query.Where(p => p.Price >= productQueryParameters.MinPrice);
+                query = query.Where(p => p.Price >= productQueryParameters.MinPrice);
             }
             if (productQueryParameters.MaxPrice != null)
             {
-                   query = query.Where(p => p.Price <= productQueryParameters.MaxPrice);
+                query = query.Where(p => p.Price <= productQueryParameters.MaxPrice);
             }
             if (productQueryParameters.Descending)
             {
@@ -96,9 +96,8 @@ namespace keepscape_api.Repositories
         public override async Task<IEnumerable<Product>> GetAllAsync()
         {
             return await _dbSet
-                .Include(p => p.ProductImages)
-                    .ThenInclude(pi => pi.BaseImage)
-                .Include(p => p.ProductCategories)
+                .Include(p => p.Images)
+                .Include(p => p.Categories)
                 .Include(p => p.SellerProfile)
                 .OrderByDescending(p => p.DateTimeCreated)  
                 .ToListAsync();
@@ -107,9 +106,8 @@ namespace keepscape_api.Repositories
         {
             return await _dbSet
                 .Include(p => p.SellerProfile)
-                .Include(p => p.ProductImages)
-                .ThenInclude(pi => pi.BaseImage)
-                .Include(p => p.ProductReviews)
+                .Include(p => p.Images)
+                .Include(p => p.Reviews)
                     .ThenInclude(pr => pr.BuyerProfile)
                         .ThenInclude(bp => bp!.User)
                 .AsSplitQuery()
@@ -119,6 +117,19 @@ namespace keepscape_api.Repositories
         public Task<int> GetTotalProductCount()
         {
             return _dbSet.CountAsync();
+        }
+
+        public new async Task<Product> AddAsync(Product product)
+        {
+            foreach (var category in product.Categories)
+            {
+                _context.Categories.Attach(category);
+            }
+
+            _context.SellerProfiles.Attach(product.SellerProfile!);
+            _context.Places.Attach(product.Place!);
+
+            return await base.AddAsync(product);
         }
     }
 }

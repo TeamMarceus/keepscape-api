@@ -14,10 +14,5 @@ namespace keepscape_api.Repositories
         {
             return await _dbSet.Where(t => t.UserId == userId).OrderByDescending(t => t.DateTimeCreated).FirstOrDefaultAsync();
         }
-
-        Task<ConfirmationCode?> IConfirmationCodeRepository.GetLatestConfirmationCodeByUserGuid(Guid userId)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

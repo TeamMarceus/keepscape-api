@@ -17,14 +17,16 @@ namespace keepscape_api.MapperConfigurations
                 .ForMember(dest => dest.BuyerProfileId, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.UserId))
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.User!.FirstName))
-                .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.User!.LastName));
+                .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.User!.LastName))
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(opt => opt.User!.Email));
 
             CreateMap<SellerProfile, UserResponseSellerDto>()
                 .ForMember(dest => dest.SellerProfileId, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.SellerName, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.UserId))
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.User!.FirstName))
-                .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.User!.LastName));
+                .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.User!.LastName))
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(opt => opt.User!.Email));
 
             CreateMap<User, UserResponseAdminDto>();
             CreateMap<User, UserResponseBuyerDto>()
@@ -35,7 +37,7 @@ namespace keepscape_api.MapperConfigurations
 
             CreateMap<User, UserResponseSellerDto>()
                 .ForMember(dest => dest.SellerProfileId, opt => opt.MapFrom(src => src.SellerProfile!.Id))
-                .ForMember(dest => dest.SellerApplicationId, opt => opt.MapFrom(src => src.SellerProfile!.SellerApplicationId))
+                .ForMember(dest => dest.SellerApplicationId, opt => opt.MapFrom(src => src.SellerProfile!.SellerApplication!.Id))
                 .ForMember(dest => dest.SellerName, opt => opt.MapFrom(src => src.SellerProfile!.Name))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.SellerProfile!.Description));
         }

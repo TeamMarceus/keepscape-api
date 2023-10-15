@@ -12,6 +12,7 @@ namespace keepscape_api.Models
         public string? CustomizedMessage { get; set; } = string.Empty;
         public decimal Total { get; set; }
         public DeliveryStatus Status { get; set; } = DeliveryStatus.Pending;
+        public bool IsConfirmed { get; set; } = false;
         public virtual BaseImage? BaseImage { get; set; }
         public virtual BuyerProfile? BuyerProfile { get; set; }
         public virtual Product? Product { get; set; }

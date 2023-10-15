@@ -9,6 +9,6 @@ namespace keepscape_api.Models
         public Guid ProductCategoryId { get; set; }
         public string Description { get; set; } = string.Empty;
         public virtual BuyerProfile? BuyerProfile{ get; set; }
-        public virtual BaseCategory? Category { get; set; }
+        public virtual Category? Category { get; set; }
     }
 }
