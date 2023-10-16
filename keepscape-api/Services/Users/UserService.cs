@@ -42,7 +42,7 @@ namespace keepscape_api.Services.Users
             _mapper = mapper;
         }
 
-        public async Task<SellerApplication?> GetApplication(Guid userId)
+        public async Task<UserSellerApplicationDto?> GetApplication(Guid userId)
         {
             var sellerProfile = await _sellerProfileRepository.GetProfileByUserGuid(userId);
 
@@ -51,12 +51,19 @@ namespace keepscape_api.Services.Users
                 return null;
             }
 
-            return sellerProfile.SellerApplication;
+            if (sellerProfile.SellerApplication == null)
+            {
+                return null;
+            }
+
+            return _mapper.Map<UserSellerApplicationDto>(sellerProfile.SellerApplication);
         }
 
-        public async Task<IEnumerable<SellerApplication>> GetApplications(PaginatorQuery paginatorQuery)
+        public async Task<IEnumerable<UserSellerApplicationDto>> GetApplications(SellerApplicationQuery sellerApplicationQuery)
         {
-            return await _sellerApplicationRepository.Get(paginatorQuery);
+            var sellerApplications =  await _sellerApplicationRepository.Get(sellerApplicationQuery);
+
+            return sellerApplications.Select(sellerApplication => _mapper.Map<UserSellerApplicationDto>(sellerApplication));    
         }
 
         public async Task<UserStatus> GetStatus(string email)
@@ -176,6 +183,28 @@ namespace keepscape_api.Services.Users
             }
 
             return null;
+        }
+
+        public async Task<bool> Update(Guid userId, UserStatusUpdateDto userStatusUpdateDto)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+
+            if (user == null)
+            {
+                return false;
+            }
+
+            if (userStatusUpdateDto.Status == UserStatus.OK.ToString())
+            {
+                user.IsBanned = false;
+            }
+
+            if (userStatusUpdateDto.Status == UserStatus.Banned.ToString())
+            {
+                user.IsBanned = true;
+            }
+
+            return await _userRepository.UpdateAsync(user);
         }
 
         public async Task<bool> UpdateApplication(Guid applicationId, UserSellerApplicationStatusUpdateDto statusUpdate)

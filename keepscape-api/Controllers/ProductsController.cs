@@ -82,7 +82,7 @@ namespace keepscape_api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get([FromQuery] ProductQueryParameters productQueryParameters)
+        public async Task<IActionResult> Get([FromQuery] ProductQuery productQueryParameters)
         {
             try
             {
@@ -198,6 +198,34 @@ namespace keepscape_api.Controllers
         }
 
         // Categories
+        [HttpPost("categories")]
+        [Authorize(Policy = "Admin")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> CreateCategory([FromForm] ProductCategoryPlaceCreateDto productCategoryPlaceCreateDto)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var productCategoryPlaceDto = await _productService.CreateCategory(productCategoryPlaceCreateDto);
+
+                if (productCategoryPlaceDto == null)
+                {
+                    return BadRequest("Product category cannot be added.");
+                }
+
+                return Ok(productCategoryPlaceDto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_productService.CreateCategory)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
         [HttpGet("categories")]
         public async Task<IActionResult> GetCategories()
         {
@@ -224,6 +252,85 @@ namespace keepscape_api.Controllers
             }
         }
 
+        [HttpPut("categories/{categoryId}")]
+        [Authorize(Policy = "Admin")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UpdateCategory(Guid categoryId, [FromForm] IFormFile image)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var categoryUpdated = await _productService.UpdateCategory(categoryId, image);
+
+                if (!categoryUpdated)
+                {
+                    return BadRequest("Product category cannot be updated.");
+                }
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_productService.UpdateCategory)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpDelete("categories/{categoryId}")]
+        [Authorize(Policy = "Admin")]
+        public async Task<IActionResult> DeleteCategory(Guid categoryId)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                await _productService.DeleteCategory(categoryId);
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_productService.DeleteCategory)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        // Places
+        [HttpPost("places")]
+        [Authorize(Policy = "Admin")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> CreatePlace([FromForm] ProductCategoryPlaceCreateDto productCategoryPlaceCreateDto)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var productCategoryPlaceDto = await _productService.CreatePlace(productCategoryPlaceCreateDto);
+
+                if (productCategoryPlaceDto == null)
+                {
+                    return BadRequest("Product place cannot be added.");
+                }
+
+                return Ok(productCategoryPlaceDto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_productService.CreatePlace)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
         [HttpGet("places")]
         public async Task<IActionResult> GetPlaces()
         {
@@ -246,6 +353,56 @@ namespace keepscape_api.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"{nameof(_productService.GetPlaceCategories)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpPut("places/{placeId}")]
+        [Authorize(Policy = "Admin")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UpdatePlace(Guid placeId, [FromForm] IFormFile image)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var placeUpdated = await _productService.UpdatePlace(placeId, image);
+
+                if (!placeUpdated)
+                {
+                    return BadRequest("Product place cannot be updated.");
+                }
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_productService.UpdatePlace)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpDelete("places/{placeId}")]
+        [Authorize(Policy = "Admin")]
+        public async Task<IActionResult> DeletePlace(Guid placeId)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                await _productService.DeletePlace(placeId);
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_productService.DeletePlace)} threw an exception");
                 return StatusCode(500, "Internal server error");
             }
         }

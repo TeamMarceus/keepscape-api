@@ -13,7 +13,7 @@ namespace keepscape_api.Repositories
         {
         }
 
-        public async Task<IEnumerable<Product>> Get(ProductQueryParameters productQueryParameters)
+        public async Task<IEnumerable<Product>> Get(ProductQuery productQueryParameters)
         {
             var query = _dbSet
                 .Include(p => p.Place)

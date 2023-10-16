@@ -36,6 +36,17 @@ namespace keepscape_api.Dtos.Users
         public string UserType { get; init; } = Enums.UserType.Admin.ToString();
     }
 
+    public record UserSellerApplicationDto 
+    { 
+        public Guid Id { get; init; }
+        public string Status { get; init; } = ApplicationStatus.Pending.ToString();
+        public string IdUrl { get; init; } = string.Empty;
+        public string FirstName { get; init; } = string.Empty;
+        public string LastName { get; init; } = string.Empty;
+        public string Email { get; init; } = string.Empty;
+        public string SellerName { get; init; } = string.Empty;
+        public string Description { get; init; } = string.Empty;
+    }
     public record UserSellerApplicationStatusUpdateDto
     {
         public string Status { get; init; } = ApplicationStatus.Pending.ToString();

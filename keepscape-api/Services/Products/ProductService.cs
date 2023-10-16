@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using keepscape_api.Dtos.Products;
 using keepscape_api.Models;
+using keepscape_api.Models.Categories;
 using keepscape_api.QueryModels;
 using keepscape_api.Repositories.Interfaces;
 using keepscape_api.Services.BaseImages;
@@ -52,7 +53,7 @@ namespace keepscape_api.Services.Products
             return productCategories.Select(c => _mapper.Map<ProductCategoryPlaceDto>(c)).ToList();
         }
 
-        public async Task<IEnumerable<ProductResponseHomeDto>> Get(ProductQueryParameters productQueryParameters)
+        public async Task<IEnumerable<ProductResponseHomeDto>> Get(ProductQuery productQueryParameters)
         {
             var products = await _productRepository.Get(productQueryParameters);
 
@@ -293,6 +294,112 @@ namespace keepscape_api.Services.Products
             }
 
             return _mapper.Map<ProductReviewResponseDto>(productReview);
+        }
+
+        public async Task<ProductCategoryPlaceDto?> CreatePlace(ProductCategoryPlaceCreateDto productCategoryPlaceCreateDto)
+        {
+            var baseImage = await _baseImageService.Upload("places", productCategoryPlaceCreateDto.Image);
+
+            if (baseImage == null)
+            {
+                return null;
+            }
+
+            var place = new Place
+            {
+                Name = productCategoryPlaceCreateDto.Name,
+                BaseImage = baseImage
+            };
+
+            var createdPlace = await _placeRepository.AddAsync(place);
+
+            return _mapper.Map<ProductCategoryPlaceDto>(createdPlace);
+        }
+
+        public async Task<ProductCategoryPlaceDto?> CreateCategory(ProductCategoryPlaceCreateDto productCategoryPlaceCreateDto)
+        {
+            var baseImage = await _baseImageService.Upload("categories", productCategoryPlaceCreateDto.Image);
+
+            if (baseImage == null)
+            {
+                return null;
+            }
+
+            var category = new Category
+            {
+                Name = productCategoryPlaceCreateDto.Name,
+                BaseImage = baseImage
+            };
+
+            var createdCategory = _categoryRepository.AddAsync(category);
+
+            return _mapper.Map<ProductCategoryPlaceDto>(createdCategory);
+        }
+
+        public async Task<bool> UpdatePlace(Guid placeId, IFormFile image)
+        {
+            var place = await _placeRepository.GetByIdAsync(placeId);
+
+            if (place == null)
+            {
+                return false;
+            }
+
+            var baseImage = await _baseImageService.Upload("places", image);
+
+            if (baseImage == null)
+            {
+                return false;
+            }
+
+            place.BaseImage = baseImage;
+
+            return await _placeRepository.UpdateAsync(place);
+        }
+
+        public async Task<bool> UpdateCategory(Guid categoryId, IFormFile image)
+        {
+            var category = await _categoryRepository.GetByIdAsync(categoryId);
+
+            if (category == null)
+            {
+                return false;
+            }
+
+            var baseImage = await _baseImageService.Upload("categories", image);
+
+            if (baseImage == null)
+            {
+                return false;
+            }
+
+            category.BaseImage = baseImage;
+
+            return await _categoryRepository.UpdateAsync(category);
+        }
+
+        public async Task DeletePlace(Guid placeId)
+        {
+            var place = await _placeRepository.GetByIdAsync(placeId);
+
+            if (place == null)
+            {
+                return;
+            }
+
+            await _placeRepository.DeleteAsync(place);
+        }
+
+        public async Task DeleteCategory(Guid categoryId)
+        {
+            var category = await _categoryRepository.GetByIdAsync(categoryId);
+
+            if (category == null)
+            {
+                return;
+            }
+
+            await _categoryRepository.DeleteAsync(category);
         }
     }
 }

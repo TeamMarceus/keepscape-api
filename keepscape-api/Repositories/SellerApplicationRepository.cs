@@ -12,20 +12,27 @@ namespace keepscape_api.Repositories
         {
         }
 
-        public async Task<IEnumerable<SellerApplication>> Get(PaginatorQuery paginatorQuery)
+        public async Task<IEnumerable<SellerApplication>> Get(SellerApplicationQuery sellerApplicationQuery)
         {
-            if (paginatorQuery.Page == null || paginatorQuery.PageSize == null)
+            var query = _dbSet
+                .Include(b => b.BaseImage)
+                .Include(s => s.SellerProfile)
+                    .ThenInclude(s => s.User)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(sellerApplicationQuery.Status))
             {
-                return await _dbSet
-                    .Include(b => b.BaseImage)
-                    .ToListAsync();
+                query = query.Where(b => b.Status.ToString() == sellerApplicationQuery.Status);
             }
 
-            return await _dbSet
-                .Include(b => b.BaseImage)
-                .Skip(paginatorQuery.Page.Value * paginatorQuery.PageSize.Value)
-                .Take(paginatorQuery.PageSize.Value)
-                .ToListAsync();
+            if (sellerApplicationQuery.Page != null && sellerApplicationQuery.PageSize != null)
+            {
+                query = query
+                    .Skip((int) ((sellerApplicationQuery.Page - 1) * sellerApplicationQuery.PageSize))
+                    .Take((int) sellerApplicationQuery.PageSize);
+            }
+           
+            return await query.ToListAsync();
         }
 
         public override async Task<IEnumerable<SellerApplication>> GetAllAsync()
@@ -38,6 +45,8 @@ namespace keepscape_api.Repositories
         {
             return await _dbSet
                 .Include(b => b.BaseImage)
+                .Include(s => s.SellerProfile)
+                    .ThenInclude(s => s.User)
                 .FirstOrDefaultAsync(b => b.Id == id);
         }
 
@@ -51,8 +60,9 @@ namespace keepscape_api.Repositories
         public Task<SellerApplication?> GetByUserId(Guid userId)
         {
             return _dbSet
-                .Include(b => b.BaseImage)
-                .Include(b => b.SellerProfile)
+                .Include(s => s.BaseImage)
+                .Include(s => s.SellerProfile)
+                    .ThenInclude(s => s.User)
                 .FirstOrDefaultAsync(b => b.SellerProfile!.UserId == userId);
         }
     }

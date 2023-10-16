@@ -321,12 +321,12 @@ namespace keepscape_api.Controllers
 
         // Admin
         [HttpGet("sellers/applications")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetSellerApplications([FromQuery] PaginatorQuery paginatorQuery)
+        [Authorize(Policy = "Admin")]
+        public async Task<IActionResult> GetSellerApplications([FromQuery] SellerApplicationQuery sellerApplicationQuery)
         {
             try
             {
-                var sellerApplications = await _userService.GetApplications(paginatorQuery);
+                var sellerApplications = await _userService.GetApplications(sellerApplicationQuery);
 
                 if (sellerApplications.IsNullOrEmpty())
                 {
@@ -343,7 +343,7 @@ namespace keepscape_api.Controllers
         }
 
         [HttpPut("sellers/applications/{applicationId}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "Admin")]
         public async Task<IActionResult> UpdateSellerApplication(Guid applicationId, [FromBody] UserSellerApplicationStatusUpdateDto statusUpdate)
         {
             try
@@ -365,6 +365,33 @@ namespace keepscape_api.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"{nameof(_userService.UpdateApplication)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpPut("{userId}")]
+        [Authorize(Policy = "Admin")]
+        public async Task<IActionResult> Update(Guid userId, [FromBody] UserStatusUpdateDto userStatusUpdateDto)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var userResponseDto = await _userService.Update(userId, userStatusUpdateDto);
+
+                if (!userResponseDto)
+                {
+                    return BadRequest("Invalid user id.");
+                }
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_userService.Update)} threw an exception");
                 return StatusCode(500, "Internal server error");
             }
         }

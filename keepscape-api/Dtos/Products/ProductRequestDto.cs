@@ -54,4 +54,13 @@ namespace keepscape_api.Dtos.Products
         public IEnumerable<Guid>? CategoryIds { get; init; }
         public IEnumerable<IFormFile>? Images { get; init; }
     }
+
+    public record ProductCategoryPlaceCreateDto
+    {
+        [Required]
+        [MinLength(2, ErrorMessage = $"{nameof(Name)} can have at least 2 characters")]
+        [MaxLength(50, ErrorMessage = $"{nameof(Name)} can have at most 50 characters")]
+        public string Name { get; init; } = string.Empty;
+        [Required]
+        public IFormFile Image { get; init; } = null!;
 }

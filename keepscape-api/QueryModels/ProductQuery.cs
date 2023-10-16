@@ -1,6 +1,6 @@
 ﻿namespace keepscape_api.QueryModels
 {
-    public class ProductQueryParameters : PaginatorQuery
+    public class ProductQuery : PaginatorQuery
     {
         public string Search { get; set; } = string.Empty;
         public string Province { get; set; } = string.Empty;
