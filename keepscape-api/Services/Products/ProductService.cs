@@ -83,7 +83,7 @@ namespace keepscape_api.Services.Products
 
             product.SellerProfile = seller.SellerProfile;
 
-            foreach (var image in productCreateDto.ProductImages)
+            foreach (var image in productCreateDto.Images)
             {
                 var baseImage = await _baseImageService.Upload("products", image);
 

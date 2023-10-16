@@ -26,9 +26,9 @@ namespace keepscape_api.Dtos.Products
         [MinLength(1, ErrorMessage = $"{nameof(CategoryIds)} must have at least 1 category")]
         public IEnumerable<Guid> CategoryIds { get; init; } = new List<Guid>();
         [Required]
-        [MinLength(1, ErrorMessage = $"{nameof(ProductImages)} must have at least 1 image")]
-        [MaxLength(5, ErrorMessage = $"{nameof(ProductImages)} can have at most 5 images")]
-        public IEnumerable<IFormFile> ProductImages { get; init; } = new List<IFormFile>();
+        [MinLength(1, ErrorMessage = $"{nameof(Images)} must have at least 1 image")]
+        [MaxLength(5, ErrorMessage = $"{nameof(Images)} can have at most 5 images")]
+        public IEnumerable<IFormFile> Images { get; init; } = new List<IFormFile>();
     }
 
     public record ProductReviewCreateDto
@@ -63,4 +63,5 @@ namespace keepscape_api.Dtos.Products
         public string Name { get; init; } = string.Empty;
         [Required]
         public IFormFile Image { get; init; } = null!;
+    }
 }
