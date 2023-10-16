@@ -30,6 +30,13 @@
         public int Rating { get; init; }
     }
 
+    public record ProductReviewResponseDto
+    {
+        public Guid Id { get; init; }
+        public string Description { get; init; } = string.Empty;
+        public int Rating { get; init; }
+    }
+
     public record ProductSellerDto
     {
         public string Name { get; init; } = string.Empty;

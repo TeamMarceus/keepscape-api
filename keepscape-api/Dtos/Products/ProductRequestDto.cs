@@ -37,6 +37,12 @@ namespace keepscape_api.Dtos.Products
         public int Rating { get; init; }
     }
 
+    public record ProductReviewUpdateDto
+    {
+        public string? Review { get; init; }
+        public int? Rating { get; init; }
+    }
+
     public record ProductUpdateDto
     {
         public string? Name { get; init; }

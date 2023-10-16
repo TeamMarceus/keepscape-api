@@ -28,6 +28,7 @@ namespace keepscape_api.Controllers
             _userService = userService;
         }
 
+        // Products 
         [HttpPost]
         [Authorize(Policy = "Seller")]
         [Consumes("multipart/form-data")]
@@ -71,63 +72,11 @@ namespace keepscape_api.Controllers
                     return BadRequest("Invalid credentials.");
                 }
 
-                return CreatedAtRoute(nameof(GetById), new { productId = productResponseDto.Id });
+                return Ok(productResponseDto);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"{nameof(_productService.Create)} threw an exception");
-                return StatusCode(500, "Internal server error");
-            }
-        }
-
-        [HttpGet("categories")]
-        public async Task<IActionResult> GetCategories()
-        {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
-                var productCategories = await _productService.GetProductCategories();
-
-                if (productCategories == null)
-                {
-                    return NoContent();
-                }
-
-                return Ok(productCategories);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"{nameof(_productService.GetProductCategories)} threw an exception");
-                return StatusCode(500, "Internal server error");
-            }
-        }
-
-        [HttpGet("places")]
-        public async Task<IActionResult> GetPlaces()
-        {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
-                var places = await _productService.GetPlaceCategories();
-
-                if (places == null)
-                {
-                    return NoContent();
-                }
-
-                return Ok(places);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"{nameof(_productService.GetPlaceCategories)} threw an exception");
                 return StatusCode(500, "Internal server error");
             }
         }
@@ -144,7 +93,7 @@ namespace keepscape_api.Controllers
 
                 var products = await _productService.Get(productQueryParameters);
 
-               if (products == null)
+                if (products == null)
                 {
                     return NoContent();
                 }
@@ -158,7 +107,7 @@ namespace keepscape_api.Controllers
             }
         }
 
-        [HttpGet("{productId}")]
+        [HttpGet("{productId}", Name = nameof(GetById))]
         public async Task<IActionResult> GetById(Guid productId)
         {
             try
@@ -183,41 +132,6 @@ namespace keepscape_api.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
-
-        [HttpPost("{productId}/reviews")]
-        [Authorize(Policy = "Buyer")]
-        public async Task<IActionResult> AddReview(Guid productId, [FromBody] ProductReviewCreateDto productReviewCreateDto)
-        {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
-                var buyerId = Guid.TryParse(User.FindFirstValue("UserId"), out Guid buyerIdParsed) ? buyerIdParsed : Guid.Empty;
-
-                if (buyerId == Guid.Empty)
-                {
-                    return BadRequest("Invalid credentials.");
-                }
-
-                var productReview = await _productService.CreateReview(buyerId, productId, productReviewCreateDto);
-
-                if (!productReview)
-                {
-                    return BadRequest("Product review cannot be added.");
-                }
-
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"{nameof(_productService.CreateReview)} threw an exception");
-                return StatusCode(500, "Internal server error");
-            }
-        }
-
 
         [HttpPut("{productId}")]
         [Consumes("multipart/form-data")]
@@ -279,6 +193,185 @@ namespace keepscape_api.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"{nameof(_productService.Delete)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        // Categories
+        [HttpGet("categories")]
+        public async Task<IActionResult> GetCategories()
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var productCategories = await _productService.GetProductCategories();
+
+                if (productCategories == null)
+                {
+                    return NoContent();
+                }
+
+                return Ok(productCategories);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_productService.GetProductCategories)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpGet("places")]
+        public async Task<IActionResult> GetPlaces()
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var places = await _productService.GetPlaceCategories();
+
+                if (places == null)
+                {
+                    return NoContent();
+                }
+
+                return Ok(places);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_productService.GetPlaceCategories)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        // Reviews
+
+        [HttpPost("{productId}/reviews")]
+        [Authorize(Policy = "Buyer")]
+        public async Task<IActionResult> CreateReview(Guid productId, [FromBody] ProductReviewCreateDto productReviewCreateDto)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var buyerId = Guid.TryParse(User.FindFirstValue("UserId"), out Guid buyerIdParsed) ? buyerIdParsed : Guid.Empty;
+
+                if (buyerId == Guid.Empty)
+                {
+                    return BadRequest("Invalid credentials.");
+                }
+
+                var productReview = await _productService.CreateReview(buyerId, productId, productReviewCreateDto);
+
+                if (!productReview)
+                {
+                    return BadRequest("Product review cannot be added.");
+                }
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_productService.CreateReview)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpGet("{productId}/reviews")]
+        [Authorize(Policy = "Buyer")]
+        public async Task<IActionResult> GetReview(Guid productId)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var userId = Guid.TryParse(User.FindFirstValue("UserId"), out Guid userIdParsed) ? userIdParsed : Guid.Empty;
+
+                if (userId == Guid.Empty)
+                {
+                    return BadRequest("Invalid credentials.");
+                }
+
+                var productReview = await _productService.GetReview(userId, productId);
+
+                if (productReview == null)
+                {
+                    return NoContent();
+                }
+
+                return Ok(productReview);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_productService.GetReview)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpPut("{productId}/reviews")]
+        [Authorize(Policy = "Buyer")]
+        public async Task<IActionResult> UpdateReview(Guid productId, [FromBody] ProductReviewUpdateDto productReviewUpdateDto)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var userId = Guid.TryParse(User.FindFirstValue("UserId"), out Guid userIdParsed) ? userIdParsed : Guid.Empty;
+
+                if (userId == Guid.Empty)
+                {
+                    return BadRequest("Invalid credentials.");
+                }
+
+                var productReview = await _productService.UpdateReview(userId, productId, productReviewUpdateDto);
+
+                if (!productReview)
+                {
+                    return BadRequest("Product review cannot be updated.");
+                }
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_productService.UpdateReview)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpDelete("{productId}/reviews/{reviewId}")]
+        [Authorize(Policy = "Buyer")]
+        public async Task<IActionResult> DeleteReview(Guid reviewId)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                await _productService.DeleteReview(reviewId);
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_productService.DeleteReview)} threw an exception");
                 return StatusCode(500, "Internal server error");
             }
         }

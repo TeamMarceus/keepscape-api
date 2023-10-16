@@ -135,11 +135,13 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
     services.AddScoped<ICartRepository, CartRepository>();
     services.AddScoped<ICategoryRepository, CategoryRepository>();
     services.AddScoped<IPlaceRepository, PlaceRepository>();
-    services.AddScoped<IConfirmationCodeRepository,  ConfirmationCodeRepository>();
+    services.AddScoped<IConfirmationCodeRepository, ConfirmationCodeRepository>();
     services.AddScoped<IOrderRepository, OrderRepository>();
     services.AddScoped<IProductRepository, ProductRepository>();
+    services.AddScoped<IProductReviewRepository, ProductReviewRepository>();
     services.AddScoped<IProfileRepository<BuyerProfile>, BuyerProfileRepository>();
     services.AddScoped<ISellerProfileRepository, SellerProfileRepository>();
+    services.AddScoped<ISellerApplicationRepository, SellerApplicationRepository>();
     services.AddScoped<ITokenRepository, TokenRepository>();
     services.AddScoped<IUserRepository, UserRepository>();
     services.AddScoped<ISellerApplicationRepository, SellerApplicationRepository>();

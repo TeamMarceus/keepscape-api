@@ -33,7 +33,7 @@ namespace keepscape_api.Services.ConfirmationCodes
                 return false;
             }
 
-            var fromAddress = new MailAddress(_config.Email, "Get Gift Ideas");
+            var fromAddress = new MailAddress(_config.Email, "Keepscape Ecommerce");
             var toAddress = new MailAddress(email);
             string password = _config.Password;
             string subject = "Password Reset Code - Keepscape Ecommerce";

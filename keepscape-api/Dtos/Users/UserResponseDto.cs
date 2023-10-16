@@ -35,4 +35,9 @@ namespace keepscape_api.Dtos.Users
     {
         public string UserType { get; init; } = Enums.UserType.Admin.ToString();
     }
+
+    public record UserSellerApplicationStatusUpdateDto
+    {
+        public string Status { get; init; } = ApplicationStatus.Pending.ToString();
+    }
 }

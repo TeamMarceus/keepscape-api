@@ -2,6 +2,7 @@
 using keepscape_api.Dtos.Users;
 using keepscape_api.Enums;
 using keepscape_api.Models;
+using keepscape_api.QueryModels;
 using keepscape_api.Repositories.Generics;
 using keepscape_api.Repositories.Interfaces;
 using keepscape_api.Services.BaseImages;
@@ -16,6 +17,7 @@ namespace keepscape_api.Services.Users
         private readonly IUserRepository _userRepository;
         private readonly IProfileRepository<BuyerProfile> _buyerProfileRepository;
         private readonly ISellerProfileRepository _sellerProfileRepository;
+        private readonly ISellerApplicationRepository _sellerApplicationRepository;
         private readonly IBaseImageService _baseImageService;
         private readonly ITokenService _tokenService;
         private readonly IConfirmationCodeService _confirmationCodeService;
@@ -24,6 +26,7 @@ namespace keepscape_api.Services.Users
         public UserService(IUserRepository userRepository,          
             IProfileRepository<BuyerProfile> buyerProfileRepository, 
             ISellerProfileRepository sellerProfileRepository, 
+            ISellerApplicationRepository sellerApplicationRepository,
             IBaseImageService baseImageService,
             ITokenService tokenService,
             IConfirmationCodeService confirmationCodeService,
@@ -32,10 +35,28 @@ namespace keepscape_api.Services.Users
             _userRepository = userRepository;
             _buyerProfileRepository = buyerProfileRepository;
             _sellerProfileRepository = sellerProfileRepository;
+            _sellerApplicationRepository = sellerApplicationRepository;
             _baseImageService = baseImageService;
             _tokenService = tokenService;
             _confirmationCodeService = confirmationCodeService;
             _mapper = mapper;
+        }
+
+        public async Task<SellerApplication?> GetApplication(Guid userId)
+        {
+            var sellerProfile = await _sellerProfileRepository.GetProfileByUserGuid(userId);
+
+            if (sellerProfile == null)
+            {
+                return null;
+            }
+
+            return sellerProfile.SellerApplication;
+        }
+
+        public async Task<IEnumerable<SellerApplication>> GetApplications(PaginatorQuery paginatorQuery)
+        {
+            return await _sellerApplicationRepository.Get(paginatorQuery);
         }
 
         public async Task<UserStatus> GetStatus(string email)
@@ -153,6 +174,28 @@ namespace keepscape_api.Services.Users
             }
 
             return null;
+        }
+
+        public async Task<bool> UpdateApplication(Guid applicationId, UserSellerApplicationStatusUpdateDto statusUpdate)
+        {
+            var application = await _sellerApplicationRepository.GetByIdAsync(applicationId);
+
+            if (application == null)
+            {
+                return false;
+            }
+
+            if (statusUpdate.Status == ApplicationStatus.Approved.ToString())
+            {
+                application.Status = ApplicationStatus.Approved;
+            }
+
+            if (statusUpdate.Status == ApplicationStatus.Rejected.ToString())
+            {
+                application.Status = ApplicationStatus.Rejected;
+            }
+
+            return await _sellerApplicationRepository.UpdateAsync(application);
         }
 
         public async Task<bool> UpdatePassword(Guid userId, UserUpdatePasswordDto userUpdatePasswordDto)

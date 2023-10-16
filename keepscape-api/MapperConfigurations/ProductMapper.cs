@@ -29,6 +29,8 @@ namespace keepscape_api.MapperConfigurations
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.BuyerProfile!.User!.FirstName));
 
             CreateMap<ProductReviewCreateDto, ProductReview>();
+
+            CreateMap<ProductReview, ProductReviewResponseDto>();
            
             CreateMap<ProductCreateDto, Product>()
                 .ForMember(dest => dest.Images, opt => opt.Ignore())

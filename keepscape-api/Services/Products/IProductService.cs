@@ -7,7 +7,9 @@ namespace keepscape_api.Services.Products
     {
         Task<ProductResponseDto?> Create(Guid sellerId, ProductCreateDto productCreateDto);
         Task<bool> CreateReview(Guid userId, Guid productId, ProductReviewCreateDto productReviewCreateDto);
-        //Task<bool> UpdateView(Guid userId, Guid productId, ProductReviewCreateDto productReviewCreateDto);
+        Task<ProductReviewResponseDto?> GetReview(Guid userId, Guid productId);
+        Task<bool> UpdateReview(Guid userId, Guid productId, ProductReviewUpdateDto productReviewCreateDto);
+        Task DeleteReview(Guid reviewId);
         Task<ProductResponseDto?> GetById(Guid productId);
         Task<IEnumerable<ProductCategoryPlaceDto>> GetPlaceCategories();
         Task<IEnumerable<ProductCategoryPlaceDto>> GetProductCategories();

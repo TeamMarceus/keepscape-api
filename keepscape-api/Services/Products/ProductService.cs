@@ -11,6 +11,7 @@ namespace keepscape_api.Services.Products
     public class ProductService : IProductService
     {
         private readonly IProductRepository _productRepository;
+        private readonly IProductReviewRepository _productReviewRepository;
         private readonly ICategoryRepository _categoryRepository;
         private readonly IPlaceRepository _placeRepository;
         private readonly IUserRepository _userRepository;
@@ -19,6 +20,7 @@ namespace keepscape_api.Services.Products
 
         public ProductService(
             IProductRepository productRepository, 
+            IProductReviewRepository productReviewRepository,
             ICategoryRepository categoryRepository, 
             IPlaceRepository placeRepository,
             IUserRepository userRepository,
@@ -26,6 +28,7 @@ namespace keepscape_api.Services.Products
             IMapper mapper)
         {
             _productRepository = productRepository;
+            _productReviewRepository = productReviewRepository;
             _categoryRepository = categoryRepository;
             _placeRepository = placeRepository;
             _baseImageService = baseImageService;
@@ -222,12 +225,74 @@ namespace keepscape_api.Services.Products
                 return false;
             }
 
+            var productReviewExist = await _productReviewRepository.GetReviewByProductIdAndBuyerProfileId(productId, buyer.BuyerProfile!.Id);
+
+            if (productReviewExist != null)
+            {
+                return false;
+            }
+
             var productReview = _mapper.Map<ProductReview>(productReviewCreateDto);
 
             productReview.BuyerProfileId = buyer.BuyerProfile!.Id;
             productReview.ProductId = product.Id;
 
-            return await _productRepository.AddProductReview(productReview);
+            await _productReviewRepository.AddAsync(productReview);
+
+            return true;
+        }
+
+        public async Task<bool> UpdateReview(Guid userId, Guid productId, ProductReviewUpdateDto productReviewCreateDto)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+
+            if (user == null) 
+            { 
+                return false;
+            }
+
+            var productReview = await _productReviewRepository.GetReviewByProductIdAndBuyerProfileId(productId, user.BuyerProfile!.Id);
+
+            if (productReview == null)
+            {
+                return false;
+            }
+
+            productReview.Review = productReviewCreateDto.Review ?? productReview.Review;
+            productReview.Rating = productReviewCreateDto.Rating ?? productReview.Rating;
+
+            return await _productReviewRepository.UpdateAsync(productReview);
+        }
+
+        public async Task DeleteReview(Guid reviewId)
+        {
+            var productReview = await _productReviewRepository.GetByIdAsync(reviewId);
+            
+            if (productReview == null)
+            {
+                return;
+            }
+
+            await _productReviewRepository.DeleteAsync(productReview);
+        }
+
+        public async Task<ProductReviewResponseDto?> GetReview(Guid userId, Guid productId)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+
+            if (user == null)
+            {
+                return null;
+            }
+
+            var productReview = await _productReviewRepository.GetReviewByProductIdAndBuyerProfileId(productId, user.BuyerProfile!.Id);
+
+            if (productReview == null)
+            {
+                return null;
+            }
+
+            return _mapper.Map<ProductReviewResponseDto>(productReview);
         }
     }
 }

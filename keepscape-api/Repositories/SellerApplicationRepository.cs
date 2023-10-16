@@ -1,5 +1,6 @@
 ﻿using keepscape_api.Data;
 using keepscape_api.Models;
+using keepscape_api.QueryModels;
 using keepscape_api.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,22 +11,29 @@ namespace keepscape_api.Repositories
         public SellerApplicationRepository(APIDbContext context) : base(context)
         {
         }
+
+        public async Task<IEnumerable<SellerApplication>> Get(PaginatorQuery paginatorQuery)
+        {
+            if (paginatorQuery.Page == null || paginatorQuery.PageSize == null)
+            {
+                return await _dbSet
+                    .Include(b => b.BaseImage)
+                    .ToListAsync();
+            }
+
+            return await _dbSet
+                .Include(b => b.BaseImage)
+                .Skip(paginatorQuery.Page.Value * paginatorQuery.PageSize.Value)
+                .Take(paginatorQuery.PageSize.Value)
+                .ToListAsync();
+        }
+
         public override async Task<IEnumerable<SellerApplication>> GetAllAsync()
         {
             return await _dbSet
                 .Include(b => b.BaseImage)
                 .ToListAsync();
         }
-
-        public async Task<IEnumerable<SellerApplication>> GetAllPagedAsync(int pageIndex, int pageSize)
-        {
-            return await _dbSet
-                .Include(b => b.BaseImage)
-                .Skip(pageIndex * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-        }
-
         public override async Task<SellerApplication?> GetByIdAsync(Guid id)
         {
             return await _dbSet
@@ -33,14 +41,14 @@ namespace keepscape_api.Repositories
                 .FirstOrDefaultAsync(b => b.Id == id);
         }
 
-        public Task<SellerApplication?> GetSellerApplicationBySellerProfileId(Guid sellerProfileId)
+        public Task<SellerApplication?> GetBySellerProfileId(Guid sellerProfileId)
         {
             return _dbSet
                 .Include(b => b.BaseImage)
                 .FirstOrDefaultAsync(b => b.SellerProfileId == sellerProfileId);
         }
 
-        public Task<SellerApplication?> GetSellerApplicationByUserId(Guid userId)
+        public Task<SellerApplication?> GetByUserId(Guid userId)
         {
             return _dbSet
                 .Include(b => b.BaseImage)

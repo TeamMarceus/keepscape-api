@@ -13,45 +13,6 @@ namespace keepscape_api.Repositories
         {
         }
 
-        public async Task<bool> AddProductReview(ProductReview productReview)
-        {
-            var product = await _dbSet.FindAsync(productReview.ProductId);
-
-            if (product == null)
-            {
-                return false;
-            }
-
-            var productReviewExists = await _context.ProductReviews.AsNoTracking()
-                .AnyAsync(pr => pr.ProductId == productReview.ProductId &&
-                               pr.BuyerProfileId == productReview.BuyerProfileId);
-
-            if (productReviewExists)
-            {
-                return false;
-            }
-
-            _context.ProductReviews.Add(productReview);
-
-            await _context.SaveChangesAsync(); 
-
-            var productReviews = await _context.ProductReviews.AsNoTracking()
-                .Where(pr => pr.ProductId == productReview.ProductId)
-                .ToListAsync();
-
-            var averageRating = productReviews.Average(pr => pr.Rating);
-
-            var freshProduct = await _context.Products.FirstOrDefaultAsync(p => p.Id == product.Id);
-            if (freshProduct != null)
-            {
-                freshProduct.Rating = (decimal)averageRating;
-                await _context.SaveChangesAsync();
-            }
-
-            return true;
-        }
-
-
         public async Task<IEnumerable<Product>> Get(ProductQueryParameters productQueryParameters)
         {
             var query = _dbSet

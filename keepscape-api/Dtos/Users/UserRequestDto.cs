@@ -105,4 +105,13 @@ namespace keepscape_api.Dtos.Users
         [EmailAddress]
         public string Email { get; init; } = string.Empty;
     }
+
+    public record class UserVerifyCode
+    {
+        [Required]
+        public string Code { get; init; } = string.Empty;
+        [Required]
+        [EmailAddress]
+        public string Email { get; init; } = string.Empty;
+    }
 }
