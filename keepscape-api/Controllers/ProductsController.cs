@@ -220,8 +220,9 @@ namespace keepscape_api.Controllers
 
 
         [HttpPut("{productId}")]
+        [Consumes("multipart/form-data")]
         [Authorize(Policy = "Seller")]
-        public async Task<IActionResult> Update(Guid productId, [FromBody] ProductUpdateDto productUpdateDto)
+        public async Task<IActionResult> Update(Guid productId, [FromForm] ProductUpdateDto productUpdateDto)
         {
             try
             {
