@@ -34,12 +34,15 @@ namespace keepscape_api.Dtos.Products
     public record ProductReviewCreateDto
     {
         public string? Review { get; init; }
+        [Required]
+        [Range(1, 5, ErrorMessage = $"{nameof(Rating)} must be between 1 and 5")]
         public int Rating { get; init; }
     }
 
     public record ProductReviewUpdateDto
     {
         public string? Review { get; init; }
+        [Range(1, 5, ErrorMessage = $"{nameof(Rating)} must be between 1 and 5")]
         public int? Rating { get; init; }
     }
 
