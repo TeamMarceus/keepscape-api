@@ -1,4 +1,4 @@
-﻿namespace keepscape_api.Models.BaseModels
+﻿namespace keepscape_api.Models.Primitives
 {
     public interface ISoftDeletable
     {

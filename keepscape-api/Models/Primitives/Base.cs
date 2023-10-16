@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace keepscape_api.Models.BaseModels
+namespace keepscape_api.Models.Primitives
 {
-    public class Base
+    public abstract class Base
     {
         [Key]
         public Guid Id { get; set; }
