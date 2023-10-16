@@ -86,6 +86,8 @@ namespace keepscape_api.Services.Users
                 return null;
             }
 
+            user.LastLoggedIn = DateTime.UtcNow;
+
             if (user.UserType == UserType.Buyer)
             {
                 var buyerProfile = await _buyerProfileRepository.GetProfileByUserGuid(user.Id);

@@ -113,7 +113,7 @@ namespace keepscape_api.Services.Tokens
                 UserId = user.Id,
                 AccessToken = acessToken,
                 RefreshToken = refreshToken,
-                ExpiresAt = DateTime.UtcNow.AddMinutes(_jwtConfig.ExpirationMinutes),
+                ExpiresAt = DateTime.UtcNow.AddMonths(1),
                 IsRevoked = false,
             };
 

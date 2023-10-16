@@ -40,4 +40,9 @@ namespace keepscape_api.Dtos.Users
     {
         public string Status { get; init; } = ApplicationStatus.Pending.ToString();
     }
+
+    public record UserStatusUpdateDto
+    {
+        public string Status { get; init; } = UserStatus.OK.ToString();
+    }
 }
