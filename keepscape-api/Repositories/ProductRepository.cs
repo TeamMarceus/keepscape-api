@@ -15,36 +15,50 @@ namespace keepscape_api.Repositories
 
         public async Task<bool> AddProductReview(ProductReview productReview)
         {
-            var product = await _context.Products
-                .FirstOrDefaultAsync(p => p.Id == productReview.ProductId);
+            var product = await _dbSet.FindAsync(productReview.ProductId);
 
             if (product == null)
             {
                 return false;
             }
 
-            _context.ProductReviews.Add(productReview);
-            await _context.SaveChangesAsync();
+            var productReviewExists = await _context.ProductReviews.AsNoTracking()
+                .AnyAsync(pr => pr.ProductId == productReview.ProductId &&
+                               pr.BuyerProfileId == productReview.BuyerProfileId);
 
-            var productReviews = await _context.ProductReviews
+            if (productReviewExists)
+            {
+                return false;
+            }
+
+            _context.ProductReviews.Add(productReview);
+
+            await _context.SaveChangesAsync(); 
+
+            var productReviews = await _context.ProductReviews.AsNoTracking()
                 .Where(pr => pr.ProductId == productReview.ProductId)
                 .ToListAsync();
+
             var averageRating = productReviews.Average(pr => pr.Rating);
 
-            product.Rating = (decimal)averageRating;
-
-            await _context.SaveChangesAsync();
+            var freshProduct = await _context.Products.FirstOrDefaultAsync(p => p.Id == product.Id);
+            if (freshProduct != null)
+            {
+                freshProduct.Rating = (decimal)averageRating;
+                await _context.SaveChangesAsync();
+            }
 
             return true;
         }
 
+
         public async Task<IEnumerable<Product>> Get(ProductQueryParameters productQueryParameters)
         {
             var query = _dbSet
+                .Include(p => p.Place)
                 .Include(p => p.Images)
                 .Include(p => p.SellerProfile)
                 .Include(p => p.Categories)
-                .Include(p => p.Place)
                 .Where(p => p.IsHidden == false && 
                 p.Quantity > 0 && 
                 p.SellerProfile!.SellerApplication!.Status == ApplicationStatus.Approved)
@@ -69,9 +83,13 @@ namespace keepscape_api.Repositories
             {
                 query = query.Where(p => p.Name.Contains(productQueryParameters.Search));
             }
-            if (productQueryParameters.Page != null && productQueryParameters.PageSize != null)
+            if (productQueryParameters.Descending)
             {
-                query = query.Skip(((int)productQueryParameters.Page - 1) * (int)productQueryParameters.PageSize);
+                query = query.OrderByDescending(p => p.DateTimeCreated);
+            }
+            else
+            {
+                query = query.OrderBy(p => p.DateTimeCreated);
             }
             if (productQueryParameters.MinPrice != null)
             {
@@ -81,13 +99,10 @@ namespace keepscape_api.Repositories
             {
                 query = query.Where(p => p.Price <= productQueryParameters.MaxPrice);
             }
-            if (productQueryParameters.Descending)
+            if (productQueryParameters.Page != null && productQueryParameters.PageSize != null)
             {
-                query = query.OrderByDescending(p => p.DateTimeCreated);
-            }
-            else
-            {
-                query = query.OrderBy(p => p.DateTimeCreated);
+                int skipAmount = ((int)productQueryParameters.Page - 1) * (int)productQueryParameters.PageSize;
+                query = query.Skip(skipAmount).Take((int)productQueryParameters.PageSize);
             }
 
             return await query.ToListAsync();
@@ -98,6 +113,7 @@ namespace keepscape_api.Repositories
             return await _dbSet
                 .Include(p => p.Images)
                 .Include(p => p.Categories)
+                .Include(p => p.Place)
                 .Include(p => p.SellerProfile)
                 .OrderByDescending(p => p.DateTimeCreated)  
                 .ToListAsync();
@@ -107,6 +123,8 @@ namespace keepscape_api.Repositories
             return await _dbSet
                 .Include(p => p.SellerProfile)
                 .Include(p => p.Images)
+                .Include(p => p.Place)
+                .Include(p => p.Categories)
                 .Include(p => p.Reviews)
                     .ThenInclude(pr => pr.BuyerProfile)
                         .ThenInclude(bp => bp!.User)
@@ -130,6 +148,16 @@ namespace keepscape_api.Repositories
             _context.Places.Attach(product.Place!);
 
             return await base.AddAsync(product);
+        }
+
+        public new async Task<bool> UpdateAsync(Product product)
+        {
+            foreach (var category in product.Categories)
+            {
+                _context.Categories.Attach(category);
+            }
+
+            return await base.UpdateAsync(product);
         }
     }
 }

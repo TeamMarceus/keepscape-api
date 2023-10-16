@@ -30,4 +30,22 @@ namespace keepscape_api.Dtos.Products
         [MaxLength(5, ErrorMessage = $"{nameof(ProductImages)} can have at most 5 images")]
         public IEnumerable<IFormFile> ProductImages { get; init; } = new List<IFormFile>();
     }
+
+    public record ProductReviewCreateDto
+    {
+        public string? Review { get; init; }
+        public int Rating { get; init; }
+    }
+
+    public record ProductUpdateDto
+    {
+        public string? Name { get; init; }
+        public string? Description { get; init; }
+        public decimal? Price { get; init; }
+        public int? Quantity { get; init; }
+        public bool? IsCustomizable { get; init; }
+        public bool? IsHidden { get; init; }
+        public IEnumerable<Guid>? CategoryIds { get; init; }
+        public IEnumerable<IFormFile>? Images { get; init; }
+    }
 }

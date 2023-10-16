@@ -71,7 +71,7 @@ namespace keepscape_api.Controllers
                     return BadRequest("Invalid credentials.");
                 }
 
-                return Ok(productResponseDto);
+                return CreatedAtRoute(nameof(GetById), new { productId = productResponseDto.Id });
             }
             catch (Exception ex)
             {
@@ -154,6 +154,130 @@ namespace keepscape_api.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"{nameof(_productService.Get)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpGet("{productId}")]
+        public async Task<IActionResult> GetById(Guid productId)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var product = await _productService.GetById(productId);
+
+                if (product == null)
+                {
+                    return NoContent();
+                }
+
+                return Ok(product);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_productService.GetById)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpPost("{productId}/reviews")]
+        [Authorize(Policy = "Buyer")]
+        public async Task<IActionResult> AddReview(Guid productId, [FromBody] ProductReviewCreateDto productReviewCreateDto)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var buyerId = Guid.TryParse(User.FindFirstValue("UserId"), out Guid buyerIdParsed) ? buyerIdParsed : Guid.Empty;
+
+                if (buyerId == Guid.Empty)
+                {
+                    return BadRequest("Invalid credentials.");
+                }
+
+                var productReview = await _productService.CreateReview(buyerId, productId, productReviewCreateDto);
+
+                if (!productReview)
+                {
+                    return BadRequest("Product review cannot be added.");
+                }
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_productService.CreateReview)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+
+        [HttpPut("{productId}")]
+        [Authorize(Policy = "Seller")]
+        public async Task<IActionResult> Update(Guid productId, [FromBody] ProductUpdateDto productUpdateDto)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var sellerId = Guid.TryParse(User.FindFirstValue("UserId"), out Guid sellerIdParsed) ? sellerIdParsed : Guid.Empty;
+
+                if (sellerId == Guid.Empty)
+                {
+                    return BadRequest("Invalid credentials.");
+                }
+
+                var productUpdated = await _productService.Update(sellerId, productId, productUpdateDto);
+
+                if (!productUpdated)
+                {
+                    return BadRequest("Product cannot be updated.");
+                }
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_productService.Update)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpDelete("{productId}")]
+        [Authorize(Policy = "Seller")]
+        public async Task<IActionResult> Delete(Guid productId)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var sellerId = Guid.TryParse(User.FindFirstValue("UserId"), out Guid sellerIdParsed) ? sellerIdParsed : Guid.Empty;
+
+                if (sellerId == Guid.Empty)
+                {
+                    return BadRequest("Invalid credentials.");
+                }
+
+                await _productService.Delete(sellerId, productId);
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_productService.Delete)} threw an exception");
                 return StatusCode(500, "Internal server error");
             }
         }

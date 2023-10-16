@@ -153,7 +153,8 @@ namespace keepscape_api.Data
                 .HasOne(p => p.Place)
                 .WithMany(pc => pc.Products)
                 .HasForeignKey(p => p.PlaceId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired(true);
             modelBuilder.Entity<Product>()
                 .HasMany(p => p.Reviews)
                 .WithOne(pr => pr.Product)
