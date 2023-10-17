@@ -1,13 +1,14 @@
 {
   "version": 2,
-  "dgSpecHash": "5VlgQAE7yC/rtDZDIVuDJ/CxmfGbvVaB+OdHSnHlmw0TEJ2iyFGBp/jJuJve9Q2im1CqeN/o3WePsupnfU6u9A==",
+  "dgSpecHash": "B2zvlb+HAYiAanZBMsLn2ALL0dxH8mGqhy2nrqMmavsFu853PVhaRF2DumECzFmwsxbRLidMoLQ9uwGMc/db+A==",
   "success": true,
   "projectFilePath": "D:\\College\\BSCS\\CS Year 4\\Keepscape\\keepscape-api\\keepscape-api.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Azalithen\\.nuget\\packages\\automapper\\12.0.1\\automapper.12.0.1.nupkg.sha512",
     "C:\\Users\\Azalithen\\.nuget\\packages\\automapper.extensions.microsoft.dependencyinjection\\12.0.1\\automapper.extensions.microsoft.dependencyinjection.12.0.1.nupkg.sha512",
-    "C:\\Users\\Azalithen\\.nuget\\packages\\azure.core\\1.25.0\\azure.core.1.25.0.nupkg.sha512",
+    "C:\\Users\\Azalithen\\.nuget\\packages\\azure.core\\1.30.0\\azure.core.1.30.0.nupkg.sha512",
     "C:\\Users\\Azalithen\\.nuget\\packages\\azure.identity\\1.7.0\\azure.identity.1.7.0.nupkg.sha512",
+    "C:\\Users\\Azalithen\\.nuget\\packages\\azure.security.keyvault.secrets\\4.5.0\\azure.security.keyvault.secrets.4.5.0.nupkg.sha512",
     "C:\\Users\\Azalithen\\.nuget\\packages\\castle.core\\5.1.0\\castle.core.5.1.0.nupkg.sha512",
     "C:\\Users\\Azalithen\\.nuget\\packages\\google.api.gax\\4.4.0\\google.api.gax.4.4.0.nupkg.sha512",
     "C:\\Users\\Azalithen\\.nuget\\packages\\google.api.gax.rest\\4.4.0\\google.api.gax.rest.4.4.0.nupkg.sha512",

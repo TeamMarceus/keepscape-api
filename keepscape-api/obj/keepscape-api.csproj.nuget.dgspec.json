@@ -44,6 +44,10 @@
               "target": "Package",
               "version": "[12.0.1, )"
             },
+            "Azure.Security.KeyVault.Secrets": {
+              "target": "Package",
+              "version": "[4.5.0, )"
+            },
             "Google.Cloud.Storage.V1": {
               "target": "Package",
               "version": "[4.6.0, )"
@@ -108,7 +112,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.400\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.402\\RuntimeIdentifierGraph.json"
         }
       }
     }

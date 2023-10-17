@@ -16,8 +16,13 @@ using keepscape_api.Services.Tokens;
 using keepscape_api.Services.Products;
 using keepscape_api.Services.ConfirmationCodes;
 using keepscape_api.Services.Emails;
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var keyVaultEndpoint = new Uri(Environment.GetEnvironmentVariable("VaultUri"));
+var secretClient = new SecretClient(keyVaultEndpoint!, new DefaultAzureCredential());
 
 // Add services to the container.
 
@@ -28,7 +33,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-ConfigureServices(builder.Services, builder.Configuration);
+await ConfigureServices(builder.Services, builder.Configuration);
 
 var app = builder.Build();
 
@@ -50,7 +55,7 @@ app.MapControllers();
 
 app.Run();
 
-void ConfigureServices(IServiceCollection services, IConfiguration configuration)
+async Task ConfigureServices(IServiceCollection services, IConfiguration configuration)
 {
     services.AddRouting(options => options.LowercaseUrls = true);
     services.AddCors(options =>
@@ -63,10 +68,14 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
         });
     });
 
-    // Add Dbcontext 
+    KeyVaultSecret dbSecret = await secretClient.GetSecretAsync("ProdConnection");
+    KeyVaultSecret jwtSecret = await secretClient.GetSecretAsync("jwt-secret");
+    configuration["JwtConfig:Secret"] = jwtSecret.Value;
+    
+    string? dbConnectionString = dbSecret.Value ?? configuration.GetConnectionString("DefaultConnection");
     services.AddDbContext<APIDbContext>(options =>
     {
-        options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))
+        options.UseSqlServer(configuration.GetConnectionString(dbConnectionString!))
         .UseLazyLoadingProxies();
     });
 
