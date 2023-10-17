@@ -1,6 +1,6 @@
 ﻿namespace keepscape_api.Configurations
 {
-    public class CodeConfig
+    public class EmailConfig
     {
         public string Host { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;

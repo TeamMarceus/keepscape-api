@@ -13,7 +13,7 @@ namespace keepscape_api.Repositories
         {
         }
 
-        public async Task<IEnumerable<SellerApplication>> Get(SellerApplicationQuery sellerApplicationQuery)
+        public async Task<(IEnumerable<SellerApplication> SellerApplications, int PageCount)> Get(SellerApplicationQuery sellerApplicationQuery)
         {
             var query = _dbSet
                 .Include(b => b.BaseImage)
@@ -21,6 +21,7 @@ namespace keepscape_api.Repositories
                     .ThenInclude(s => s.User)
                 .AsQueryable();
 
+            int pageCount = 1;
             if (!string.IsNullOrEmpty(sellerApplicationQuery.Status))
             {
                 if (Enum.TryParse<ApplicationStatus>(sellerApplicationQuery.Status, out var status))
@@ -31,12 +32,30 @@ namespace keepscape_api.Repositories
 
             if (sellerApplicationQuery.Page != null && sellerApplicationQuery.PageSize != null)
             {
+                int queryPageCount = await query.CountAsync();
+
+                pageCount = (int)Math.Ceiling((double)queryPageCount / (int)sellerApplicationQuery.PageSize);
+
+                if (sellerApplicationQuery.Page > pageCount)
+                {
+                    sellerApplicationQuery.Page = pageCount;
+                }
+                else if (sellerApplicationQuery.Page < 1)
+                {
+                    sellerApplicationQuery.Page = 1;
+                }
+                else if (pageCount == 0)
+                {
+                    pageCount = 1;
+                    sellerApplicationQuery.Page = 1;
+                }
+
                 query = query
                     .Skip((int) ((sellerApplicationQuery.Page - 1) * sellerApplicationQuery.PageSize))
                     .Take((int) sellerApplicationQuery.PageSize);
             }
            
-            return await query.ToListAsync();
+            return (await query.ToListAsync(), pageCount);
         }
 
         public override async Task<IEnumerable<SellerApplication>> GetAllAsync()

@@ -15,6 +15,7 @@ using keepscape_api.Services.BaseImages;
 using keepscape_api.Services.Tokens;
 using keepscape_api.Services.Products;
 using keepscape_api.Services.ConfirmationCodes;
+using keepscape_api.Services.Emails;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -103,7 +104,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
         });
     });
     services.Configure<JwtConfig>(configuration.GetSection("JwtConfig"));
-    services.Configure<CodeConfig>(configuration.GetSection("CodeConfig"));
+    services.Configure<EmailConfig>(configuration.GetSection("EmailConfig"));
 
     services.AddAuthentication(options => 
     {
@@ -152,4 +153,5 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
     services.AddScoped<IBaseImageService, BaseImageService>();
     services.AddScoped<IProductService, ProductService>();
     services.AddScoped<IConfirmationCodeService, ConfirmationCodeService>();
+    services.AddScoped<IEmailService, EmailService>();
 }

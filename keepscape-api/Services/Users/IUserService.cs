@@ -10,7 +10,7 @@ namespace keepscape_api.Services.Users
         Task<UserStatus> GetStatus(string email);
         Task<UserStatus> GetStatus(Guid userId);
         Task<UserSellerApplicationDto?> GetApplication(Guid userId);
-        Task<IEnumerable<UserSellerApplicationDto>> GetApplications(SellerApplicationQuery sellerApplicationQuery);
+        Task<UserSellerApplicationPagedDto> GetApplications(SellerApplicationQuery sellerApplicationQuery);
         Task<bool> UpdateApplication(Guid applicationId, UserSellerApplicationStatusUpdateDto statusUpdate);
         Task<UserResponseBaseDto?> Login(UserLoginDto userLoginDto);
         Task<UserResponseBaseDto?> Register(UserCreateBaseDto userCreateDto);

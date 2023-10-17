@@ -1,9 +1,6 @@
-﻿using keepscape_api.Configurations;
-using keepscape_api.Models;
+﻿using keepscape_api.Models;
 using keepscape_api.Repositories.Interfaces;
-using Microsoft.Extensions.Options;
-using System.Net;
-using System.Net.Mail;
+using keepscape_api.Services.Emails;
 
 namespace keepscape_api.Services.ConfirmationCodes
 {
@@ -11,17 +8,17 @@ namespace keepscape_api.Services.ConfirmationCodes
     {
         private readonly IConfirmationCodeRepository _confirmationCodeRepository;
         private readonly IUserRepository _userRepository;
-        private readonly CodeConfig _config;
+        private readonly IEmailService _emailService;
         private readonly Random _random = new Random();
 
         public ConfirmationCodeService(
             IConfirmationCodeRepository confirmationCodeRepository,
             IUserRepository userRepository,
-            IOptionsSnapshot<CodeConfig> config)
+            IEmailService emailService)
         {
             _confirmationCodeRepository = confirmationCodeRepository;
             _userRepository = userRepository;
-            _config = config.Value;
+            _emailService = emailService;
         }
 
         public async Task<bool> Send(string email)
@@ -33,9 +30,6 @@ namespace keepscape_api.Services.ConfirmationCodes
                 return false;
             }
 
-            var fromAddress = new MailAddress(_config.Email, "Keepscape Ecommerce");
-            var toAddress = new MailAddress(email);
-            string password = _config.Password;
             string subject = "Password Reset Code - Keepscape Ecommerce";
             string code = GenerateCode();
 
@@ -53,24 +47,7 @@ namespace keepscape_api.Services.ConfirmationCodes
                 </html>
             ";
 
-            var smtp = new SmtpClient
-            {
-                Host = _config.Host,
-                Port = _config.Port,
-                EnableSsl = true,
-                DeliveryMethod = SmtpDeliveryMethod.Network,
-                UseDefaultCredentials = false,
-                Credentials = new NetworkCredential(fromAddress.Address, password)
-            };
-
-            var mailMessage = new MailMessage(fromAddress, toAddress)
-            {
-                Subject = subject,
-                Body = body,
-                IsBodyHtml = true
-            };
-
-            await smtp.SendMailAsync(mailMessage);
+            await _emailService.SendEmailAsync(email, subject, body);
 
             var latestCode = await _confirmationCodeRepository.GetLatestConfirmationCodeByUserGuid(user.Id);
 

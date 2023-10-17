@@ -47,6 +47,13 @@ namespace keepscape_api.Dtos.Users
         public string SellerName { get; init; } = string.Empty;
         public string Description { get; init; } = string.Empty;
     }
+
+    public record UserSellerApplicationPagedDto
+    {
+        public IEnumerable<UserSellerApplicationDto> SellerApplications { get; init; } = new List<UserSellerApplicationDto>();
+        public int PageCount { get; init; } = 1;
+    }
+
     public record UserSellerApplicationStatusUpdateDto
     {
         public string Status { get; init; } = ApplicationStatus.Pending.ToString();

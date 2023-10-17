@@ -8,6 +8,6 @@ namespace keepscape_api.Repositories.Interfaces
     {
         Task<SellerApplication?> GetByUserId(Guid userId);
         Task<SellerApplication?> GetBySellerProfileId(Guid sellerProfileId);
-        Task<IEnumerable<SellerApplication>> Get(SellerApplicationQuery sellerApplicationQuery);
+        Task<(IEnumerable<SellerApplication> SellerApplications, int PageCount)> Get(SellerApplicationQuery sellerApplicationQuery);
     }
 }

@@ -7,6 +7,7 @@ using keepscape_api.Repositories.Generics;
 using keepscape_api.Repositories.Interfaces;
 using keepscape_api.Services.BaseImages;
 using keepscape_api.Services.ConfirmationCodes;
+using keepscape_api.Services.Emails;
 using keepscape_api.Services.Tokens;
 using Microsoft.AspNetCore.Identity;
 
@@ -20,6 +21,7 @@ namespace keepscape_api.Services.Users
         private readonly ISellerApplicationRepository _sellerApplicationRepository;
         private readonly IBaseImageService _baseImageService;
         private readonly ITokenService _tokenService;
+        private readonly IEmailService _emailService;
         private readonly IConfirmationCodeService _confirmationCodeService;
         private readonly IMapper _mapper;
 
@@ -29,6 +31,7 @@ namespace keepscape_api.Services.Users
             ISellerApplicationRepository sellerApplicationRepository,
             IBaseImageService baseImageService,
             ITokenService tokenService,
+            IEmailService emailService,
             IConfirmationCodeService confirmationCodeService,
             IMapper mapper)
         {
@@ -38,6 +41,7 @@ namespace keepscape_api.Services.Users
             _sellerApplicationRepository = sellerApplicationRepository;
             _baseImageService = baseImageService;
             _tokenService = tokenService;
+            _emailService = emailService;
             _confirmationCodeService = confirmationCodeService;
             _mapper = mapper;
         }
@@ -59,11 +63,17 @@ namespace keepscape_api.Services.Users
             return _mapper.Map<UserSellerApplicationDto>(sellerProfile.SellerApplication);
         }
 
-        public async Task<IEnumerable<UserSellerApplicationDto>> GetApplications(SellerApplicationQuery sellerApplicationQuery)
+        public async Task<UserSellerApplicationPagedDto> GetApplications(SellerApplicationQuery sellerApplicationQuery)
         {
-            var sellerApplications =  await _sellerApplicationRepository.Get(sellerApplicationQuery);
+            var sellerApplicationQueryResult =  await _sellerApplicationRepository.Get(sellerApplicationQuery);
 
-            return sellerApplications.Select(sellerApplication => _mapper.Map<UserSellerApplicationDto>(sellerApplication));    
+            var sellerApplications = sellerApplicationQueryResult.SellerApplications;
+
+            return new UserSellerApplicationPagedDto
+            {
+                SellerApplications = sellerApplications.Select(sellerApplications => _mapper.Map<UserSellerApplicationDto>(sellerApplications)),
+                PageCount = sellerApplicationQueryResult.PageCount
+            };
         }
 
         public async Task<UserStatus> GetStatus(string email)
@@ -216,15 +226,47 @@ namespace keepscape_api.Services.Users
                 return false;
             }
 
-            if (statusUpdate.Status == ApplicationStatus.Approved.ToString())
+            var status = Enum.TryParse<ApplicationStatus>(statusUpdate.Status, true, out var currentStatus);
+
+            if (!status)
             {
-                application.Status = ApplicationStatus.Approved;
+                return false;
             }
 
-            if (statusUpdate.Status == ApplicationStatus.Rejected.ToString())
+            application.Status = currentStatus;
+
+            var subject = "Keepscape Seller Application Status Update";
+
+            var body = "";
+
+            if (currentStatus == ApplicationStatus.Approved)
             {
-                application.Status = ApplicationStatus.Rejected;
+                body = $@"
+                <html>
+                    <body>
+                        <p>Hi {application.SellerProfile!.Name},</p>
+                        <p>Your seller application has been approved.</p>
+                        <p>Regards,<br />Keepscape Team</p>
+                    </body>
+                </html>";
             }
+            else
+            {
+                // Generate a message for rejected status
+                body = $@"
+                <html>
+                    <body>
+                        <p>Hi {application.SellerProfile!.Name},</p>
+                        <p>Your seller application has been rejected.</p>
+                        <p>It may be because of your ID credentials being invalid</p>
+                        <p>or your ID not being clear enough.</p>
+                        <p>Please try again with a clearer ID or contact us again.</p>
+                        <p>Regards,<br />Keepscape Team</p>
+                    </body>
+                </html>";
+            }
+
+            await _emailService.SendEmailAsync(application.SellerProfile.User!.Email, subject, body);
 
             return await _sellerApplicationRepository.UpdateAsync(application);
         }
