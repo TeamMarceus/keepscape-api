@@ -59,5 +59,20 @@ namespace keepscape_api.Services.BaseImages
                 };
             }
         }
+
+        public async Task<bool> Delete(string url)
+        {
+            string objectPath = url.Split($"{_bucketName}/")[1];
+
+            try
+            {
+                await _storageClient.DeleteObjectAsync(_bucketName, objectPath);
+                return true;
+            }
+            catch (Google.GoogleApiException ex) when (ex.Error.Code == 404)
+            {
+                return false;
+            }
+        }
     }
 }

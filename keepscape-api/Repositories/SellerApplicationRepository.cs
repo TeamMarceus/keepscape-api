@@ -1,4 +1,5 @@
 ﻿using keepscape_api.Data;
+using keepscape_api.Enums;
 using keepscape_api.Models;
 using keepscape_api.QueryModels;
 using keepscape_api.Repositories.Interfaces;
@@ -22,7 +23,10 @@ namespace keepscape_api.Repositories
 
             if (!string.IsNullOrEmpty(sellerApplicationQuery.Status))
             {
-                query = query.Where(b => b.Status.ToString() == sellerApplicationQuery.Status);
+                if (Enum.TryParse<ApplicationStatus>(sellerApplicationQuery.Status, out var status))
+                {
+                    query = query.Where(b => b.Status == status);
+                }
             }
 
             if (sellerApplicationQuery.Page != null && sellerApplicationQuery.PageSize != null)

@@ -13,7 +13,7 @@ namespace keepscape_api.Repositories
         {
         }
 
-        public async Task<IEnumerable<Product>> Get(ProductQuery productQueryParameters)
+        public async Task<(IEnumerable<Product> Products, int PageCount)> Get(ProductQuery productQueryParameters)
         {
             var query = _dbSet
                 .Include(p => p.Place)
@@ -25,7 +25,9 @@ namespace keepscape_api.Repositories
                 p.SellerProfile!.SellerApplication!.Status == ApplicationStatus.Approved)
                 .AsSplitQuery()
                 .AsNoTracking();
-            
+
+            int pageCount = 1;
+
             if (productQueryParameters.SellerId != null)
             {
                 query = query.Where(p => p.SellerProfileId == productQueryParameters.SellerId);
@@ -62,11 +64,29 @@ namespace keepscape_api.Repositories
             }
             if (productQueryParameters.Page != null && productQueryParameters.PageSize != null)
             {
+                int queryPageCount = await query.CountAsync();
+                
+                pageCount = (int)Math.Ceiling((double)queryPageCount / (int)productQueryParameters.PageSize);
+
+                if (productQueryParameters.Page > pageCount)
+                {
+                    productQueryParameters.Page = pageCount;
+                }
+                else if (productQueryParameters.Page < 1)
+                {
+                    productQueryParameters.Page = 1;
+                }
+                else if (pageCount == 0)
+                {
+                    pageCount = 1;
+                    productQueryParameters.Page = 1;
+                }
+
                 int skipAmount = ((int)productQueryParameters.Page - 1) * (int)productQueryParameters.PageSize;
                 query = query.Skip(skipAmount).Take((int)productQueryParameters.PageSize);
             }
 
-            return await query.ToListAsync();
+            return (await query.ToListAsync(), pageCount);
         }
 
         public override async Task<IEnumerable<Product>> GetAllAsync()

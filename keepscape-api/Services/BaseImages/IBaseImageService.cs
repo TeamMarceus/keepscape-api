@@ -6,5 +6,6 @@ namespace keepscape_api.Services.BaseImages
     {
         Task<BaseImage?> Get(string objectName, Guid id);
         Task<BaseImage?> Upload(string objectName, IFormFile file);
+        Task<bool> Delete(string url);
     }
 }

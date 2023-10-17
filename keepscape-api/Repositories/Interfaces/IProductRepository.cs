@@ -6,7 +6,7 @@ namespace keepscape_api.Repositories.Interfaces
 {
     public interface IProductRepository : IBaseRepository<Product>
     {
-        Task<IEnumerable<Product>> Get(ProductQuery productQueryParameters);
+        Task<(IEnumerable<Product> Products, int PageCount)> Get(ProductQuery productQueryParameters);
         Task<int> GetTotalProductCount();
     }
 }

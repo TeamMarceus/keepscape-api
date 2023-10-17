@@ -32,6 +32,7 @@ namespace keepscape_api.Repositories
         public new async Task<ProductReview> AddAsync(ProductReview productReview)
         {
             _context.Products.Attach(productReview.Product!);
+            _context.BuyerProfiles.Attach(productReview.BuyerProfile!);
 
             _context.ProductReviews.Add(productReview);
 

@@ -23,6 +23,13 @@
         public string Image { get; init; } = string.Empty;
     }
 
+    public record ProductResponseHomePaginatedDto
+    {
+        public IEnumerable<ProductResponseHomeDto> Products { get; init; } = new List<ProductResponseHomeDto>();
+
+        public int PageCount { get; init; } = 1;
+    }
+
     public record ProductReviewDto
     {
         public string UserName { get; init; } = string.Empty;

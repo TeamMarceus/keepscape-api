@@ -53,16 +53,21 @@ namespace keepscape_api.Services.Products
             return productCategories.Select(c => _mapper.Map<ProductCategoryPlaceDto>(c)).ToList();
         }
 
-        public async Task<IEnumerable<ProductResponseHomeDto>> Get(ProductQuery productQueryParameters)
+        public async Task<ProductResponseHomePaginatedDto> Get(ProductQuery productQueryParameters)
         {
-            var products = await _productRepository.Get(productQueryParameters);
+            var productQueryResult = await _productRepository.Get(productQueryParameters);
 
+            var products = productQueryResult.Products;
             if (products.IsNullOrEmpty())
             {
-                return new List<ProductResponseHomeDto>();
+                return new ProductResponseHomePaginatedDto();
             }
 
-            return products.Select(p => _mapper.Map<ProductResponseHomeDto>(p));
+            return new ProductResponseHomePaginatedDto
+            {
+                Products = products.Select(products => _mapper.Map<ProductResponseHomeDto>(products)),
+                PageCount = productQueryResult.PageCount
+            };
         }
 
         public async Task<IEnumerable<ProductResponseDto>> GetAll()
@@ -235,8 +240,8 @@ namespace keepscape_api.Services.Products
 
             var productReview = _mapper.Map<ProductReview>(productReviewCreateDto);
 
-            productReview.BuyerProfileId = buyer.BuyerProfile!.Id;
-            productReview.ProductId = product.Id;
+            productReview.BuyerProfile = buyer.BuyerProfile!;
+            productReview.Product = product;
 
             await _productReviewRepository.AddAsync(productReview);
 
