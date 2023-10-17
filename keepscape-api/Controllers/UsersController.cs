@@ -328,11 +328,6 @@ namespace keepscape_api.Controllers
             {
                 var sellerApplications = await _userService.GetApplications(sellerApplicationQuery);
 
-                if (sellerApplications.IsNullOrEmpty())
-                {
-                    return NoContent();
-                }
-
                 return Ok(sellerApplications);
             }
             catch (Exception ex)
