@@ -87,6 +87,51 @@ namespace keepscape_api.Services.Users
             };
         }
 
+        public async Task<(UserResponseBaseDto? user, UserType? type)> GetById(Guid userId)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+
+            if (user == null)
+            {
+                return (null, null);
+            }
+
+            if (user.UserType == UserType.Buyer)
+            {
+                var buyerProfile = await _buyerProfileRepository.GetProfileByUserGuid(user.Id);
+
+                if (buyerProfile == null)
+                {
+                    return (null, null);
+                }
+
+                buyerProfile.User = user;
+
+                return (_mapper.Map<UserResponseBuyerDto>(buyerProfile), UserType.Buyer);
+            }
+
+            if (user.UserType == UserType.Seller)
+            {
+                var sellerProfile = await _sellerProfileRepository.GetProfileByUserGuid(user.Id);
+
+                if (sellerProfile == null)
+                {
+                    return (null, null);
+                }
+
+                sellerProfile.User = user;
+
+                return (_mapper.Map<UserResponseSellerDto>(sellerProfile), UserType.Seller);
+            }
+
+            if (user.UserType == UserType.Admin)
+            {
+                return (_mapper.Map<UserResponseAdminDto>(user), UserType.Admin);
+            }
+
+            return (null, null);
+        }
+
         public async Task<UserSellersPagedDto> GetSellers(PaginatorQuery paginatorQuery)
         {
             var sellers = await _userRepository.GetSellers(paginatorQuery);

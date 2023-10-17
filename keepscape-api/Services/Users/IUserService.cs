@@ -8,6 +8,7 @@ namespace keepscape_api.Services.Users
     {
         Task<UserStatus> GetStatus(string email);
         Task<UserStatus> GetStatus(Guid userId);
+        Task<(UserResponseBaseDto? user, UserType? type)> GetById(Guid userId);
         Task<UserSellerApplicationDto?> GetApplication(Guid userId);
         Task<UserSellerApplicationPagedDto> GetApplications(SellerApplicationQuery sellerApplicationQuery);
         Task<UserBuyersPagedDto> GetBuyers(PaginatorQuery paginatorQuery);

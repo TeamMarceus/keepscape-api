@@ -291,6 +291,44 @@ namespace keepscape_api.Controllers
         }
 
         // Admin
+        [HttpGet("{userId}")]
+        [Authorize(Policy = "Admin")]
+        public async Task<IActionResult> GetById(Guid userId)
+        {
+            try
+            {
+                var userResponseDto = await _userService.GetById(userId);
+
+                var user = userResponseDto.user;
+                var type = userResponseDto.type;
+
+                if (user == null)
+                {
+                    return BadRequest("Invalid user id.");
+                }
+
+                if (type == UserType.Buyer)
+                {
+                    user = (UserResponseBuyerDto)user;
+                }
+                else if (type == UserType.Seller)
+                {
+                    user = (UserResponseSellerDto)user;
+                }
+                else if (type == UserType.Admin)
+                {
+                    user = (UserResponseAdminDto)user;
+                }
+
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_userService.GetById)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
         [HttpGet("buyers")]
         [Authorize(Policy = "Admin")]
         public async Task<IActionResult> GetBuyers([FromQuery] PaginatorQuery paginatorQuery)
