@@ -10,7 +10,7 @@ namespace keepscape_api.Dtos.Users
         public string FullName => $"{FirstName} {LastName}";
         public string Email { get; init; } = string.Empty;
         public string PhoneNumber { get; init; } = string.Empty;
-        public string Status { get; init; } = UserStatus.Pending.ToString();
+        public bool IsBanned { get; init; } = false;
     }
 
     public record UserResponseBuyerDto : UserResponseBaseDto
@@ -50,6 +50,8 @@ namespace keepscape_api.Dtos.Users
         public string Email { get; init; } = string.Empty;
         public string SellerName { get; init; } = string.Empty;
         public string Description { get; init; } = string.Empty;
+        public string PhoneNumber { get; init; } = string.Empty;
+        public DateTime DateTimeCreated { get; init; }
     }
 
     public record UserSellerApplicationPagedDto

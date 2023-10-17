@@ -1,0 +1,2 @@
+﻿INSERT INTO [dbo].[Users] ([Id], [UserType], [Email], [PhoneNumber], [Password], [FirstName], [LastName], [IsBanned], [IsVerified], [LastLoggedIn], [DateTimeCreated], [DateTimeUpdated]) VALUES (N'61bbeb1a-3574-4fb3-9756-b1e177c3c260', N'Admin', N'keepscape.ecommerce@gmail.com', N'1234567890', N'AQAAAAEAACcQAAAAEHMoXjDNHVFsBcJdS45/k5Hk7jRj5jHBs+K5YakFcD6J/+8HcOwmg1NNMay7Tn1O4A==', N'Admin', N'Admin', 0, 1, N'2023-10-16 23:05:18', N'2023-10-16 23:05:18', N'2023-10-16 23:05:18')
+

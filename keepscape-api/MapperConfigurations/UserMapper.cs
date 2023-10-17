@@ -50,7 +50,8 @@ namespace keepscape_api.MapperConfigurations
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.SellerProfile!.User!.LastName))
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.SellerProfile!.User!.Email))
                 .ForMember(dest => dest.SellerName, opt => opt.MapFrom(src => src.SellerProfile!.Name))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.SellerProfile!.Description));
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.SellerProfile!.Description))
+                .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.SellerProfile!.User!.PhoneNumber));
         }
     }
 }
