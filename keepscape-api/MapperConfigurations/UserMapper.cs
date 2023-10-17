@@ -38,6 +38,7 @@ namespace keepscape_api.MapperConfigurations
             CreateMap<User, UserResponseSellerDto>()
                 .ForMember(dest => dest.SellerProfileId, opt => opt.MapFrom(src => src.SellerProfile!.Id))
                 .ForMember(dest => dest.SellerApplicationId, opt => opt.MapFrom(src => src.SellerProfile!.SellerApplication!.Id))
+                .ForMember(dest => dest.IdUrl, opt => opt.MapFrom(src => src.SellerProfile!.SellerApplication!.BaseImage!.Url))
                 .ForMember(dest => dest.SellerName, opt => opt.MapFrom(src => src.SellerProfile!.Name))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.SellerProfile!.Description));
 

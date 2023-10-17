@@ -62,6 +62,7 @@ namespace keepscape_api.Repositories
             var query = _dbSet
                 .Include(u => u.SellerProfile)
                     .ThenInclude(u => u!.SellerApplication)
+                    .ThenInclude(sa => sa.BaseImage)
                 .Where(u => u.UserType == UserType.Seller);
 
             int pageCount = 1;
