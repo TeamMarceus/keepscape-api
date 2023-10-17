@@ -226,12 +226,19 @@ namespace keepscape_api.Services.Users
                 return false;
             }
 
-            if (userStatusUpdateDto.Status == UserStatus.OK.ToString())
+            var status = Enum.TryParse<UserStatus>(userStatusUpdateDto.Status, true, out var newStatus);
+
+            if (!status)
+            {
+                return false;
+            }
+
+            if (newStatus == UserStatus.OK)
             {
                 user.IsBanned = false;
             }
 
-            if (userStatusUpdateDto.Status == UserStatus.Banned.ToString())
+            if (newStatus == UserStatus.Banned)
             {
                 user.IsBanned = true;
             }

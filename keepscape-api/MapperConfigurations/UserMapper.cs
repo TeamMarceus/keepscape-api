@@ -21,12 +21,15 @@ namespace keepscape_api.MapperConfigurations
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(opt => opt.User!.Email));
 
             CreateMap<SellerProfile, UserResponseSellerDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.UserId))
                 .ForMember(dest => dest.SellerProfileId, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.SellerName, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.UserId))
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.User!.FirstName))
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.User!.LastName))
-                .ForMember(dest => dest.Email, opt => opt.MapFrom(opt => opt.User!.Email));
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(opt => opt.User!.Email))
+                .ForMember(dest => dest.IdUrl, opt => opt.MapFrom(opt => opt.SellerApplication!.BaseImage))
+                .ForMember(dest => dest.DateTimeApproved, opt => opt.MapFrom(src => src.SellerApplication!.DateTimeUpdated))
+                ;
 
             CreateMap<User, UserResponseAdminDto>();
             CreateMap<User, UserResponseBuyerDto>()
@@ -40,11 +43,11 @@ namespace keepscape_api.MapperConfigurations
                 .ForMember(dest => dest.SellerApplicationId, opt => opt.MapFrom(src => src.SellerProfile!.SellerApplication!.Id))
                 .ForMember(dest => dest.IdUrl, opt => opt.MapFrom(src => src.SellerProfile!.SellerApplication!.BaseImage!.Url))
                 .ForMember(dest => dest.SellerName, opt => opt.MapFrom(src => src.SellerProfile!.Name))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.SellerProfile!.Description));
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.SellerProfile!.Description))
+                .ForMember(dest => dest.DateTimeApproved, opt => opt.MapFrom(src => src.SellerProfile!.SellerApplication!.DateTimeUpdated))
+                ;
 
             CreateMap<SellerApplication, UserSellerApplicationDto>()
-                .ForMember(dest => dest.Id , opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
                 .ForMember(dest => dest.IdUrl, opt => opt.MapFrom(src => src.BaseImage!.Url))
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.SellerProfile!. User!.FirstName))
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.SellerProfile!.User!.LastName))

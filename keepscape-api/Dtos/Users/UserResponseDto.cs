@@ -11,6 +11,7 @@ namespace keepscape_api.Dtos.Users
         public string Email { get; init; } = string.Empty;
         public string PhoneNumber { get; init; } = string.Empty;
         public bool IsBanned { get; init; } = false;
+        public DateTime DateTimeCreated { get; init; }
     }
 
     public record UserResponseBuyerDto : UserResponseBaseDto
@@ -33,6 +34,7 @@ namespace keepscape_api.Dtos.Users
         public string SellerName { get; init; } = string.Empty;
         public string Description { get; init; } = string.Empty;
         public string UserType { get; init; } = Enums.UserType.Seller.ToString();
+        public DateTime DateTimeApproved { get; init; }
     }
 
     public record UserResponseAdminDto : UserResponseBaseDto
