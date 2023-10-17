@@ -1,4 +1,5 @@
-﻿using keepscape_api.Validators;
+﻿using keepscape_api.Enums;
+using keepscape_api.Validators;
 using System.ComponentModel.DataAnnotations;
 
 namespace keepscape_api.Dtos.Users
