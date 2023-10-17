@@ -30,7 +30,7 @@ namespace keepscape_api.Services.Emails
         {
             var to = new MailAddress(email);
 
-            var mailMessage = new MailMessage(to, _from)
+            var mailMessage = new MailMessage(_from, to)
             {
                 Subject = subject,
                 Body = message,
@@ -38,6 +38,7 @@ namespace keepscape_api.Services.Emails
             };
 
             await _smtp.SendMailAsync(mailMessage);
+
         }
     }
 }
