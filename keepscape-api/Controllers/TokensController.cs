@@ -35,17 +35,26 @@ namespace keepscape_api.Controllers
 
                 if (userStatus == UserStatus.Banned)
                 {
-                    return BadRequest("User is banned.");
+                    return BadRequest(new
+                    {
+                        UserStatus = UserStatus.Banned.ToString()
+                    });
                 }
 
                 if (userStatus == UserStatus.NotFound)
                 {
-                    return BadRequest("User not found.");
+                    return BadRequest(new
+                    {
+                        UserStatus = UserStatus.NotFound.ToString()
+                    });
                 }
 
                 if (userStatus == UserStatus.Pending)
                 {
-                    return Unauthorized("User is pending.");
+                    return BadRequest(new
+                    {
+                        UserStatus = UserStatus.Pending.ToString()
+                    });
                 }
 
                 var tokenResponseDto = await _tokenService.Create(tokenCreateDto);
@@ -104,17 +113,26 @@ namespace keepscape_api.Controllers
 
                 if (userStatus == UserStatus.Banned)
                 {
-                    return BadRequest("User is banned.");
+                    return BadRequest(new
+                    {
+                        UserStatus = UserStatus.Banned.ToString()
+                    });
                 }
 
                 if (userStatus == UserStatus.NotFound)
                 {
-                    return BadRequest("User not found.");
+                    return BadRequest(new
+                    {
+                        UserStatus = UserStatus.NotFound.ToString()
+                    });
                 }
 
                 if (userStatus == UserStatus.Pending)
                 {
-                    return Unauthorized("User is pending.");
+                    return BadRequest(new
+                    {
+                        UserStatus = UserStatus.Pending.ToString()
+                    });
                 }
 
                 var tokenResponseDto = await _tokenService.Refresh(tokenRefreshDto);

@@ -5,7 +5,6 @@ using keepscape_api.Services.ConfirmationCodes;
 using keepscape_api.Services.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 
 namespace keepscape_api.Controllers
@@ -41,17 +40,26 @@ namespace keepscape_api.Controllers
 
                 if (userStatus == UserStatus.Banned)
                 {
-                    return BadRequest("User is banned.");
+                    return BadRequest(new
+                    {
+                        UserStatus = UserStatus.Banned.ToString()
+                    });
                 }
 
                 if (userStatus == UserStatus.NotFound)
                 {
-                    return BadRequest("User not found.");
+                    return BadRequest(new
+                    {
+                        UserStatus = UserStatus.NotFound.ToString()
+                    });
                 }
 
                 if (userStatus == UserStatus.Pending)
                 {
-                    return Unauthorized("User is pending.");
+                    return BadRequest(new
+                    {
+                        UserStatus = UserStatus.Pending.ToString()
+                    });
                 }
 
                 var userResponseDto = await _userService.Login(userLoginDto);
@@ -109,17 +117,26 @@ namespace keepscape_api.Controllers
 
                 if (userStatus == UserStatus.Banned)
                 {
-                    return BadRequest("User is banned.");
+                    return BadRequest(new
+                    {
+                        UserStatus = UserStatus.Banned.ToString()
+                    });
                 }
 
                 if (userStatus == UserStatus.NotFound)
                 {
-                    return BadRequest("User not found.");
+                    return BadRequest(new
+                    {
+                        UserStatus = UserStatus.NotFound.ToString()
+                    });
                 }
 
                 if (userStatus == UserStatus.Pending)
                 {
-                    return Unauthorized("User is pending.");
+                    return BadRequest(new
+                    {
+                        UserStatus = UserStatus.Pending.ToString()
+                    });
                 }
 
                 var codeSent = await _confirmationCodeService.Send(email);
@@ -153,17 +170,26 @@ namespace keepscape_api.Controllers
 
                 if (userStatus == UserStatus.Banned)
                 {
-                    return Forbid("User is banned.");
+                    return BadRequest(new
+                    {
+                        UserStatus = UserStatus.Banned.ToString()
+                    });
                 }
 
                 if (userStatus == UserStatus.NotFound)
                 {
-                    return BadRequest("User not found.");
+                    return BadRequest(new
+                    {
+                        UserStatus = UserStatus.NotFound.ToString()
+                    });
                 }
 
                 if (userStatus == UserStatus.Pending)
                 {
-                    return Unauthorized("User is pending.");
+                    return BadRequest(new
+                    {
+                        UserStatus = UserStatus.Pending.ToString()
+                    });
                 }
 
                 var codeVerified = await _confirmationCodeService.Verify(userVerifyCode.Email, userVerifyCode.Code);
@@ -197,17 +223,26 @@ namespace keepscape_api.Controllers
 
                 if (userStatus == UserStatus.Banned)
                 {
-                    return BadRequest("User is banned.");
+                    return BadRequest(new
+                    {
+                        UserStatus = UserStatus.Banned.ToString()
+                    });
                 }
 
                 if (userStatus == UserStatus.NotFound)
                 {
-                    return BadRequest("User not found.");
+                    return BadRequest(new
+                    {
+                        UserStatus = UserStatus.NotFound.ToString()
+                    });
                 }
 
                 if (userStatus == UserStatus.Pending)
                 {
-                    return Unauthorized("User is pending.");
+                    return BadRequest(new
+                    {
+                        UserStatus = UserStatus.Pending.ToString()
+                    });
                 }
 
                 var userResponseDto = await _userService.UpdatePasswordWithCode(userUpdatePasswordWithCodeDto);
