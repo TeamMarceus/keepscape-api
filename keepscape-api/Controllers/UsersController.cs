@@ -291,6 +291,40 @@ namespace keepscape_api.Controllers
         }
 
         // Admin
+        [HttpGet("buyers")]
+        [Authorize(Policy = "Admin")]
+        public async Task<IActionResult> GetBuyers([FromQuery] PaginatorQuery paginatorQuery)
+        {
+            try
+            {
+                var buyers = await _userService.GetBuyers(paginatorQuery);
+
+                return Ok(buyers);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_userService.GetBuyers)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpGet("sellers")]
+        [Authorize(Policy = "Admin")]
+        public async Task<IActionResult> GetSellers([FromQuery] PaginatorQuery paginatorQuery)
+        {
+            try
+            {
+                var sellers = await _userService.GetSellers(paginatorQuery);
+
+                return Ok(sellers);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_userService.GetSellers)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
         [HttpGet("sellers/applications")]
         [Authorize(Policy = "Admin")]
         public async Task<IActionResult> GetSellerApplications([FromQuery] SellerApplicationQuery sellerApplicationQuery)

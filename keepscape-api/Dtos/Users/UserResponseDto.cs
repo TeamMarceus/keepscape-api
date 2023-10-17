@@ -54,13 +54,15 @@ namespace keepscape_api.Dtos.Users
         public int PageCount { get; init; } = 1;
     }
 
-    public record UserSellerApplicationStatusUpdateDto
+    public record UserBuyersPagedDto
     {
-        public string Status { get; init; } = ApplicationStatus.Pending.ToString();
+        public IEnumerable<UserResponseBuyerDto> Buyers { get; init; } = new List<UserResponseBuyerDto>();
+        public int PageCount { get; init; } = 1;
     }
 
-    public record UserStatusUpdateDto
+    public record UserSellersPagedDto
     {
-        public string Status { get; init; } = UserStatus.OK.ToString();
+        public IEnumerable<UserResponseSellerDto> Sellers { get; init; } = new List<UserResponseSellerDto>();
+        public int PageCount { get; init; } = 1;
     }
 }

@@ -76,6 +76,28 @@ namespace keepscape_api.Services.Users
             };
         }
 
+        public async Task<UserBuyersPagedDto> GetBuyers(PaginatorQuery paginatorQuery)
+        {
+            var buyers = await _userRepository.GetBuyers(paginatorQuery);
+
+            return new UserBuyersPagedDto
+            {
+                Buyers = buyers.Buyers.Select(buyer => _mapper.Map<UserResponseBuyerDto>(buyer)),
+                PageCount = buyers.PageCount
+            };
+        }
+
+        public async Task<UserSellersPagedDto> GetSellers(PaginatorQuery paginatorQuery)
+        {
+            var sellers = await _userRepository.GetSellers(paginatorQuery);
+
+            return new UserSellersPagedDto
+            {
+                Sellers = sellers.Sellers.Select(seller => _mapper.Map<UserResponseSellerDto>(seller)),
+                PageCount = sellers.PageCount
+            };
+        }
+
         public async Task<UserStatus> GetStatus(string email)
         {
             return await GetStatus(await _userRepository.GetUserByEmailAsync(email));

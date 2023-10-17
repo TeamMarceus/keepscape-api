@@ -114,4 +114,14 @@ namespace keepscape_api.Dtos.Users
         [EmailAddress]
         public string Email { get; init; } = string.Empty;
     }
+
+    public record UserSellerApplicationStatusUpdateDto
+    {
+        public string Status { get; init; } = ApplicationStatus.Pending.ToString();
+    }
+
+    public record UserStatusUpdateDto
+    {
+        public string Status { get; init; } = UserStatus.OK.ToString();
+    }
 }

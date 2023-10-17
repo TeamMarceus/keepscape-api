@@ -1,5 +1,4 @@
-﻿using keepscape_api.Dtos.Products;
-using keepscape_api.Dtos.Users;
+﻿using keepscape_api.Dtos.Users;
 using keepscape_api.Enums;
 using keepscape_api.QueryModels;
 
@@ -11,6 +10,8 @@ namespace keepscape_api.Services.Users
         Task<UserStatus> GetStatus(Guid userId);
         Task<UserSellerApplicationDto?> GetApplication(Guid userId);
         Task<UserSellerApplicationPagedDto> GetApplications(SellerApplicationQuery sellerApplicationQuery);
+        Task<UserBuyersPagedDto> GetBuyers(PaginatorQuery paginatorQuery);
+        Task<UserSellersPagedDto> GetSellers(PaginatorQuery paginatorQuery);
         Task<bool> UpdateApplication(Guid applicationId, UserSellerApplicationStatusUpdateDto statusUpdate);
         Task<UserResponseBaseDto?> Login(UserLoginDto userLoginDto);
         Task<UserResponseBaseDto?> Register(UserCreateBaseDto userCreateDto);
