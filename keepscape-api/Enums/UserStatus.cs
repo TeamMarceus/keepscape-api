@@ -5,6 +5,7 @@
         Banned,
         OK,
         Pending,
+        Rejected,
         NotFound
     }
 }

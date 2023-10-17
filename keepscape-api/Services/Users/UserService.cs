@@ -340,7 +340,7 @@ namespace keepscape_api.Services.Users
 
                 if (sellerProfile.SellerApplication.Status == ApplicationStatus.Rejected)
                 {
-                    return UserStatus.Banned;
+                    return UserStatus.Rejected;
                 }
             }
 

@@ -38,27 +38,11 @@ namespace keepscape_api.Controllers
 
                 var userStatus = await _userService.GetStatus(userLoginDto.Email);
 
-                if (userStatus == UserStatus.Banned)
+                if (userStatus != UserStatus.OK)
                 {
                     return BadRequest(new
                     {
-                        UserStatus = UserStatus.Banned.ToString()
-                    });
-                }
-
-                if (userStatus == UserStatus.NotFound)
-                {
-                    return BadRequest(new
-                    {
-                        UserStatus = UserStatus.NotFound.ToString()
-                    });
-                }
-
-                if (userStatus == UserStatus.Pending)
-                {
-                    return BadRequest(new
-                    {
-                        UserStatus = UserStatus.Pending.ToString()
+                        UserStatus = userStatus.ToString()
                     });
                 }
 
@@ -115,27 +99,11 @@ namespace keepscape_api.Controllers
 
                 var userStatus = await _userService.GetStatus(email);
 
-                if (userStatus == UserStatus.Banned)
+                if (userStatus != UserStatus.OK)
                 {
                     return BadRequest(new
                     {
-                        UserStatus = UserStatus.Banned.ToString()
-                    });
-                }
-
-                if (userStatus == UserStatus.NotFound)
-                {
-                    return BadRequest(new
-                    {
-                        UserStatus = UserStatus.NotFound.ToString()
-                    });
-                }
-
-                if (userStatus == UserStatus.Pending)
-                {
-                    return BadRequest(new
-                    {
-                        UserStatus = UserStatus.Pending.ToString()
+                        UserStatus = userStatus.ToString()
                     });
                 }
 
@@ -168,27 +136,11 @@ namespace keepscape_api.Controllers
 
                 var userStatus = await _userService.GetStatus(userVerifyCode.Email);
 
-                if (userStatus == UserStatus.Banned)
+                if (userStatus != UserStatus.OK)
                 {
                     return BadRequest(new
                     {
-                        UserStatus = UserStatus.Banned.ToString()
-                    });
-                }
-
-                if (userStatus == UserStatus.NotFound)
-                {
-                    return BadRequest(new
-                    {
-                        UserStatus = UserStatus.NotFound.ToString()
-                    });
-                }
-
-                if (userStatus == UserStatus.Pending)
-                {
-                    return BadRequest(new
-                    {
-                        UserStatus = UserStatus.Pending.ToString()
+                        UserStatus = userStatus.ToString()
                     });
                 }
 
@@ -221,27 +173,11 @@ namespace keepscape_api.Controllers
 
                 var userStatus = await _userService.GetStatus(userUpdatePasswordWithCodeDto.Email);
 
-                if (userStatus == UserStatus.Banned)
+                if (userStatus != UserStatus.OK)
                 {
                     return BadRequest(new
                     {
-                        UserStatus = UserStatus.Banned.ToString()
-                    });
-                }
-
-                if (userStatus == UserStatus.NotFound)
-                {
-                    return BadRequest(new
-                    {
-                        UserStatus = UserStatus.NotFound.ToString()
-                    });
-                }
-
-                if (userStatus == UserStatus.Pending)
-                {
-                    return BadRequest(new
-                    {
-                        UserStatus = UserStatus.Pending.ToString()
+                        UserStatus = userStatus.ToString()
                     });
                 }
 
