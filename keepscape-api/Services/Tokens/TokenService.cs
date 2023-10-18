@@ -1,5 +1,6 @@
 ﻿using keepscape_api.Configurations;
 using keepscape_api.Dtos.Tokens;
+using keepscape_api.Enums;
 using keepscape_api.Models;
 using keepscape_api.Repositories.Interfaces;
 using Microsoft.AspNetCore.Identity;
@@ -43,6 +44,11 @@ namespace keepscape_api.Services.Tokens
             if (passwordVerificationResult == PasswordVerificationResult.Failed)
             {
                 return null;
+            }
+
+            if (user.UserType == UserType.Admin)
+            {
+                return await GenerateToken(user);
             }
 
             var latestToken = await _tokenRepository.GetLatestTokenByUserGuid(user.Id);
@@ -150,6 +156,11 @@ namespace keepscape_api.Services.Tokens
             if (user == null)
             {
                 return null;
+            }
+
+            if (user.UserType == UserType.Admin)
+            {
+                return await GenerateToken(user);
             }
 
             var latestToken = await _tokenRepository.GetLatestTokenByUserGuid(user.Id);
