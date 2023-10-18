@@ -19,7 +19,6 @@ using keepscape_api.Services.Emails;
 using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
 using Google.Apis.Auth.OAuth2;
-using Microsoft.Identity.Client;
 using keepscape_api.Services.Announcements;
 
 var builder = WebApplication.CreateBuilder(args);

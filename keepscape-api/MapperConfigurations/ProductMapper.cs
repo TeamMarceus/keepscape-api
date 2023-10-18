@@ -23,7 +23,7 @@ namespace keepscape_api.MapperConfigurations
                     Id = src.Place != null ? src.Place!.Id : Guid.Empty,
                     Name = src.Place != null ? src.Place!.Name : string.Empty,
                 }))
-                .ForMember(dest => dest.Image, opt => opt.MapFrom(src => src.Images.ToList()[0]));
+                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.Images.ToList()[0]));
 
             CreateMap<ProductReview, ProductReviewDto>()
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.BuyerProfile!.User!.FirstName));

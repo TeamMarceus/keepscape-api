@@ -4,7 +4,7 @@
     {
         public Guid Id { get; init; }
         public string Name { get; init; } = string.Empty;
-        public string Image { get; init; } = string.Empty;
+        public string ImageUrl { get; init; } = string.Empty;
     }
 
     public record ProductCategoryPlaceNoImageDto
@@ -20,7 +20,7 @@
         public decimal Price { get; init; }
         public int Stars { get; init; }
         public ProductCategoryPlaceNoImageDto Province { get; init; } = new ProductCategoryPlaceNoImageDto();
-        public string Image { get; init; } = string.Empty;
+        public string ImageUrl { get; init; } = string.Empty;
     }
 
     public record ProductResponseHomePaginatedDto
