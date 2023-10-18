@@ -143,14 +143,18 @@ namespace keepscape_api.Services.Users
             };
         }
 
-        public async Task<UserStatus> GetStatus(string email)
+        public async Task<UserStatusDto> GetStatus(string email)
         {
-            return await GetStatus(await _userRepository.GetUserByEmailAsync(email));
+            var user = await _userRepository.GetUserByEmailAsync(email);
+
+            return await GetStatus(user);
         }
 
-        public async Task<UserStatus> GetStatus(Guid id)
+        public async Task<UserStatusDto> GetStatus(Guid id)
         {
-            return await GetStatus(await _userRepository.GetByIdAsync(id));       
+            var user = await _userRepository.GetByIdAsync(id);
+
+            return await GetStatus(user);
         }
 
         public async Task<UserResponseBaseDto?> Login(UserLoginDto userLoginDto)
@@ -418,16 +422,23 @@ namespace keepscape_api.Services.Users
             return await _userRepository.UpdateAsync(user);
         }
 
-        private async Task<UserStatus> GetStatus(User? user)
+        private async Task<UserStatusDto> GetStatus(User? user)
         {
             if (user == null)
             {
-                return UserStatus.NotFound;
+                return new UserStatusDto
+                {
+                    UserStatus = UserStatus.NotFound
+                };
             }
 
             if (user.IsBanned)
             {
-                return UserStatus.Banned;
+                return new UserStatusDto
+                {
+                    UserStatus = UserStatus.Banned,
+                    Reason = user.StatusReason
+                };
             }
 
             if (user.UserType == UserType.Seller)
@@ -438,16 +449,23 @@ namespace keepscape_api.Services.Users
                     sellerProfile.SellerApplication == null ||
                     sellerProfile.SellerApplication.Status == ApplicationStatus.Pending)
                 {
-                    return UserStatus.Pending;
+                    return new UserStatusDto
+                    {
+                        UserStatus = UserStatus.Pending
+                    };
                 }
 
                 if (sellerProfile.SellerApplication.Status == ApplicationStatus.Rejected)
                 {
-                    return UserStatus.Rejected;
+                    return new UserStatusDto 
+                    { 
+                        UserStatus = UserStatus.Rejected, 
+                        Reason = sellerProfile.SellerApplication.StatusReason
+                    };
                 }
             }
 
-            return UserStatus.OK;
+            return new UserStatusDto { UserStatus = UserStatus.OK };
         }
         private async Task<UserResponseBuyerDto> RegisterBuyer(UserCreateBuyerDto userCreateBuyerDto)
         {

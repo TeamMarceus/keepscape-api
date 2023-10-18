@@ -78,5 +78,7 @@ namespace keepscape_api.Dtos.Users
 
     public record UserStatusDto
     {
-        public UserStatus UserStatus { get; init; } = 
+        public UserStatus UserStatus { get; init; } = UserStatus.OK;
+        public string? Reason { get; init; }
+    }
 }

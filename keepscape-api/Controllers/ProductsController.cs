@@ -50,19 +50,9 @@ namespace keepscape_api.Controllers
 
                 var userStatus = await _userService.GetStatus(sellerId);
 
-                if (userStatus == UserStatus.Banned)
+                if (userStatus.UserStatus != UserStatus.OK)
                 {
-                    return Forbid("User is banned.");
-                }
-
-                if (userStatus == UserStatus.NotFound)
-                {
-                    return BadRequest("User not found.");
-                }
-
-                if (userStatus == UserStatus.Pending)
-                {
-                    return Unauthorized("User is pending.");
+                    return BadRequest(userStatus);
                 }
 
                 var productResponseDto = await _productService.Create(sellerId, productCreateDto);

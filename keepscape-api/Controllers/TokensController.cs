@@ -33,12 +33,9 @@ namespace keepscape_api.Controllers
 
                 var userStatus = await _userService.GetStatus(tokenCreateDto.Email);
 
-                if (userStatus != UserStatus.OK)
+                if (userStatus.UserStatus != UserStatus.OK)
                 {
-                    return BadRequest(new
-                    {
-                        UserStatus = userStatus.ToString()
-                    });
+                    return BadRequest(userStatus);
                 }
 
                 var tokenResponseDto = await _tokenService.Create(tokenCreateDto);
@@ -95,12 +92,9 @@ namespace keepscape_api.Controllers
 
                 var userStatus = await _userService.GetStatus(tokenRefreshDto.UserId);
 
-                if (userStatus != UserStatus.OK)
+                if (userStatus.UserStatus != UserStatus.OK)
                 {
-                    return BadRequest(new
-                    {
-                        UserStatus = userStatus.ToString()
-                    });
+                    return BadRequest(userStatus);
                 }
 
                 var tokenResponseDto = await _tokenService.Refresh(tokenRefreshDto);

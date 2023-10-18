@@ -38,12 +38,9 @@ namespace keepscape_api.Controllers
 
                 var userStatus = await _userService.GetStatus(userLoginDto.Email);
 
-                if (userStatus != UserStatus.OK)
+                if (userStatus.UserStatus != UserStatus.OK)
                 {
-                    return BadRequest(new
-                    {
-                        UserStatus = userStatus.ToString()
-                    });
+                    return BadRequest(userStatus);
                 }
 
                 var userResponseDto = await _userService.Login(userLoginDto);
@@ -99,12 +96,9 @@ namespace keepscape_api.Controllers
 
                 var userStatus = await _userService.GetStatus(email);
 
-                if (userStatus != UserStatus.OK)
+                if (userStatus.UserStatus != UserStatus.OK)
                 {
-                    return BadRequest(new
-                    {
-                        UserStatus = userStatus.ToString()
-                    });
+                    return BadRequest(userStatus);
                 }
 
                 var codeSent = await _confirmationCodeService.Send(email);
@@ -136,12 +130,9 @@ namespace keepscape_api.Controllers
 
                 var userStatus = await _userService.GetStatus(userVerifyCode.Email);
 
-                if (userStatus != UserStatus.OK)
+                if (userStatus.UserStatus != UserStatus.OK)
                 {
-                    return BadRequest(new
-                    {
-                        UserStatus = userStatus.ToString()
-                    });
+                    return BadRequest(userStatus);
                 }
 
                 var codeVerified = await _confirmationCodeService.Verify(userVerifyCode.Email, userVerifyCode.Code);
@@ -173,12 +164,9 @@ namespace keepscape_api.Controllers
 
                 var userStatus = await _userService.GetStatus(userUpdatePasswordWithCodeDto.Email);
 
-                if (userStatus != UserStatus.OK)
+                if (userStatus.UserStatus != UserStatus.OK)
                 {
-                    return BadRequest(new
-                    {
-                        UserStatus = userStatus.ToString()
-                    });
+                    return BadRequest(userStatus);
                 }
 
                 var userResponseDto = await _userService.UpdatePasswordWithCode(userUpdatePasswordWithCodeDto);
