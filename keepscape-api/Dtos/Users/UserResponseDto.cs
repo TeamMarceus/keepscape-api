@@ -75,4 +75,8 @@ namespace keepscape_api.Dtos.Users
         public IEnumerable<UserResponseSellerDto> Sellers { get; init; } = new List<UserResponseSellerDto>();
         public int PageCount { get; init; } = 1;
     }
+
+    public record UserStatusDto
+    {
+        public UserStatus UserStatus { get; init; } = 
 }

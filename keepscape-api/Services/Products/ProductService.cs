@@ -373,7 +373,7 @@ namespace keepscape_api.Services.Products
                 ImageUrl = imageUrl
             };
 
-            var createdCategory = _categoryRepository.AddAsync(category);
+            var createdCategory = await _categoryRepository.AddAsync(category);
 
             return _mapper.Map<ProductCategoryPlaceDto>(createdCategory);
         }
