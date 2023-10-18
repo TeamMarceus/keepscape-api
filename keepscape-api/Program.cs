@@ -19,6 +19,8 @@ using keepscape_api.Services.Emails;
 using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
 using Google.Apis.Auth.OAuth2;
+using Microsoft.Identity.Client;
+using keepscape_api.Services.Announcements;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -148,6 +150,7 @@ async Task ConfigureServices(IServiceCollection services, IConfiguration configu
     services.AddTransient<APIDbContext>();
     services.AddSingleton(sp => StorageClient.Create(googleCredential));
 
+    services.AddScoped<IAnnouncementRepository, AnnouncementRepository>();
     services.AddScoped<IBalanceRepository, BalanceRepository>();
     services.AddScoped<ICartRepository, CartRepository>();
     services.AddScoped<ICategoryRepository, CategoryRepository>();
@@ -164,6 +167,7 @@ async Task ConfigureServices(IServiceCollection services, IConfiguration configu
     services.AddScoped<ISellerApplicationRepository, SellerApplicationRepository>();
     services.AddScoped<IBaseImageRepository, BaseImageRepository>();
 
+    services.AddScoped<IAnnouncementService, AnnouncementService>();
     services.AddScoped<IUserService, UserService>();
     services.AddScoped<ITokenService, TokenService>();
     services.AddScoped<IImageService, ImageService>();
