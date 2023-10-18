@@ -11,8 +11,8 @@ namespace keepscape_api.Services.Users
         Task<(UserResponseBaseDto? user, UserType? type)> GetById(Guid userId);
         Task<UserSellerApplicationDto?> GetApplication(Guid userId);
         Task<UserSellerApplicationPagedDto> GetApplications(SellerApplicationQuery sellerApplicationQuery);
-        Task<UserBuyersPagedDto> GetBuyers(PaginatorQuery paginatorQuery);
-        Task<UserSellersPagedDto> GetSellers(PaginatorQuery paginatorQuery);
+        Task<UserBuyersPagedDto> GetBuyers(UserQuery userQuery);
+        Task<UserSellersPagedDto> GetSellers(UserQuery userQuery);
         Task<bool> UpdateApplication(Guid applicationId, UserSellerApplicationStatusUpdateDto statusUpdate);
         Task<UserResponseBaseDto?> Login(UserLoginDto userLoginDto);
         Task<UserResponseBaseDto?> Register(UserCreateBaseDto userCreateDto);

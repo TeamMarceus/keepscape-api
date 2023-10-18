@@ -17,7 +17,7 @@ namespace keepscape_api.Repositories
         {
             var query = _dbSet
                 .Include(p => p.Place)
-                .Include(p => p.Images)
+                .Include(p => p.ImageUrls)
                 .Include(p => p.SellerProfile)
                 .Include(p => p.Categories)
                 .Where(p => p.IsHidden == false && 
@@ -25,6 +25,11 @@ namespace keepscape_api.Repositories
                 p.SellerProfile!.SellerApplication!.Status == ApplicationStatus.Approved)
                 .AsSplitQuery()
                 .AsNoTracking();
+
+            if (query.Count() == 0)
+            {
+                return (new List<Product>(), 0);
+            }
 
             int pageCount = 1;
 
@@ -92,7 +97,7 @@ namespace keepscape_api.Repositories
         public override async Task<IEnumerable<Product>> GetAllAsync()
         {
             return await _dbSet
-                .Include(p => p.Images)
+                .Include(p => p.ImageUrls)
                 .Include(p => p.Categories)
                 .Include(p => p.Place)
                 .Include(p => p.SellerProfile)
@@ -103,7 +108,7 @@ namespace keepscape_api.Repositories
         {
             return await _dbSet
                 .Include(p => p.SellerProfile)
-                .Include(p => p.Images)
+                .Include(p => p.ImageUrls)
                 .Include(p => p.Place)
                 .Include(p => p.Categories)
                 .Include(p => p.Reviews)

@@ -30,7 +30,8 @@ namespace keepscape_api.Dtos.Users
     {
         public Guid SellerProfileId { get; init; }
         public Guid SellerApplicationId { get; init; }
-        public string IdUrl { get; init; } = string.Empty;
+        public string IdImageUrl { get; init; } = string.Empty;
+        public string BusinessPermitUrl { get; init; } = string.Empty;
         public string SellerName { get; init; } = string.Empty;
         public string Description { get; init; } = string.Empty;
         public string UserType { get; init; } = Enums.UserType.Seller.ToString();
@@ -46,7 +47,8 @@ namespace keepscape_api.Dtos.Users
     { 
         public Guid Id { get; init; }
         public string Status { get; init; } = ApplicationStatus.Pending.ToString();
-        public string IdUrl { get; init; } = string.Empty;
+        public string IdImageUrl { get; init; } = string.Empty;
+        public string BusinessPermitUrl { get; init; } = string.Empty;
         public string FirstName { get; init; } = string.Empty;
         public string LastName { get; init; } = string.Empty;
         public string Email { get; init; } = string.Empty;

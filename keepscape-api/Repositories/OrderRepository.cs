@@ -16,7 +16,6 @@ namespace keepscape_api.Repositories
         {
             return await _dbSet
                 .Include(t => t.OrderDeliveryLogs)
-                .Include(t => t.BaseImage)
                 .Include(t => t.Product)
                     .ThenInclude(t => t!.SellerProfile)
                 .ToListAsync();
@@ -25,7 +24,6 @@ namespace keepscape_api.Repositories
         {
             return await _dbSet
                 .Include(t => t.OrderDeliveryLogs)
-                .Include(t => t.BaseImage)
                 .Include(t => t.Product)
                     .ThenInclude(t => t!.SellerProfile)
                 .FirstOrDefaultAsync(t => t.Id == id);
@@ -48,7 +46,6 @@ namespace keepscape_api.Repositories
             return await _dbSet
                 .Where(t => t.BuyerProfileId == buyerProfileId)
                 .Include(t => t.OrderDeliveryLogs)
-                .Include(t => t.BaseImage)
                 .Include(t => t.Product)
                     .ThenInclude(t => t!.SellerProfile)
                 .ToListAsync();
@@ -60,7 +57,6 @@ namespace keepscape_api.Repositories
                 .Include(t => t.Product)
                     .ThenInclude(p => p.SellerProfile)
                 .Include(t => t.OrderDeliveryLogs)
-                .Include(t => t.BaseImage)
                 .Where(t => t.Product != null && t.Product.SellerProfileId == sellerProfileId)
                 .ToListAsync();
         }
@@ -69,7 +65,6 @@ namespace keepscape_api.Repositories
         {
             return await _dbSet
                 .Include(t => t.OrderDeliveryLogs)
-                .Include(t => t.BaseImage)
                 .Include(t => t.Product)
                     .ThenInclude(t => t!.SellerProfile)
                 .Skip(pageIndex * pageSize)

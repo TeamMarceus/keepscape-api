@@ -18,18 +18,15 @@ using keepscape_api.Services.ConfirmationCodes;
 using keepscape_api.Services.Emails;
 using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
+using Google.Apis.Auth.OAuth2;
 
 var builder = WebApplication.CreateBuilder(args);
-
-var keyVaultEndpoint = new Uri(Environment.GetEnvironmentVariable("VaultUri"));
-var secretClient = new SecretClient(keyVaultEndpoint!, new DefaultAzureCredential());
 
 // Add services to the container.
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
@@ -38,15 +35,17 @@ await ConfigureServices(builder.Services, builder.Configuration);
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
 
-app.UseHttpsRedirection();
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+    c.RoutePrefix = string.Empty;
+});
+
 
 app.UseCors();
+app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -68,16 +67,26 @@ async Task ConfigureServices(IServiceCollection services, IConfiguration configu
         });
     });
 
-    KeyVaultSecret dbSecret = await secretClient.GetSecretAsync("ProdConnection");
+    var keyVaultEndpoint = builder.Configuration.GetSection("VaultUri").Value;
+    var keyVault = new Uri(keyVaultEndpoint!);
+    var secretClient = new SecretClient(keyVault, new DefaultAzureCredential());
+    KeyVaultSecret dbSecret = await secretClient.GetSecretAsync("prod-db-connection");
     KeyVaultSecret jwtSecret = await secretClient.GetSecretAsync("jwt-secret");
+    KeyVaultSecret googleKey = await secretClient.GetSecretAsync("GoogleCloudServiceAccountKey");
     configuration["JwtConfig:Secret"] = jwtSecret.Value;
-    
-    string? dbConnectionString = dbSecret.Value ?? configuration.GetConnectionString("DefaultConnection");
+
+    GoogleCredential googleCredential;
+    using (var jsonStream = new MemoryStream(Encoding.UTF8.GetBytes(googleKey.Value)))
+    {
+        googleCredential = GoogleCredential.FromStream(jsonStream);
+    }
+
     services.AddDbContext<APIDbContext>(options =>
     {
-        options.UseSqlServer(configuration.GetConnectionString(dbConnectionString!))
+        options.UseSqlServer(dbSecret.Value)
         .UseLazyLoadingProxies();
     });
+    
 
     // Add Swagger gen with security definition and security requirement
     services.AddSwaggerGen(c =>
@@ -139,7 +148,7 @@ async Task ConfigureServices(IServiceCollection services, IConfiguration configu
         options.AddPolicy("Buyer", policy => policy.RequireClaim("Role", "Buyer"));
     });
     services.AddTransient<APIDbContext>();
-    services.AddSingleton(sp => StorageClient.Create());
+    services.AddSingleton(sp => StorageClient.Create(googleCredential));
 
     services.AddScoped<IBalanceRepository, BalanceRepository>();
     services.AddScoped<ICartRepository, CartRepository>();
@@ -159,7 +168,7 @@ async Task ConfigureServices(IServiceCollection services, IConfiguration configu
 
     services.AddScoped<IUserService, UserService>();
     services.AddScoped<ITokenService, TokenService>();
-    services.AddScoped<IBaseImageService, BaseImageService>();
+    services.AddScoped<IImageService, ImageService>();
     services.AddScoped<IProductService, ProductService>();
     services.AddScoped<IConfirmationCodeService, ConfirmationCodeService>();
     services.AddScoped<IEmailService, EmailService>();

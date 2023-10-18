@@ -8,8 +8,8 @@ namespace keepscape_api.Repositories.Interfaces
     {
         Task<User?> GetUserByEmailAsync(string email);
         Task<User?> GetUserByPhoneNumberAsync(string phoneNumber);
-        Task<(IEnumerable<User> Buyers, int PageCount)> GetBuyers(PaginatorQuery paginatorQuery);
-        Task<(IEnumerable<User> Sellers, int PageCount)> GetSellers(PaginatorQuery paginatorQuery);
+        Task<(IEnumerable<User> Buyers, int PageCount)> GetBuyers(UserQuery userQuery);
+        Task<(IEnumerable<User> Sellers, int PageCount)> GetSellers(UserQuery userQuery);
         Task<int> GetUserCountAsync();
     }
 }

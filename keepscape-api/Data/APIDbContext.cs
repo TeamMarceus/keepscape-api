@@ -20,7 +20,6 @@ namespace keepscape_api.Data
         public DbSet<Category> Categories { get; set; }
         public DbSet<Place> Places { get; set; }
         public DbSet<ConfirmationCode> ConfirmationCodes { get; set; }
-        public DbSet<BaseImage> BaseImages { get; set; }
         public DbSet<Token> Tokens { get; set; }
         public DbSet<BuyerCategoryPreference> BuyerCategoryPreferences { get; set; }
         public DbSet<BuyerProfile> BuyerProfiles { get; set; }
@@ -96,12 +95,6 @@ namespace keepscape_api.Data
                 .WithOne(s => s.SellerApplication)
                 .HasForeignKey<SellerApplication>(sa => sa.SellerProfileId)
                 .OnDelete(DeleteBehavior.Cascade);
-            modelBuilder.Entity<SellerApplication>()
-                .HasOne(sa => sa.BaseImage)
-                .WithOne()
-                .HasForeignKey<SellerApplication>(sa => sa.BaseImageId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired(true);
 
             // Balance
             modelBuilder.Entity<Balance>()
@@ -147,7 +140,7 @@ namespace keepscape_api.Data
                 .HasMany(p => p.Categories)
                 .WithMany(pc => pc.Products);
             modelBuilder.Entity<Product>()
-                .HasMany(p => p.Images)
+                .HasMany(p => p.ImageUrls)
                 .WithOne();
             modelBuilder.Entity<Product>()
                 .HasOne(p => p.Place)
@@ -210,10 +203,8 @@ namespace keepscape_api.Data
                 .HasForeignKey(odl => odl.OrderId)
                 .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<Order>()
-                .HasOne(o => o.BaseImage)
-                .WithOne()
-                .HasForeignKey<Order>(o => o.BaseImageId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .Property(o => o.DeliveryFee)
+                .HasPrecision(18, 2);
             modelBuilder.Entity<Order>()
                 .Property(o => o.Total)
                 .HasPrecision(18, 2);

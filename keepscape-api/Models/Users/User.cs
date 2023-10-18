@@ -12,6 +12,7 @@ namespace keepscape_api.Models
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
         public bool IsBanned { get; set; } = false;
+        public string StatusReason { get; set; } = string.Empty;
         public bool IsVerified { get; set; } = false;
         public DateTime LastLoggedIn { get; set; }
         public virtual BuyerProfile? BuyerProfile { get; set; }

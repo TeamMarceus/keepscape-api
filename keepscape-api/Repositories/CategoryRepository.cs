@@ -14,13 +14,11 @@ namespace keepscape_api.Repositories
         public override async Task<IEnumerable<Category>> GetAllAsync()
         {
             return await _dbSet
-                .Include(t => t.BaseImage)
                 .ToListAsync();
         }
         public override async Task<Category?> GetByIdAsync(Guid id)
         {
             return await _dbSet
-                .Include(t => t.BaseImage)
                 .FirstOrDefaultAsync(t => t.Id == id);
         }
 

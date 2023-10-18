@@ -17,7 +17,6 @@ namespace keepscape_api.Repositories
             return await _dbSet
                 .Include(x => x.User)
                 .Include(x => x.SellerApplication)
-                    .ThenInclude(s => s!.BaseImage)
                 .ToListAsync();
         }
 
@@ -26,7 +25,6 @@ namespace keepscape_api.Repositories
             return await _dbSet
                 .Include(x => x.User)
                 .Include(x => x.SellerApplication)
-                    .ThenInclude(s => s!.BaseImage)
                 .Skip(pageIndex * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -37,7 +35,6 @@ namespace keepscape_api.Repositories
             return await _dbSet
                 .Include(x => x.User)
                 .Include(x => x.SellerApplication)
-                    .ThenInclude(s => s!.BaseImage)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
         public async Task<SellerProfile?> GetProfileByUserGuid(Guid userId)
@@ -45,7 +42,6 @@ namespace keepscape_api.Repositories
             return await _dbSet
                 .Include(x => x.User)
                 .Include(x => x.SellerApplication)
-                    .ThenInclude(s => s!.BaseImage)
                 .FirstOrDefaultAsync(x => x.UserId == userId);
         }
 

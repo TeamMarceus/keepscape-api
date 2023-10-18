@@ -15,9 +15,9 @@ namespace keepscape_api.Models
         public bool IsCustomizable { get; set; }
         public bool IsHidden { get; set; } = false;
         public DateTime? DateTimeDeleted { get; set; }
+        public ICollection<string> ImageUrls { get; set; } = new List<string>();
         public virtual SellerProfile? SellerProfile { get; set; }
         public virtual Place? Place { get; set; }
-        public virtual ICollection<BaseImage> Images { get; set; } = new List<BaseImage>();
         public virtual ICollection<Category> Categories { get; set; } = new List<Category>();
         public virtual ICollection<ProductReview> Reviews { get; set; } = new List<ProductReview>();
     }

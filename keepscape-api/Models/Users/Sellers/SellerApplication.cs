@@ -6,9 +6,10 @@ namespace keepscape_api.Models
     public class SellerApplication : Base
     {
         public Guid SellerProfileId { get; set; }
-        public Guid BaseImageId { get; set; }
+        public string IdImageUrl { get; set; } = string.Empty;
+        public string BusinessPermitUrl { get; set; } = string.Empty;
         public ApplicationStatus Status { get; set; } = ApplicationStatus.Pending;
-        public virtual BaseImage? BaseImage { get; set; }
+        public string? StatusReason { get; set; }
         public virtual SellerProfile SellerProfile { get; set; } = null!;
     }
 }

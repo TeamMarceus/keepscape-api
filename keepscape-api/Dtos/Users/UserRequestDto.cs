@@ -51,7 +51,9 @@ namespace keepscape_api.Dtos.Users
     public record UserCreateSellerDto : UserCreateBaseDto
     {
         [Required]
-        public IFormFile BaseImage { get; init; } = null!;
+        public IFormFile IdImage { get; init; } = null!;
+        [Required]
+        public IFormFile BusinessPermitImage { get; init; } = null!;
         [Required]
         public string SellerName { get; init; } = string.Empty;
         [Required]
@@ -119,10 +121,12 @@ namespace keepscape_api.Dtos.Users
     public record UserSellerApplicationStatusUpdateDto
     {
         public string Status { get; init; } = ApplicationStatus.Pending.ToString();
+        public string Reason { get; init; } = string.Empty;
     }
 
     public record UserStatusUpdateDto
     {
         public string Status { get; init; } = UserStatus.OK.ToString();
+        public string Reason { get; init; } = string.Empty;
     }
 }

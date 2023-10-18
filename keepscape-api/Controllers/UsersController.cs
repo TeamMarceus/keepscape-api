@@ -331,11 +331,11 @@ namespace keepscape_api.Controllers
 
         [HttpGet("buyers")]
         [Authorize(Policy = "Admin")]
-        public async Task<IActionResult> GetBuyers([FromQuery] PaginatorQuery paginatorQuery)
+        public async Task<IActionResult> GetBuyers([FromQuery] UserQuery userQuery)
         {
             try
             {
-                var buyers = await _userService.GetBuyers(paginatorQuery);
+                var buyers = await _userService.GetBuyers(userQuery);
 
                 return Ok(buyers);
             }
@@ -348,11 +348,11 @@ namespace keepscape_api.Controllers
 
         [HttpGet("sellers")]
         [Authorize(Policy = "Admin")]
-        public async Task<IActionResult> GetSellers([FromQuery] PaginatorQuery paginatorQuery)
+        public async Task<IActionResult> GetSellers([FromQuery] UserQuery userQuery)
         {
             try
             {
-                var sellers = await _userService.GetSellers(paginatorQuery);
+                var sellers = await _userService.GetSellers(userQuery);
 
                 return Ok(sellers);
             }

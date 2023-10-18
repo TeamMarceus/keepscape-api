@@ -18,14 +18,12 @@ namespace keepscape_api.Repositories.Interfaces
         public override async Task<IEnumerable<Place>> GetAllAsync()
         {
             return await _dbSet
-                .Include(x => x.BaseImage)
                 .ToListAsync();
         }
 
         public override async Task<Place?> GetByIdAsync(Guid id)
         {
             return await _dbSet
-                .Include(x => x.BaseImage)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
     }

@@ -16,7 +16,7 @@ namespace keepscape_api.Services.Products
         private readonly ICategoryRepository _categoryRepository;
         private readonly IPlaceRepository _placeRepository;
         private readonly IUserRepository _userRepository;
-        private readonly IBaseImageService _baseImageService;
+        private readonly IImageService _imageUrlService;
         private readonly IMapper _mapper;
 
         public ProductService(
@@ -25,14 +25,14 @@ namespace keepscape_api.Services.Products
             ICategoryRepository categoryRepository, 
             IPlaceRepository placeRepository,
             IUserRepository userRepository,
-            IBaseImageService baseImageService,
+            IImageService imageUrlService,
             IMapper mapper)
         {
             _productRepository = productRepository;
             _productReviewRepository = productReviewRepository;
             _categoryRepository = categoryRepository;
             _placeRepository = placeRepository;
-            _baseImageService = baseImageService;
+            _imageUrlService = imageUrlService;
             _userRepository = userRepository;
             _mapper = mapper;
         }
@@ -87,17 +87,29 @@ namespace keepscape_api.Services.Products
             var product = _mapper.Map<Product>(productCreateDto);
 
             product.SellerProfile = seller.SellerProfile;
+            var formFiles = new List<IFormFile?>() {
+                    productCreateDto.Image1,
+                    productCreateDto.Image2,
+                    productCreateDto.Image3,
+                    productCreateDto.Image4,
+                    productCreateDto.Image5
+                };
 
-            foreach (var image in productCreateDto.Images)
+            foreach (var formFile in formFiles)
             {
-                var baseImage = await _baseImageService.Upload("products", image);
-
-                if (baseImage == null)
+                if (formFile == null)
                 {
                     continue;
                 }
 
-                product.Images.Add(baseImage);
+                var imageUrl = await _imageUrlService.Upload("products", formFile);
+
+                if (imageUrl == null)
+                {
+                    continue;
+                }
+
+                product.ImageUrls.Add(imageUrl);
             }
 
             var createdProduct = await _productRepository.AddAsync(product);
@@ -138,6 +150,14 @@ namespace keepscape_api.Services.Products
 
         private async Task<Product> UpdateProduct(Product product, ProductUpdateDto productUpdateDto)
         {
+            var formFiles = new List<IFormFile?>() {
+                    productUpdateDto.Image1,
+                    productUpdateDto.Image2,
+                    productUpdateDto.Image3,
+                    productUpdateDto.Image4,
+                    productUpdateDto.Image5
+                };
+
             if (!string.IsNullOrEmpty(productUpdateDto.Name))
             {
                 product.Name = productUpdateDto.Name;
@@ -162,20 +182,28 @@ namespace keepscape_api.Services.Products
             {
                 product.IsHidden = productUpdateDto.IsHidden.Value;
             }
-            if (productUpdateDto.Images != null)
+            if (formFiles.Any(s => s != null))
             {
-                product.Images.Clear();
-
-                foreach (var image in productUpdateDto.Images)
+                foreach (var image in product.ImageUrls)
                 {
-                    var baseImage = await _baseImageService.Upload("products", image);
+                    await _imageUrlService.Delete(image);
+                }
 
-                    if (baseImage == null)
+                foreach (var file in formFiles)
+                {
+                    if (file == null)
                     {
                         continue;
                     }
 
-                    product.Images.Add(baseImage);
+                    var imageUrl = await _imageUrlService.Upload("products", file);
+
+                    if (imageUrl == null)
+                    {
+                        continue;
+                    }
+
+                    product.ImageUrls.Add(imageUrl);
                 }
             }
             if (productUpdateDto.CategoryIds != null)
@@ -303,9 +331,9 @@ namespace keepscape_api.Services.Products
 
         public async Task<ProductCategoryPlaceDto?> CreatePlace(ProductCategoryPlaceCreateDto productCategoryPlaceCreateDto)
         {
-            var baseImage = await _baseImageService.Upload("places", productCategoryPlaceCreateDto.Image);
+            var imageUrl = await _imageUrlService.Upload("places", productCategoryPlaceCreateDto.Image);
 
-            if (baseImage == null)
+            if (imageUrl == null)
             {
                 return null;
             }
@@ -313,7 +341,7 @@ namespace keepscape_api.Services.Products
             var place = new Place
             {
                 Name = productCategoryPlaceCreateDto.Name,
-                BaseImage = baseImage
+                ImageUrl = imageUrl
             };
 
             var createdPlace = await _placeRepository.AddAsync(place);
@@ -323,9 +351,9 @@ namespace keepscape_api.Services.Products
 
         public async Task<ProductCategoryPlaceDto?> CreateCategory(ProductCategoryPlaceCreateDto productCategoryPlaceCreateDto)
         {
-            var baseImage = await _baseImageService.Upload("categories", productCategoryPlaceCreateDto.Image);
+            var imageUrl = await _imageUrlService.Upload("categories", productCategoryPlaceCreateDto.Image);
 
-            if (baseImage == null)
+            if (imageUrl == null)
             {
                 return null;
             }
@@ -333,7 +361,7 @@ namespace keepscape_api.Services.Products
             var category = new Category
             {
                 Name = productCategoryPlaceCreateDto.Name,
-                BaseImage = baseImage
+                ImageUrl = imageUrl
             };
 
             var createdCategory = _categoryRepository.AddAsync(category);
@@ -350,14 +378,14 @@ namespace keepscape_api.Services.Products
                 return false;
             }
 
-            var baseImage = await _baseImageService.Upload("places", image);
+            var imageUrl = await _imageUrlService.Upload("places", image);
 
-            if (baseImage == null)
+            if (imageUrl == null)
             {
                 return false;
             }
 
-            place.BaseImage = baseImage;
+            place.ImageUrl = imageUrl;
 
             return await _placeRepository.UpdateAsync(place);
         }
@@ -371,14 +399,14 @@ namespace keepscape_api.Services.Products
                 return false;
             }
 
-            var baseImage = await _baseImageService.Upload("categories", image);
+            var imageUrl = await _imageUrlService.Upload("categories", image);
 
-            if (baseImage == null)
+            if (imageUrl == null)
             {
                 return false;
             }
 
-            category.BaseImage = baseImage;
+            category.ImageUrl = imageUrl;
 
             return await _categoryRepository.UpdateAsync(category);
         }

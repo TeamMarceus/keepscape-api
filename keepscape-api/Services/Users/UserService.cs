@@ -19,7 +19,7 @@ namespace keepscape_api.Services.Users
         private readonly IProfileRepository<BuyerProfile> _buyerProfileRepository;
         private readonly ISellerProfileRepository _sellerProfileRepository;
         private readonly ISellerApplicationRepository _sellerApplicationRepository;
-        private readonly IBaseImageService _baseImageService;
+        private readonly IImageService _baseImageService;
         private readonly ITokenService _tokenService;
         private readonly IEmailService _emailService;
         private readonly IConfirmationCodeService _confirmationCodeService;
@@ -29,7 +29,7 @@ namespace keepscape_api.Services.Users
             IProfileRepository<BuyerProfile> buyerProfileRepository, 
             ISellerProfileRepository sellerProfileRepository, 
             ISellerApplicationRepository sellerApplicationRepository,
-            IBaseImageService baseImageService,
+            IImageService baseImageService,
             ITokenService tokenService,
             IEmailService emailService,
             IConfirmationCodeService confirmationCodeService,
@@ -76,9 +76,9 @@ namespace keepscape_api.Services.Users
             };
         }
 
-        public async Task<UserBuyersPagedDto> GetBuyers(PaginatorQuery paginatorQuery)
+        public async Task<UserBuyersPagedDto> GetBuyers(UserQuery userQuery)
         {
-            var buyers = await _userRepository.GetBuyers(paginatorQuery);
+            var buyers = await _userRepository.GetBuyers(userQuery);
 
             return new UserBuyersPagedDto
             {
@@ -132,9 +132,9 @@ namespace keepscape_api.Services.Users
             return (null, null);
         }
 
-        public async Task<UserSellersPagedDto> GetSellers(PaginatorQuery paginatorQuery)
+        public async Task<UserSellersPagedDto> GetSellers(UserQuery userQuery)
         {
-            var sellers = await _userRepository.GetSellers(paginatorQuery);
+            var sellers = await _userRepository.GetSellers(userQuery);
 
             return new UserSellersPagedDto
             {
@@ -281,11 +281,41 @@ namespace keepscape_api.Services.Users
             if (newStatus == UserStatus.OK)
             {
                 user.IsBanned = false;
+
+                var subject = "Keepscape Account Unbanned";
+
+                var body = $@"
+                <html>
+                    <body>
+                        <p>Hi {user.FirstName},</p>
+                        <p>Your account has been unbanned.</p>
+                        <p>Regards,<br />Keepscape Team</p>
+                    </body>
+                </html>";
+
+                await _emailService.SendEmailAsync(user.Email, subject, body);
             }
 
             if (newStatus == UserStatus.Banned)
             {
                 user.IsBanned = true;
+
+                var subject = "Keepscape Account Banned";
+
+                // Create a message for banned account
+                var body = $@"
+                <html>
+                    <body>
+                        <p>Hi {user.FirstName},</p>
+                        <p>Your account has been banned.</p>
+                        <p>Reason: {userStatusUpdateDto.Reason}</p>
+                        <p>Please contact us if there is a mistake in our decision.</p>
+                        <p>Regards,<br />Keepscape Team</p>
+                    </body>
+                </html>
+                ";
+
+                await _emailService.SendEmailAsync(user.Email, subject, body);
             }
 
             return await _userRepository.UpdateAsync(user);
@@ -308,6 +338,7 @@ namespace keepscape_api.Services.Users
             }
 
             application.Status = currentStatus;
+            application.StatusReason = statusUpdate.Reason;
 
             var subject = "Keepscape Seller Application Status Update";
 
@@ -326,15 +357,13 @@ namespace keepscape_api.Services.Users
             }
             else
             {
-                // Generate a message for rejected status
                 body = $@"
                 <html>
                     <body>
                         <p>Hi {application.SellerProfile!.Name},</p>
                         <p>Your seller application has been rejected.</p>
-                        <p>It may be because of your ID credentials being invalid</p>
-                        <p>or your ID not being clear enough.</p>
-                        <p>Please try again with a clearer ID or contact us again.</p>
+                        <p>Reason: {statusUpdate.Reason}</p>
+                        <p>Please contact us if there is a mistake in our decision.</p>
                         <p>Regards,<br />Keepscape Team</p>
                     </body>
                 </html>";
@@ -458,7 +487,8 @@ namespace keepscape_api.Services.Users
             newUser.SellerProfile.SellerApplication = new SellerApplication
             {
                 DateTimeCreated = DateTime.Now,
-                BaseImage = await _baseImageService.Upload("seller-applications", userCreateSellerDto.BaseImage),
+                IdImageUrl = await _baseImageService.Upload("seller-applications/identification", userCreateSellerDto.IdImage) ?? "",
+                BusinessPermitUrl = await _baseImageService.Upload("seller-applications/business-permit", userCreateSellerDto.BusinessPermitImage) ?? "",
                 Status = ApplicationStatus.Pending,
                 SellerProfile = newUser.SellerProfile
             };
