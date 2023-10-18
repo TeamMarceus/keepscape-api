@@ -2,6 +2,7 @@
 using keepscape_api.Dtos.Products;
 using keepscape_api.Models;
 using keepscape_api.Models.Categories;
+using keepscape_api.Models.Checkouts.Products;
 using keepscape_api.QueryModels;
 using keepscape_api.Repositories.Interfaces;
 using keepscape_api.Services.BaseImages;
@@ -109,7 +110,10 @@ namespace keepscape_api.Services.Products
                     continue;
                 }
 
-                product.ImageUrls.Add(imageUrl);
+                product.Images.Add(new ProductImage
+                {
+                    ImageUrl = imageUrl
+                });
             }
 
             var createdProduct = await _productRepository.AddAsync(product);
@@ -184,10 +188,12 @@ namespace keepscape_api.Services.Products
             }
             if (formFiles.Any(s => s != null))
             {
-                foreach (var image in product.ImageUrls)
+                foreach (var image in product.Images)
                 {
-                    await _imageUrlService.Delete(image);
+                    await _imageUrlService.Delete(image.ImageUrl);
                 }
+
+                product.Images.Clear();
 
                 foreach (var file in formFiles)
                 {
@@ -203,7 +209,10 @@ namespace keepscape_api.Services.Products
                         continue;
                     }
 
-                    product.ImageUrls.Add(imageUrl);
+                    product.Images.Add(new ProductImage
+                    {
+                        ImageUrl = imageUrl
+                    });
                 }
             }
             if (productUpdateDto.CategoryIds != null)

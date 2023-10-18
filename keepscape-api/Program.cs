@@ -70,7 +70,7 @@ async Task ConfigureServices(IServiceCollection services, IConfiguration configu
     var keyVaultEndpoint = builder.Configuration.GetSection("VaultUri").Value;
     var keyVault = new Uri(keyVaultEndpoint!);
     var secretClient = new SecretClient(keyVault, new DefaultAzureCredential());
-    KeyVaultSecret dbSecret = await secretClient.GetSecretAsync("prod-db-connection");
+    KeyVaultSecret dbSecret = await secretClient.GetSecretAsync("prod-new-db");
     KeyVaultSecret jwtSecret = await secretClient.GetSecretAsync("jwt-secret");
     KeyVaultSecret googleKey = await secretClient.GetSecretAsync("GoogleCloudServiceAccountKey");
     configuration["JwtConfig:Secret"] = jwtSecret.Value;
@@ -87,8 +87,6 @@ async Task ConfigureServices(IServiceCollection services, IConfiguration configu
         .UseLazyLoadingProxies();
     });
     
-
-    // Add Swagger gen with security definition and security requirement
     services.AddSwaggerGen(c =>
     {
         c.SwaggerDoc("v1", new OpenApiInfo { Title = "keepscape_api", Version = "v1" });

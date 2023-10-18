@@ -16,6 +16,7 @@ namespace keepscape_api.Data
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderDeliveryLog> OrderDeliveryLogs { get; set; }
         public DbSet<Product> Products { get; set; }
+        public DbSet<ProductImage> ProductImages { get; set; }
         public DbSet<ProductReview> ProductReviews { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Place> Places { get; set; }
@@ -140,7 +141,7 @@ namespace keepscape_api.Data
                 .HasMany(p => p.Categories)
                 .WithMany(pc => pc.Products);
             modelBuilder.Entity<Product>()
-                .HasMany(p => p.ImageUrls)
+                .HasMany(p => p.Images)
                 .WithOne();
             modelBuilder.Entity<Product>()
                 .HasOne(p => p.Place)
@@ -159,6 +160,11 @@ namespace keepscape_api.Data
             modelBuilder.Entity<Product>()
                 .Property(p => p.Rating)
                 .HasPrecision(18, 2);
+            modelBuilder.Entity<Product>()
+                .HasMany(p => p.Images)
+                .WithOne(pi => pi.Product)
+                .HasForeignKey(pi => pi.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<ProductReport>()
                 .HasOne(pr => pr.User)
                 .WithMany()

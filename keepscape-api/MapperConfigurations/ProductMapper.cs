@@ -23,7 +23,7 @@ namespace keepscape_api.MapperConfigurations
                     Id = src.Place != null ? src.Place!.Id : Guid.Empty,
                     Name = src.Place != null ? src.Place!.Name : string.Empty,
                 }))
-                .ForMember(dest => dest.Image, opt => opt.MapFrom(src => src.ImageUrls.ToList()[0]));
+                .ForMember(dest => dest.Image, opt => opt.MapFrom(src => src.Images.ToList()[0]));
 
             CreateMap<ProductReview, ProductReviewDto>()
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.BuyerProfile!.User!.FirstName));
@@ -33,7 +33,7 @@ namespace keepscape_api.MapperConfigurations
             CreateMap<ProductReview, ProductReviewResponseDto>();
            
             CreateMap<ProductCreateDto, Product>()
-                .ForMember(dest => dest.ImageUrls, opt => opt.Ignore())
+                .ForMember(dest => dest.Images, opt => opt.Ignore())
                 .ForMember(dest => dest.Categories, opt => opt.MapFrom(src => src.CategoryIds.Select(c => new Category
                 {
                     Id = c 
@@ -42,7 +42,7 @@ namespace keepscape_api.MapperConfigurations
                 .ForMember(dest => dest.PlaceId , opt => opt.MapFrom(src => src.PlaceId));
             
             CreateMap<Product, ProductResponseDto>()
-                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => !src.ImageUrls.IsNullOrEmpty() ? src.ImageUrls.Select(i => i) : new List<string>()))
+                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => !src.Images.IsNullOrEmpty() ? src.Images.Select(i => i.ImageUrl) : new List<string>()))
                 .ForMember(dest => dest.Province, opt => opt.MapFrom(src => src.Place != null ? new ProductCategoryPlaceNoImageDto
                 {
                     Id = src.Place.Id,

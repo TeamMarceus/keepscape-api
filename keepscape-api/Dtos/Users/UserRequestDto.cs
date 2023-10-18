@@ -121,12 +121,12 @@ namespace keepscape_api.Dtos.Users
     public record UserSellerApplicationStatusUpdateDto
     {
         public string Status { get; init; } = ApplicationStatus.Pending.ToString();
-        public string Reason { get; init; } = string.Empty;
+        public string? Reason { get; init; }
     }
 
     public record UserStatusUpdateDto
     {
         public string Status { get; init; } = UserStatus.OK.ToString();
-        public string Reason { get; init; } = string.Empty;
+        public string? Reason { get; init; }
     }
 }
