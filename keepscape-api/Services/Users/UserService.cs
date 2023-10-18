@@ -428,7 +428,7 @@ namespace keepscape_api.Services.Users
             {
                 return new UserStatusDto
                 {
-                    UserStatus = UserStatus.NotFound
+                    UserStatus = UserStatus.NotFound.ToString()
                 };
             }
 
@@ -436,7 +436,7 @@ namespace keepscape_api.Services.Users
             {
                 return new UserStatusDto
                 {
-                    UserStatus = UserStatus.Banned,
+                    UserStatus = UserStatus.Banned.ToString(),
                     Reason = user.StatusReason
                 };
             }
@@ -451,7 +451,7 @@ namespace keepscape_api.Services.Users
                 {
                     return new UserStatusDto
                     {
-                        UserStatus = UserStatus.Pending
+                        UserStatus = UserStatus.Pending.ToString()
                     };
                 }
 
@@ -459,13 +459,13 @@ namespace keepscape_api.Services.Users
                 {
                     return new UserStatusDto 
                     { 
-                        UserStatus = UserStatus.Rejected, 
+                        UserStatus = UserStatus.Rejected.ToString(), 
                         Reason = sellerProfile.SellerApplication.StatusReason
                     };
                 }
             }
 
-            return new UserStatusDto { UserStatus = UserStatus.OK };
+            return new UserStatusDto { UserStatus = UserStatus.OK.ToString() };
         }
         private async Task<UserResponseBuyerDto> RegisterBuyer(UserCreateBuyerDto userCreateBuyerDto)
         {
