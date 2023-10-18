@@ -260,6 +260,40 @@ namespace keepscape_api.Controllers
             }
         }
 
+        [HttpPut("buyers")]
+        [Authorize(Policy = "Buyer")]
+        public async Task<IActionResult> Update([FromBody] UserUpdateBuyerDto userUpdateBuyerDto)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var userId = Guid.TryParse(User.FindFirstValue("UserId"), out var parsedUserId) ? parsedUserId : Guid.Empty;
+
+                if (userId == Guid.Empty)
+                {
+                    return BadRequest("Invalid user id.");
+                }
+
+                var userResponseDto = await _userService.Update(userId, userUpdateBuyerDto);
+
+                if (userResponseDto == null)
+                {
+                    return BadRequest("Invalid user id.");
+                }
+
+                return Ok((UserResponseBuyerDto)userResponseDto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_userService.Update)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
         // Sellers
         [HttpPost("sellers/register")]
         [Consumes("multipart/form-data")]
@@ -286,6 +320,40 @@ namespace keepscape_api.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"{nameof(_userService.Register)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpPut("sellers")]
+        [Authorize(Policy = "Seller")]
+        public async Task<IActionResult> Update([FromBody] UserUpdateSellerDto userUpdateSellerDto)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var userId = Guid.TryParse(User.FindFirstValue("UserId"), out var parsedUserId) ? parsedUserId : Guid.Empty;
+
+                if (userId == Guid.Empty)
+                {
+                    return BadRequest("Invalid user id.");
+                }
+
+                var userResponseDto = await _userService.Update(userId, userUpdateSellerDto);
+
+                if (userResponseDto == null)
+                {
+                    return BadRequest("Invalid user id.");
+                }
+
+                return Ok((UserResponseSellerDto)userResponseDto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_userService.Update)} threw an exception");
                 return StatusCode(500, "Internal server error");
             }
         }
