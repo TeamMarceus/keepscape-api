@@ -30,6 +30,24 @@
         public int PageCount { get; init; } = 1;
     }
 
+    public record ProductResponseAdminDto
+    {
+        public DateTime DateTimeCreated { get; init; }
+        public Guid Id { get; init; }
+        public string Name { get; init; } = string.Empty;
+        public decimal Price { get; init; }
+        public int Quantity { get; init; }
+        public IEnumerable<string> ImageUrls { get; init; } = new List<string>();
+        public int TotalSold { get; init; }
+        public ProductSellerDto Seller { get; init; } = new ProductSellerDto();
+    }
+
+    public record ProductResponseAdminPaginatedDto
+    {
+        public IEnumerable<ProductResponseAdminDto> Products { get; init; } = new List<ProductResponseAdminDto>();
+        public int PageCount { get; init; } = 1;
+    }
+
     public record ProductReviewDto
     {
         public string UserName { get; init; } = string.Empty;

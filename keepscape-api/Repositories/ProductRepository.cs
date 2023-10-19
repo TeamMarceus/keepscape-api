@@ -26,10 +26,6 @@ namespace keepscape_api.Repositories
                 .AsSplitQuery()
                 .AsNoTracking();
 
-            if (query.Count() == 0)
-            {
-                return (new List<Product>(), 0);
-            }
 
             int pageCount = 1;
 
@@ -66,6 +62,10 @@ namespace keepscape_api.Repositories
             if (productQueryParameters.MaxPrice != null)
             {
                 query = query.Where(p => p.Price <= productQueryParameters.MaxPrice);
+            }
+            if (query.Count() == 0)
+            {
+                return (new List<Product>(), 0);
             }
             if (productQueryParameters.Page != null && productQueryParameters.PageSize != null)
             {

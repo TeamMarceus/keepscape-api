@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using keepscape_api.Dtos.Products;
+using keepscape_api.Enums;
 using keepscape_api.Models;
 using keepscape_api.Models.Categories;
 using keepscape_api.Models.Checkouts.Products;
@@ -238,13 +239,17 @@ namespace keepscape_api.Services.Products
         public async Task Delete(Guid sellerId, Guid productId)
         {
             var product = await _productRepository.GetByIdAsync(productId);
+            var user = await _userRepository.GetByIdAsync(sellerId);
 
+            if (user == null)
+            {
+               return;
+            }
             if (product == null)
             {
                 return;
             }
-
-            if (product.SellerProfile!.User!.Id != sellerId)
+            if (user.UserType != UserType.Admin && product.SellerProfile!.User!.Id != sellerId)
             {
                 return;
             }
@@ -442,6 +447,11 @@ namespace keepscape_api.Services.Products
             }
 
             await _categoryRepository.DeleteAsync(category);
+        }
+
+        public Task<ProductResponseAdminPaginatedDto> GetAdmin(ProductQuery productQueryParameters)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -20,11 +20,6 @@ namespace keepscape_api.Repositories
                     .ThenInclude(s => s.User)
                 .AsQueryable();
 
-            if (query.Count() == 0)
-            {
-                return (new List<SellerApplication>(), 0);
-            }
-
             int pageCount = 1;
 
             if (!string.IsNullOrEmpty(sellerApplicationQuery.OrderBy))
@@ -59,6 +54,12 @@ namespace keepscape_api.Repositories
                 {
                     query = query.Where(b => b.Status == status);
                 }
+            }
+
+
+            if (query.Count() == 0)
+            {
+                return (new List<SellerApplication>(), 0);
             }
 
             if (sellerApplicationQuery.Page != null && sellerApplicationQuery.PageSize != null)

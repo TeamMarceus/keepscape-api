@@ -7,6 +7,6 @@ namespace keepscape_api.Models
         public Guid UserId { get; set; }
         public decimal Amount { get; set; }
         public virtual User? User { get; set; }
-        public virtual ICollection<BalanceHistory>? BalanceHistories { get; set; }
+        public virtual ICollection<BalanceLog>? BalanceHistories { get; set; }
     }
 }

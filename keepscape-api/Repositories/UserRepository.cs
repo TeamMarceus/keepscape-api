@@ -69,11 +69,6 @@ namespace keepscape_api.Repositories
                 .Where(u => u.UserType == userType);
             }
 
-            if (query.Count() == 0)
-            {
-                return (new List<User>().AsQueryable(), 0);
-            }
-
             int pageCount = 1;
 
             if (!string.IsNullOrEmpty(userQuery.Search))
@@ -126,6 +121,11 @@ namespace keepscape_api.Repositories
             if (userQuery.IsBanned)
             {
                 query = query.Where(u => u.IsBanned == true);
+            }
+
+            if (query.Count() == 0)
+            {
+                return (new List<User>().AsQueryable(), 0);
             }
 
             if (userQuery.Page > 0 && userQuery.PageSize > 0)
