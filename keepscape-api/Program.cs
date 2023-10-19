@@ -20,6 +20,9 @@ using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
 using Google.Apis.Auth.OAuth2;
 using keepscape_api.Services.Announcements;
+using keepscape_api.Services.Dashboards;
+using keepscape_api.Services.Reports;
+using keepscape_api.Services.Finances;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -151,11 +154,13 @@ async Task ConfigureServices(IServiceCollection services, IConfiguration configu
 
     services.AddScoped<IAnnouncementRepository, AnnouncementRepository>();
     services.AddScoped<IBalanceRepository, BalanceRepository>();
+    services.AddScoped<IBalanceWithdrawalRepository, BalanceWithdrawalRepository>();
     services.AddScoped<ICartRepository, CartRepository>();
     services.AddScoped<ICategoryRepository, CategoryRepository>();
     services.AddScoped<IPlaceRepository, PlaceRepository>();
     services.AddScoped<IConfirmationCodeRepository, ConfirmationCodeRepository>();
     services.AddScoped<IOrderRepository, OrderRepository>();
+    services.AddScoped<IOrderReportRepository, OrderReportRepository>();
     services.AddScoped<IProductRepository, ProductRepository>();
     services.AddScoped<IProductReviewRepository, ProductReviewRepository>();
     services.AddScoped<IProductReportRepository, ProductReportRepository>();
@@ -174,4 +179,7 @@ async Task ConfigureServices(IServiceCollection services, IConfiguration configu
     services.AddScoped<IProductService, ProductService>();
     services.AddScoped<IConfirmationCodeService, ConfirmationCodeService>();
     services.AddScoped<IEmailService, EmailService>();
+    services.AddScoped<IDashboardService, DashboardService>();
+    services.AddScoped<IReportService, ReportService>();
+    services.AddScoped<IFinanceService, FinanceService>();
 }

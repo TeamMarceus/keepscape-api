@@ -3,8 +3,6 @@ using keepscape_api.Models.Primitives;
 using Microsoft.EntityFrameworkCore;
 using keepscape_api.Models.Checkouts.Products;
 using keepscape_api.Models.Categories;
-using keepscape_api.Models.Users.Finances;
-using keepscape_api.Models.Checkouts.Orders;
 
 namespace keepscape_api.Data
 {
@@ -81,6 +79,11 @@ namespace keepscape_api.Data
             modelBuilder.Entity<User>()
                 .Property(e => e.UserType)
                 .HasConversion<string>();
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.Balance)
+                .WithOne(b => b.User)
+                .HasForeignKey<Balance>(b => b.UserId)
+                .OnDelete(DeleteBehavior.SetNull);
             
             // Profiles
             modelBuilder.Entity<BuyerProfile>()
@@ -212,13 +215,13 @@ namespace keepscape_api.Data
             modelBuilder.Entity<ProductReport>()
                 .HasOne(pr => pr.User)
                 .WithMany()
-                .HasForeignKey(pr => pr.UserGuid)
+                .HasForeignKey(pr => pr.UserId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired(true);
             modelBuilder.Entity<ProductReport>()
                 .HasOne(pr => pr.Product)
                 .WithMany()
-                .HasForeignKey(pr => pr.ProductGuid)
+                .HasForeignKey(pr => pr.ProductId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired(true); 
 
@@ -269,6 +272,9 @@ namespace keepscape_api.Data
                 .WithOne(oi => oi.Order)
                 .HasForeignKey(oi => oi.OrderId)
                 .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Order>()
+                .Property(o => o.Status)
+                .HasConversion<string>();
             modelBuilder.Entity<OrderItem>()
                 .HasOne(oi => oi.Product)
                 .WithMany()

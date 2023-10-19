@@ -1,5 +1,4 @@
 ﻿using keepscape_api.Enums;
-using keepscape_api.Models.Checkouts.Orders;
 using keepscape_api.Models.Primitives;
 
 namespace keepscape_api.Models
@@ -8,7 +7,6 @@ namespace keepscape_api.Models
     {
         public Guid BuyerProfileId { get; set; }
         public Guid SellerProfileId { get; set; }
-        public Guid? OrderReportId { get; set; }
         public OrderStatus Status { get; set; } = OrderStatus.Pending;
         public string? DeliveryFeeProofImageUrl { get; set; }
         public decimal DeliveryFee { get; set; }

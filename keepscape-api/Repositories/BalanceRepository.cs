@@ -23,7 +23,7 @@ namespace keepscape_api.Repositories
                 .Include(b => b.BalanceHistories)
                 .FirstOrDefaultAsync(b => b.Id == id);
         }
-        public async Task<Balance?> GetBalanceByUserGuid(Guid userId)
+        public async Task<Balance?> GetBalanceByUserId(Guid userId)
         {
             return await _dbSet
                 .Include(b => b.BalanceHistories)

@@ -454,39 +454,5 @@ namespace keepscape_api.Services.Products
 
             await _categoryRepository.DeleteAsync(category);
         }
-
-        public async Task<IEnumerable<ProductResponseAdminDto>> GetReports()
-        {
-            var productReports = await _productReportRepository.GetAllAsync();
-            var uniqueProducts = productReports.Select(p => p.Product).Distinct();
-
-            var products = new List<ProductResponseAdminDto>();
-
-            foreach (var product in uniqueProducts)
-            {
-                var orders = await _orderRepository.GetByProductId(product.Id);
-
-                var totalSold = orders.Where(o => o.Status == OrderStatus.Delivered)
-                                .Sum(o => o.Items.Where(i => i.ProductId == product.Id)
-                                .Single().Quantity);
-
-                var totalReports = productReports.Where(p => p.ProductId == product.Id).Count();
-
-                products.Add(new ProductResponseAdminDto
-                {
-                    Id = product.Id,
-                    SellerUserGuid = product.SellerProfile!.User!.Id,
-                    DateTimeCreated = product.DateTimeCreated,
-                    Name = product.Name,
-                    Price = product.Price,
-                    Quantity = product.Quantity,
-                    ImageUrls = product.Images.Select(i => i.ImageUrl),
-                    TotalSold = totalSold,
-                    TotalReports = totalReports
-                });
-            }
-
-            return products;
-        }
     }
 }

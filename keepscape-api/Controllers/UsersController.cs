@@ -387,7 +387,7 @@ namespace keepscape_api.Controllers
 
         [HttpGet("buyers")]
         [Authorize(Policy = "Admin")]
-        public async Task<IActionResult> GetBuyers([FromQuery] UserQuery userQuery, [FromQuery] Guid id)
+        public async Task<IActionResult> GetBuyers([FromQuery] UserQuery userQuery, [FromQuery] Guid userId)
         {
             try
             {
@@ -396,9 +396,9 @@ namespace keepscape_api.Controllers
                     return BadRequest(ModelState);
                 }
 
-                if (id != Guid.Empty)
+                if (userId != Guid.Empty)
                 {
-                    return await GetById(id);
+                    return await GetById(userId);
                 }
 
                 var buyers = await _userService.GetBuyers(userQuery);
@@ -414,7 +414,7 @@ namespace keepscape_api.Controllers
 
         [HttpGet("sellers")]
         [Authorize(Policy = "Admin")]
-        public async Task<IActionResult> GetSellers([FromQuery] UserQuery userQuery, [FromQuery] Guid id)
+        public async Task<IActionResult> GetSellers([FromQuery] UserQuery userQuery, [FromQuery] Guid userId)
         {
             try
             {
@@ -423,9 +423,9 @@ namespace keepscape_api.Controllers
                     return BadRequest(ModelState);
                 }
 
-                if (id != Guid.Empty)
+                if (userId != Guid.Empty)
                 {
-                    return await GetById(id);
+                    return await GetById(userId);
                 }
 
                 var sellers = await _userService.GetSellers(userQuery);

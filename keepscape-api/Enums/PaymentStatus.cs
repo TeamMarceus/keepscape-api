@@ -4,7 +4,6 @@
     {
         Pending,
         Paid,
-        Failed,
-        Refunded
+        Rejected
     }
 }

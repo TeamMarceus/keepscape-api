@@ -16,6 +16,7 @@ namespace keepscape_api.Repositories
             return await _dbSet
                 .Include(o => o.BuyerProfile)
                 .Include(o => o.SellerProfile)
+                .Include(o => o.OrderReport)
                 .Include(o => o.DeliveryLogs)
                 .Include(o => o.Items)
                 .ThenInclude(oi => oi.Product)
@@ -28,6 +29,7 @@ namespace keepscape_api.Repositories
             return await _dbSet
                 .Include(o => o.BuyerProfile)
                 .Include(o => o.SellerProfile)
+                .Include(o => o.OrderReport)
                 .Include(o => o.DeliveryLogs)
                 .Include(o => o.Items)
                 .ThenInclude(oi => oi.Product)
@@ -40,6 +42,7 @@ namespace keepscape_api.Repositories
             return await _dbSet
                 .Include(o => o.BuyerProfile)
                 .Include(o => o.SellerProfile)
+                .Include(o => o.OrderReport)
                 .Include(o => o.DeliveryLogs)
                 .Include(o => o.Items)
                 .ThenInclude(oi => oi.Product)
@@ -51,6 +54,7 @@ namespace keepscape_api.Repositories
             return await _context.Orders
                 .Include(o => o.BuyerProfile)
                 .Include(o => o.SellerProfile)
+                .Include(o => o.OrderReport)
                 .Include(o => o.DeliveryLogs)
                 .Include(o => o.Items)
                 .ThenInclude(oi => oi.Product)

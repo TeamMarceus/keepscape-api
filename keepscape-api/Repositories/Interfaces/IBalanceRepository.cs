@@ -5,6 +5,6 @@ namespace keepscape_api.Repositories.Interfaces
 {
     public interface IBalanceRepository : IBaseRepository<Balance>
     {
-        Task<Balance?> GetBalanceByUserGuid(Guid userId);
+        Task<Balance?> GetBalanceByUserId(Guid userId);
     }
 }

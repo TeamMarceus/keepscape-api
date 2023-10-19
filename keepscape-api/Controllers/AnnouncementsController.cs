@@ -8,7 +8,6 @@ namespace keepscape_api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Policy = "Admin")]
     public class AnnouncementsController : ControllerBase
     {
         private readonly ILogger<AnnouncementService> _logger;
@@ -21,6 +20,7 @@ namespace keepscape_api.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAnnouncements([FromQuery]PaginatorQuery paginatorQuery)
         {
             try
@@ -42,7 +42,8 @@ namespace keepscape_api.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetAnnouncement(int id)
+        [AllowAnonymous]
+        public async Task<IActionResult> GetAnnouncement(Guid id)
         {
             try
             {
@@ -51,9 +52,7 @@ namespace keepscape_api.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var guid = Guid.Parse(id.ToString());
-
-                var announcement = await _announcementService.GetById(guid);
+                var announcement = await _announcementService.GetById(id);
 
                 return Ok(announcement);
             }
@@ -65,6 +64,7 @@ namespace keepscape_api.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "Admin")]
         public async Task<IActionResult> CreateAnnouncement([FromBody]AnnouncementRequestDto announcementRequestDto)
         {
             try
@@ -86,7 +86,8 @@ namespace keepscape_api.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAnnouncement(int id)
+        [Authorize(Policy = "Admin")]
+        public async Task<IActionResult> DeleteAnnouncement(Guid id)
         {
             try
             {
@@ -95,9 +96,7 @@ namespace keepscape_api.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var guid = Guid.Parse(id.ToString());
-
-                var isDeleted = await _announcementService.Delete(guid);
+                var isDeleted = await _announcementService.Delete(id);
 
                 return Ok(isDeleted);
             }

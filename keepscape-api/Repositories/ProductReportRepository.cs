@@ -17,6 +17,8 @@ namespace keepscape_api.Repositories
                 .Include(x => x.User)
                 .Include(x => x.Product)
                     .ThenInclude(x => x.SellerProfile)
+                    .ThenInclude(x => x!.User)
+                .Where(x => !x.IsResolved)
                 .ToListAsync();
         }
         public override async Task<ProductReport?> GetByIdAsync(Guid Id)
@@ -25,7 +27,26 @@ namespace keepscape_api.Repositories
                 .Include(x => x.User)
                 .Include(x => x.Product)
                     .ThenInclude(x => x.SellerProfile)
+                    .ThenInclude(x => x!.User)
+                .Where(x => !x.IsResolved)
                 .FirstOrDefaultAsync(x => x.Id == Id);
+        }
+
+        public async Task<IEnumerable<ProductReport>> GetByProductIdAsync(Guid productId)
+        {
+            return await _dbSet
+                .Include(x => x.User)
+                .Include(x => x.Product)
+                    .ThenInclude(x => x.SellerProfile)
+                    .ThenInclude(x => x!.User)
+                .Where(x => x.ProductId == productId && !x.IsResolved)
+                .ToListAsync();
+        }
+
+        public async Task<bool> UpdateRangeAsync(IEnumerable<ProductReport> productReports)
+        {
+            _dbSet.UpdateRange(productReports);
+            return await _context.SaveChangesAsync() > 0;
         }
     }
 }

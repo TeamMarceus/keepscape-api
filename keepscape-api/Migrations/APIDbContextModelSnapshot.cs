@@ -305,37 +305,6 @@ namespace keepscape_api.Migrations
                     b.ToTable("Places");
                 });
 
-            modelBuilder.Entity("keepscape_api.Models.Checkouts.Orders.OrderReport", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("DateTimeCreated")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("DateTimeUpdated")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsResolved")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid>("OrderId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Reason")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("UserGuid")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrderId");
-
-                    b.ToTable("OrderReports");
-                });
-
             modelBuilder.Entity("keepscape_api.Models.Checkouts.Products.ProductImage", b =>
                 {
                     b.Property<Guid>("Id")
@@ -377,20 +346,25 @@ namespace keepscape_api.Migrations
                     b.Property<bool>("IsResolved")
                         .HasColumnType("bit");
 
-                    b.Property<Guid>("ProductGuid")
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ProductId1")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Reason")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("UserGuid")
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProductGuid");
+                    b.HasIndex("ProductId");
 
-                    b.HasIndex("UserGuid");
+                    b.HasIndex("ProductId1");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("ProductReports");
                 });
@@ -452,14 +426,12 @@ namespace keepscape_api.Migrations
                     b.Property<string>("DeliveryFeeProofImageUrl")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsConfirmed")
-                        .HasColumnType("bit");
-
                     b.Property<Guid>("SellerProfileId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("TotalPrice")
                         .HasPrecision(18, 2)
@@ -538,6 +510,43 @@ namespace keepscape_api.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("OrderItems");
+                });
+
+            modelBuilder.Entity("keepscape_api.Models.OrderReport", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("DateTimeCreated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DateTimeUpdated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRefunded")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsResolved")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Reason")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("OrderReports");
                 });
 
             modelBuilder.Entity("keepscape_api.Models.Product", b =>
@@ -802,6 +811,9 @@ namespace keepscape_api.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<Guid>("BalanceId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("DateTimeCreated")
                         .HasColumnType("datetime2");
 
@@ -827,16 +839,13 @@ namespace keepscape_api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("SellerProfileId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SellerProfileId");
+                    b.HasIndex("BalanceId");
 
                     b.ToTable("BalanceWithdrawals");
                 });
@@ -938,17 +947,6 @@ namespace keepscape_api.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("keepscape_api.Models.Checkouts.Orders.OrderReport", b =>
-                {
-                    b.HasOne("keepscape_api.Models.Order", "Order")
-                        .WithMany()
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Order");
-                });
-
             modelBuilder.Entity("keepscape_api.Models.Checkouts.Products.ProductImage", b =>
                 {
                     b.HasOne("keepscape_api.Models.Product", "Product")
@@ -964,13 +962,17 @@ namespace keepscape_api.Migrations
                 {
                     b.HasOne("keepscape_api.Models.Product", "Product")
                         .WithMany()
-                        .HasForeignKey("ProductGuid")
+                        .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("keepscape_api.Models.Product", null)
+                        .WithMany("Reports")
+                        .HasForeignKey("ProductId1");
+
                     b.HasOne("keepscape_api.Models.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserGuid")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1037,6 +1039,25 @@ namespace keepscape_api.Migrations
                     b.Navigation("Order");
 
                     b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("keepscape_api.Models.OrderReport", b =>
+                {
+                    b.HasOne("keepscape_api.Models.Order", "Order")
+                        .WithOne("OrderReport")
+                        .HasForeignKey("keepscape_api.Models.OrderReport", "OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("keepscape_api.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Order");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("keepscape_api.Models.Product", b =>
@@ -1111,13 +1132,13 @@ namespace keepscape_api.Migrations
 
             modelBuilder.Entity("keepscape_api.Models.Users.Finances.BalanceWithdrawal", b =>
                 {
-                    b.HasOne("keepscape_api.Models.SellerProfile", "SellerProfile")
+                    b.HasOne("keepscape_api.Models.Balance", "Balance")
                         .WithMany()
-                        .HasForeignKey("SellerProfileId")
+                        .HasForeignKey("BalanceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("SellerProfile");
+                    b.Navigation("Balance");
                 });
 
             modelBuilder.Entity("keepscape_api.Models.Balance", b =>
@@ -1149,11 +1170,15 @@ namespace keepscape_api.Migrations
                     b.Navigation("DeliveryLogs");
 
                     b.Navigation("Items");
+
+                    b.Navigation("OrderReport");
                 });
 
             modelBuilder.Entity("keepscape_api.Models.Product", b =>
                 {
                     b.Navigation("Images");
+
+                    b.Navigation("Reports");
 
                     b.Navigation("Reviews");
                 });

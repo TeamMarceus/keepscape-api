@@ -494,6 +494,10 @@ namespace keepscape_api.Services.Users
             var newUser = _mapper.Map<User>(userCreateSellerDto);
             newUser.UserType = UserType.Seller;
             newUser.Password = passwordHasher.HashPassword(newUser, userCreateSellerDto.Password);
+            newUser.Balance = new Balance
+            {
+                Amount = 0
+            };
 
             newUser.SellerProfile = new SellerProfile
             {

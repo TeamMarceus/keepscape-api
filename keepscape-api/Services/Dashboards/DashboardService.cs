@@ -41,14 +41,16 @@ namespace keepscape_api.Services.Dashboards
             var products = await _productRepository.GetAllAsync();
             dashboard.Products = products.Count();
 
-            for (var i = 0; i < 12; i++)
+            for (var i = 1; i <= 12; i++)
             {
                 var month = (Month)i;
                 var monthlyStats = new AdminMonthlyStatsDto
                 {
-                    Products = products.Count(p => p.DateTimeCreated.Month == (int)month),
-                    Buyers = users.Count(u => u.DateTimeCreated.Month == (int)month && u.UserType == UserType.Buyer),
-                    Sellers = users.Count(u => u.DateTimeCreated.Month == (int)month && u.UserType == UserType.Seller)
+                    Products = products.Count(p => p.DateTimeCreated.Month == (int)month && p.DateTimeCreated.Year == DateTime.UtcNow.Year),
+                    Buyers = users
+                    .Count(u => u.DateTimeCreated.Month == (int)month && u.UserType == UserType.Buyer && u.DateTimeCreated.Year == DateTime.UtcNow.Year),
+                    Sellers = users
+                    .Count(u => u.DateTimeCreated.Month == (int)month && u.UserType == UserType.Seller && u.DateTimeCreated.Year == DateTime.UtcNow.Year)
                 };
 
                 dashboard.MonthlyStatistics.Add(month, monthlyStats);
