@@ -128,7 +128,7 @@ namespace keepscape_api.Controllers
         }
 
         [HttpPost("orders/{orderId}/resolve")]
-        public async Task<IActionResult> ResolveOrderReports(Guid orderId)
+        public async Task<IActionResult> ResolveOrderReport(Guid orderId)
         {
             try
             {
@@ -144,6 +144,27 @@ namespace keepscape_api.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"{nameof(_reportService.ResolveOrderReport)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpPost("orders/{orderId}/refund")]
+        public async Task<IActionResult> RefundOrderReport(Guid orderId)
+        {
+            try
+            {
+                var result = await _reportService.RefundOrderReport(orderId);
+
+                if (!result)
+                {
+                    return NotFound();
+                }
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_reportService.RefundOrderReport)} threw an exception");
                 return StatusCode(500, "Internal server error");
             }
         }
