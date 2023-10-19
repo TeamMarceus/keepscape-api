@@ -1,6 +1,6 @@
 ﻿namespace keepscape_api.Enums
 {
-    public enum DeliveryStatus
+    public enum OrderStatus
     {
         Pending,
         Ongoing,

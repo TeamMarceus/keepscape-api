@@ -7,5 +7,6 @@ namespace keepscape_api.Repositories.Interfaces
     {
         Task<IEnumerable<Order>> GetByBuyerProfileId(Guid buyerProfileId);
         Task<IEnumerable<Order>> GetBySellerProfileId(Guid sellerProfileId);
+        Task<IEnumerable<Order>> GetByProductId(Guid productId);
     }
 }

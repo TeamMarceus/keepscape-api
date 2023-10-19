@@ -32,14 +32,15 @@
 
     public record ProductResponseAdminDto
     {
-        public DateTime DateTimeCreated { get; init; }
         public Guid Id { get; init; }
+        public Guid SellerUserGuid { get; init; }
+        public DateTime DateTimeCreated { get; init; }
         public string Name { get; init; } = string.Empty;
         public decimal Price { get; init; }
         public int Quantity { get; init; }
         public IEnumerable<string> ImageUrls { get; init; } = new List<string>();
         public int TotalSold { get; init; }
-        public ProductSellerDto Seller { get; init; } = new ProductSellerDto();
+        public int TotalReports { get; init; }
     }
 
     public record ProductResponseAdminPaginatedDto

@@ -13,7 +13,7 @@ namespace keepscape_api.Repositories
 
         public async Task<IEnumerable<Order>> GetByBuyerProfileId(Guid buyerProfileId)
         {
-            return await _context.Orders
+            return await _dbSet
                 .Include(o => o.BuyerProfile)
                 .Include(o => o.SellerProfile)
                 .Include(o => o.DeliveryLogs)
@@ -25,7 +25,7 @@ namespace keepscape_api.Repositories
 
         public async Task<IEnumerable<Order>> GetBySellerProfileId(Guid sellerProfileId)
         {
-            return await _context.Orders
+            return await _dbSet
                 .Include(o => o.BuyerProfile)
                 .Include(o => o.SellerProfile)
                 .Include(o => o.DeliveryLogs)
@@ -37,7 +37,7 @@ namespace keepscape_api.Repositories
 
         public override async Task<Order?> GetByIdAsync(Guid id)
         {
-            return await _context.Orders
+            return await _dbSet
                 .Include(o => o.BuyerProfile)
                 .Include(o => o.SellerProfile)
                 .Include(o => o.DeliveryLogs)
@@ -54,6 +54,14 @@ namespace keepscape_api.Repositories
                 .Include(o => o.DeliveryLogs)
                 .Include(o => o.Items)
                 .ThenInclude(oi => oi.Product)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Order>> GetByProductId(Guid productId)
+        {
+            return await _dbSet
+                .Include(o => o.Items)
+                .Where(o => o.Items.Any(oi => oi.ProductId == productId))
                 .ToListAsync();
         }
     }

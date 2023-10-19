@@ -526,5 +526,33 @@ namespace keepscape_api.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
+
+        // Reports
+        [HttpGet("reports")]
+        [Authorize(Policy = "Admin")]
+        public async Task<IActionResult> GetReports()
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var reports = await _productService.GetReports();
+
+                if (reports == null)
+                {
+                    return NoContent();
+                }
+
+                return Ok(reports);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_productService.GetReports)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
     }
 }

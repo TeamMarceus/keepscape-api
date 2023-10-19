@@ -35,7 +35,7 @@ namespace keepscape_api.Services.Dashboards
             dashboard.SellerApplications = pendingSellerApplications.Count();
 
             var orders = await _orderRepository.GetAllAsync();
-            var pendingOrders = orders.Where(o => o.Status == DeliveryStatus.Pending);
+            var pendingOrders = orders.Where(o => o.Status == OrderStatus.Pending);
             dashboard.OngoingOrders = pendingOrders.Count();
 
             var products = await _productRepository.GetAllAsync();

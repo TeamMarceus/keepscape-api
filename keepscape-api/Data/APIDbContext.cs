@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using keepscape_api.Models.Checkouts.Products;
 using keepscape_api.Models.Categories;
 using keepscape_api.Models.Users.Finances;
+using keepscape_api.Models.Checkouts.Orders;
 
 namespace keepscape_api.Data
 {
@@ -33,6 +34,7 @@ namespace keepscape_api.Data
         public DbSet<SellerProfile> SellerProfiles { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<ProductReport> ProductReports { get; set; }
+        public DbSet<OrderReport> OrderReports { get; set; }
 
         public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default(CancellationToken))
         {

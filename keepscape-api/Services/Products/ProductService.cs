@@ -15,6 +15,8 @@ namespace keepscape_api.Services.Products
     {
         private readonly IProductRepository _productRepository;
         private readonly IProductReviewRepository _productReviewRepository;
+        private readonly IProductReportRepository _productReportRepository;
+        private readonly IOrderRepository _orderRepository;
         private readonly ICategoryRepository _categoryRepository;
         private readonly IPlaceRepository _placeRepository;
         private readonly IUserRepository _userRepository;
@@ -24,6 +26,8 @@ namespace keepscape_api.Services.Products
         public ProductService(
             IProductRepository productRepository, 
             IProductReviewRepository productReviewRepository,
+            IProductReportRepository productReportRepository,
+            IOrderRepository orderRepository,
             ICategoryRepository categoryRepository, 
             IPlaceRepository placeRepository,
             IUserRepository userRepository,
@@ -32,6 +36,8 @@ namespace keepscape_api.Services.Products
         {
             _productRepository = productRepository;
             _productReviewRepository = productReviewRepository;
+            _productReportRepository = productReportRepository;
+            _orderRepository = orderRepository;
             _categoryRepository = categoryRepository;
             _placeRepository = placeRepository;
             _imageUrlService = imageUrlService;
@@ -449,9 +455,38 @@ namespace keepscape_api.Services.Products
             await _categoryRepository.DeleteAsync(category);
         }
 
-        public Task<ProductResponseAdminPaginatedDto> GetAdmin(ProductQuery productQueryParameters)
+        public async Task<IEnumerable<ProductResponseAdminDto>> GetReports()
         {
-            throw new NotImplementedException();
+            var productReports = await _productReportRepository.GetAllAsync();
+            var uniqueProducts = productReports.Select(p => p.Product).Distinct();
+
+            var products = new List<ProductResponseAdminDto>();
+
+            foreach (var product in uniqueProducts)
+            {
+                var orders = await _orderRepository.GetByProductId(product.Id);
+
+                var totalSold = orders.Where(o => o.Status == OrderStatus.Delivered)
+                                .Sum(o => o.Items.Where(i => i.ProductId == product.Id)
+                                .Single().Quantity);
+
+                var totalReports = productReports.Where(p => p.ProductId == product.Id).Count();
+
+                products.Add(new ProductResponseAdminDto
+                {
+                    Id = product.Id,
+                    SellerUserGuid = product.SellerProfile!.User!.Id,
+                    DateTimeCreated = product.DateTimeCreated,
+                    Name = product.Name,
+                    Price = product.Price,
+                    Quantity = product.Quantity,
+                    ImageUrls = product.Images.Select(i => i.ImageUrl),
+                    TotalSold = totalSold,
+                    TotalReports = totalReports
+                });
+            }
+
+            return products;
         }
     }
 }

@@ -16,6 +16,7 @@ namespace keepscape_api.Repositories
             return await _dbSet
                 .Include(x => x.User)
                 .Include(x => x.Product)
+                    .ThenInclude(x => x.SellerProfile)
                 .ToListAsync();
         }
         public override async Task<ProductReport?> GetByIdAsync(Guid Id)
@@ -23,6 +24,7 @@ namespace keepscape_api.Repositories
             return await _dbSet
                 .Include(x => x.User)
                 .Include(x => x.Product)
+                    .ThenInclude(x => x.SellerProfile)
                 .FirstOrDefaultAsync(x => x.Id == Id);
         }
     }

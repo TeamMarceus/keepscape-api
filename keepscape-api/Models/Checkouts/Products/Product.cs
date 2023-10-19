@@ -21,5 +21,6 @@ namespace keepscape_api.Models
         public virtual ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();
         public virtual ICollection<Category> Categories { get; set; } = new List<Category>();
         public virtual ICollection<ProductReview> Reviews { get; set; } = new List<ProductReview>();
+        public virtual ICollection<ProductReport> Reports { get; set; } = new List<ProductReport>();
     }
 }
