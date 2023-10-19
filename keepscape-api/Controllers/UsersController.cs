@@ -38,7 +38,7 @@ namespace keepscape_api.Controllers
 
                 var userStatus = await _userService.GetStatus(userLoginDto.Email);
 
-                if (userStatus.UserStatus != UserStatus.OK)
+                if (userStatus.UserStatus != UserStatus.OK.ToString())
                 {
                     return BadRequest(userStatus);
                 }
@@ -96,7 +96,7 @@ namespace keepscape_api.Controllers
 
                 var userStatus = await _userService.GetStatus(email);
 
-                if (userStatus.UserStatus != UserStatus.OK)
+                if (userStatus.UserStatus != UserStatus.OK.ToString())
                 {
                     return BadRequest(userStatus);
                 }
@@ -130,7 +130,7 @@ namespace keepscape_api.Controllers
 
                 var userStatus = await _userService.GetStatus(userVerifyCode.Email);
 
-                if (userStatus.UserStatus != UserStatus.OK)
+                if (userStatus.UserStatus != UserStatus.OK.ToString())
                 {
                     return BadRequest(userStatus);
                 }
@@ -164,7 +164,7 @@ namespace keepscape_api.Controllers
 
                 var userStatus = await _userService.GetStatus(userUpdatePasswordWithCodeDto.Email);
 
-                if (userStatus.UserStatus != UserStatus.OK)
+                if (userStatus.UserStatus != UserStatus.OK.ToString())
                 {
                     return BadRequest(userStatus);
                 }
@@ -387,10 +387,20 @@ namespace keepscape_api.Controllers
 
         [HttpGet("buyers")]
         [Authorize(Policy = "Admin")]
-        public async Task<IActionResult> GetBuyers([FromQuery] UserQuery userQuery)
+        public async Task<IActionResult> GetBuyers([FromQuery] UserQuery userQuery, [FromQuery] Guid id)
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                if (id != Guid.Empty)
+                {
+                    return await GetById(id);
+                }
+
                 var buyers = await _userService.GetBuyers(userQuery);
 
                 return Ok(buyers);
@@ -404,10 +414,20 @@ namespace keepscape_api.Controllers
 
         [HttpGet("sellers")]
         [Authorize(Policy = "Admin")]
-        public async Task<IActionResult> GetSellers([FromQuery] UserQuery userQuery)
+        public async Task<IActionResult> GetSellers([FromQuery] UserQuery userQuery, [FromQuery] Guid id)
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                if (id != Guid.Empty)
+                {
+                    return await GetById(id);
+                }
+
                 var sellers = await _userService.GetSellers(userQuery);
 
                 return Ok(sellers);

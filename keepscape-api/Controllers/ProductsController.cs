@@ -50,7 +50,7 @@ namespace keepscape_api.Controllers
 
                 var userStatus = await _userService.GetStatus(sellerId);
 
-                if (userStatus.UserStatus != UserStatus.OK)
+                if (userStatus.UserStatus != UserStatus.OK.ToString())
                 {
                     return BadRequest(userStatus);
                 }
@@ -159,7 +159,7 @@ namespace keepscape_api.Controllers
         }
 
         [HttpDelete("{productId}")]
-        [Authorize(Policy = "Seller")]
+        [Authorize(Policy = "Seller, Admin")]
         public async Task<IActionResult> Delete(Guid productId)
         {
             try
@@ -170,10 +170,14 @@ namespace keepscape_api.Controllers
                 }
 
                 var sellerId = Guid.TryParse(User.FindFirstValue("UserId"), out Guid sellerIdParsed) ? sellerIdParsed : Guid.Empty;
+                var role = User.FindFirstValue(ClaimTypes.Role);
 
                 if (sellerId == Guid.Empty)
                 {
-                    return BadRequest("Invalid credentials.");
+                    if (string.IsNullOrEmpty(role) || role != "Admin")
+                    {
+                        return BadRequest("Invalid credentials.");
+                    }
                 }
 
                 await _productService.Delete(sellerId, productId);
