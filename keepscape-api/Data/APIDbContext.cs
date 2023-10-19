@@ -3,6 +3,7 @@ using keepscape_api.Models.Primitives;
 using Microsoft.EntityFrameworkCore;
 using keepscape_api.Models.Checkouts.Products;
 using keepscape_api.Models.Categories;
+using keepscape_api.Models.Users.Finances;
 
 namespace keepscape_api.Data
 {
@@ -14,6 +15,7 @@ namespace keepscape_api.Data
         public DbSet<Cart> Carts { get; set; }
         public DbSet<CartItem> CartItems { get; set; }
         public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<OrderDeliveryLog> OrderDeliveryLogs { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<ProductImage> ProductImages { get; set; }
@@ -25,7 +27,8 @@ namespace keepscape_api.Data
         public DbSet<BuyerCategoryPreference> BuyerCategoryPreferences { get; set; }
         public DbSet<BuyerProfile> BuyerProfiles { get; set; }
         public DbSet<Balance> Balances { get; set; }
-        public DbSet<BalanceHistory> BalanceHistories { get; set; }
+        public DbSet<BalanceLog> BalanceLogs { get; set; }
+        public DbSet<BalanceWithdrawal> BalanceWithdrawals { get; set; }
         public DbSet<SellerApplication> SellerApplications { get; set; }
         public DbSet<SellerProfile> SellerProfiles { get; set; }
         public DbSet<User> Users { get; set; }
@@ -83,6 +86,32 @@ namespace keepscape_api.Data
                 .WithOne(u => u.BuyerProfile)
                 .HasForeignKey<BuyerProfile>(b => b.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<BuyerProfile>()
+                .HasOne(b => b.Cart)
+                .WithOne(c => c.BuyerProfile)
+                .HasForeignKey<Cart>(c => c.BuyerProfileId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<BuyerProfile>()
+                .HasMany(b => b.Orders)
+                .WithOne(o => o.BuyerProfile)
+                .HasForeignKey(o => o.BuyerProfileId)
+                .OnDelete(DeleteBehavior.SetNull);
+            modelBuilder.Entity<BuyerProfile>()
+                .HasMany(b => b.BuyerCategoryPreferences)
+                .WithOne(bcp => bcp.BuyerProfile)
+                .HasForeignKey(bcp => bcp.BuyerProfileId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<BuyerProfile>()
+                .HasMany(b => b.Orders)
+                .WithOne(o => o.BuyerProfile)
+                .HasForeignKey(o => o.BuyerProfileId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<BuyerCategoryPreference>()
+                .HasOne(bcp => bcp.Category)
+                .WithMany()
+                .HasForeignKey(bcp => bcp.CategoryId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired(true);
             modelBuilder.Entity<SellerProfile>()
                 .HasOne(s => s.User)
                 .WithOne(u => u.SellerProfile)
@@ -91,6 +120,11 @@ namespace keepscape_api.Data
             modelBuilder.Entity<SellerApplication>()
                 .Property(e => e.Status)
                 .HasConversion<string>();
+            modelBuilder.Entity<SellerProfile>()
+                .HasMany(s => s.Products)
+                .WithOne(p => p.SellerProfile)
+                .HasForeignKey(p => p.SellerProfileId)
+                .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<SellerApplication>()
                 .HasOne(sa => sa.SellerProfile)
                 .WithOne(s => s.SellerApplication)
@@ -111,10 +145,18 @@ namespace keepscape_api.Data
             modelBuilder.Entity<Balance>()
                 .Property(b => b.Amount)
                 .HasPrecision(18, 2);
-            modelBuilder.Entity<BalanceHistory>()
+            modelBuilder.Entity<BalanceLog>()
                 .Property(bh => bh.Amount)
                 .HasPrecision(18, 2);
-
+            modelBuilder.Entity<BalanceWithdrawal>()
+                .Property(bw => bw.Amount)
+                .HasPrecision(18, 2);
+            modelBuilder.Entity<BalanceWithdrawal>()
+                .Property(bw => bw.PaymentMethod)
+                .HasConversion<string>();
+            modelBuilder.Entity<BalanceWithdrawal>()
+                .Property(bw => bw.Status)
+                .HasConversion<string>();
 
             // Token and Code
             modelBuilder.Entity<Token>()
@@ -201,10 +243,16 @@ namespace keepscape_api.Data
                 .HasOne(o => o.BuyerProfile)
                 .WithMany(b => b.Orders)
                 .HasForeignKey(o => o.BuyerProfileId)
-                .OnDelete(DeleteBehavior.Cascade)
+                .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired(true);
             modelBuilder.Entity<Order>()
-                .HasMany(o => o.OrderDeliveryLogs)
+                .HasOne(o => o.SellerProfile)
+                .WithMany()
+                .HasForeignKey(o => o.SellerProfileId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired(true);
+            modelBuilder.Entity<Order>()
+                .HasMany(o => o.DeliveryLogs)
                 .WithOne(odl => odl.Order)
                 .HasForeignKey(odl => odl.OrderId)
                 .OnDelete(DeleteBehavior.Cascade);
@@ -212,7 +260,21 @@ namespace keepscape_api.Data
                 .Property(o => o.DeliveryFee)
                 .HasPrecision(18, 2);
             modelBuilder.Entity<Order>()
-                .Property(o => o.Total)
+                .Property(o => o.TotalPrice)
+                .HasPrecision(18, 2);
+            modelBuilder.Entity<Order>()
+                .HasMany(o => o.Items)
+                .WithOne(oi => oi.Order)
+                .HasForeignKey(oi => oi.OrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<OrderItem>()
+                .HasOne(oi => oi.Product)
+                .WithMany()
+                .HasForeignKey(oi => oi.ProductId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired(true);
+            modelBuilder.Entity<OrderItem>()
+                .Property(oi => oi.Price)
                 .HasPrecision(18, 2);
 
             // SellerApplication
