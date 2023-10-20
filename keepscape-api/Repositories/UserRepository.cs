@@ -74,7 +74,10 @@ namespace keepscape_api.Repositories
             if (!string.IsNullOrEmpty(userQuery.Search))
             {
                 query = query.Where(
-                        u => u.FirstName.Contains(userQuery.Search) || u.LastName.Contains(userQuery.Search));
+                        u => u.FirstName.Contains(userQuery.Search) || 
+                        u.LastName.Contains(userQuery.Search) ||
+                        u.Email.Contains(userQuery.Search)
+                        );
             }
 
             if (!string.IsNullOrEmpty(userQuery.OrderBy))
@@ -118,9 +121,9 @@ namespace keepscape_api.Repositories
                 query = query.OrderByDescending(u => u.DateTimeCreated);
             }
 
-            if (userQuery.IsBanned)
+            if (userQuery.IsBanned != null)
             {
-                query = query.Where(u => u.IsBanned == true);
+                query = query.Where(u => u.IsBanned == userQuery.IsBanned);
             }
 
             if (query.Count() == 0)

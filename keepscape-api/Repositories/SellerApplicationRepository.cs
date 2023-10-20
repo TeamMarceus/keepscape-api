@@ -56,11 +56,20 @@ namespace keepscape_api.Repositories
                 }
             }
 
+            if (!string.IsNullOrEmpty(sellerApplicationQuery.Search))
+            {
+                query = query
+                    .Where(b => b.SellerProfile!.User!.FirstName!.Contains(sellerApplicationQuery.Search) || 
+                    b.SellerProfile!.User!.LastName!.Contains(sellerApplicationQuery.Search) ||
+                    b.SellerProfile!.User!.Email!.Contains(sellerApplicationQuery.Search)
+                    );
+            }
 
             if (query.Count() == 0)
             {
                 return (new List<SellerApplication>(), 0);
             }
+
 
             if (sellerApplicationQuery.Page != null && sellerApplicationQuery.PageSize != null)
             {

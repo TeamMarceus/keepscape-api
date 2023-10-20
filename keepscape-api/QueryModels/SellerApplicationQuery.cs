@@ -2,8 +2,9 @@
 {
     public class SellerApplicationQuery : PaginatorQuery
     {
-        public string Status { get; set; } = string.Empty;
-        public string OrderBy { get; set; } = string.Empty;
+        public string? Search { get; set; }
+        public string? Status { get; set; }
+        public string? OrderBy { get; set; }
         public bool IsDescending { get; set; } = false;
     }
 }

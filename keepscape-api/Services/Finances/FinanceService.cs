@@ -55,7 +55,7 @@ namespace keepscape_api.Services.Finances
                 balance.Amount -= balanceWithdrawal.Amount;
                 balance.BalanceHistories!.Add(new BalanceLog
                 {
-                    Amount = balanceWithdrawal.Amount,
+                    Amount = -balanceWithdrawal.Amount,
                     Remarks = "Withdrawal",
                 });
             }

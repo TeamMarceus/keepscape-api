@@ -39,6 +39,9 @@ namespace keepscape_api.Repositories
             }
 
             int pageCount = 1;
+
+            query.OrderByDescending(a => a.DateTimeCreated);
+
             if (paginatorQuery.Page > 0 && paginatorQuery.PageSize > 0)
             {
                 pageCount = (int)Math.Ceiling((double)query.Count() / paginatorQuery.PageSize.Value);
