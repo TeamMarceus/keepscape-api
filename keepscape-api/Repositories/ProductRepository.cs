@@ -57,11 +57,11 @@ namespace keepscape_api.Repositories
             }
             if (productQueryParameters.MinPrice != null)
             {
-                query = query.Where(p => p.Price >= productQueryParameters.MinPrice);
+                query = query.Where(p => p.BuyerPrice >= productQueryParameters.MinPrice);
             }
             if (productQueryParameters.MaxPrice != null)
             {
-                query = query.Where(p => p.Price <= productQueryParameters.MaxPrice);
+                query = query.Where(p => p.BuyerPrice <= productQueryParameters.MaxPrice);
             }
             if (query.Count() == 0)
             {

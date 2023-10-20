@@ -73,7 +73,7 @@ namespace keepscape_api.Services.Reports
                     SellerUserGuid = product.SellerProfile!.User!.Id,
                     DateTimeCreated = product.DateTimeCreated,
                     Name = product.Name,
-                    Price = product.Price,
+                    Price = product.BuyerPrice,
                     Quantity = product.Quantity,
                     ImageUrls = product.Images.Select(i => i.ImageUrl),
                     TotalSold = totalSold,

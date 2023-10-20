@@ -303,6 +303,7 @@ namespace keepscape_api.Services.Users
             if (newStatus == UserStatus.Banned)
             {
                 user.IsBanned = true;
+                user.StatusReason = userStatusUpdateDto.Reason ?? "";
 
                 var subject = "Keepscape Account Banned";
 

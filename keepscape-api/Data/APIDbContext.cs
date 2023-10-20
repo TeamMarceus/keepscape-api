@@ -202,7 +202,10 @@ namespace keepscape_api.Data
                 .HasForeignKey(pr => pr.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<Product>()
-                .Property(p => p.Price)
+                .Property(p => p.BuyerPrice)
+                .HasPrecision(18, 2);
+            modelBuilder.Entity<Product>()
+                .Property(p => p.SellerPrice)
                 .HasPrecision(18, 2);
             modelBuilder.Entity<Product>()
                 .Property(p => p.Rating)

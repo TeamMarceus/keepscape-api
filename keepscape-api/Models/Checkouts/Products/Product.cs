@@ -10,7 +10,8 @@ namespace keepscape_api.Models
         public Guid? PlaceId { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
-        public decimal Price { get; set; }
+        public decimal SellerPrice { get; set; }
+        public decimal BuyerPrice { get; set; }
         public decimal Rating { get; set; } = 0;
         public int Quantity { get; set; }
         public bool IsCustomizable { get; set; }
