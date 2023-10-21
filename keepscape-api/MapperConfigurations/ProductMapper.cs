@@ -48,6 +48,7 @@ namespace keepscape_api.MapperConfigurations
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => !src.Images.IsNullOrEmpty() ? src.Images.Select(i => i.ImageUrl) : new List<string>()))
                 .ForMember(dest => dest.Seller, opt => opt.MapFrom(src => src.SellerProfile != null && src.SellerProfile.User != null ? new ProductSellerDto
                 {
+                    SellerProfileId = src.SellerProfile.Id,
                     Name = src.SellerProfile.Name,
                     Description = src.SellerProfile.Description,
                     Email = src.SellerProfile.User.Email,

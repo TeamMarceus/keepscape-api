@@ -97,7 +97,7 @@ namespace keepscape_api.Controllers
             }
         }
 
-        [HttpGet("{productId}", Name = nameof(GetById))]
+        [HttpGet("{productId}")]
         public async Task<IActionResult> GetById(Guid productId)
         {
             try

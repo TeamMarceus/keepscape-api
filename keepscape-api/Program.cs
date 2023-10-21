@@ -23,6 +23,7 @@ using keepscape_api.Services.Announcements;
 using keepscape_api.Services.Dashboards;
 using keepscape_api.Services.Reports;
 using keepscape_api.Services.Finances;
+using keepscape_api.Services.Orders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -182,4 +183,5 @@ async Task ConfigureServices(IServiceCollection services, IConfiguration configu
     services.AddScoped<IDashboardService, DashboardService>();
     services.AddScoped<IReportService, ReportService>();
     services.AddScoped<IFinanceService, FinanceService>();
+    services.AddScoped<IOrderService, OrderService>();
 }

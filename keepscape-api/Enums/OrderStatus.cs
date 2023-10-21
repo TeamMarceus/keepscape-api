@@ -3,10 +3,13 @@
     public enum OrderStatus
     {
         Pending,
-        Awaiting,
+        AwaitingBuyer,
+        AwaitingSeller,
         Ongoing,
+        AwaitingConfirmation,
         Rejected,
         Cancelled,
+        Refunded,
         Delivered
     }
 }

@@ -40,12 +40,12 @@ namespace keepscape_api.Services.Reports
             _mapper = mapper;
         }
 
-        public Task<bool> CreateOrderReport(Guid orderId, Guid userId, ReportOrderRequestDto reportRequestDto)
+        public Task<bool> CreateOrderReport(Guid orderId, Guid userId, ReportRequestDto reportRequestDto)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<bool> CreateProductReport(Guid productId, Guid userId, ReportProductRequestDto reportRequestDto)
+        public async Task<bool> CreateProductReport(Guid productId, Guid userId, ReportRequestDto reportRequestDto)
         {
             var product = await _productRepository.GetByIdAsync(productId);
 
@@ -80,11 +80,11 @@ namespace keepscape_api.Services.Reports
             return await _productRepository.UpdateAsync(product);
         }
 
-        public async Task<IEnumerable<OrderResponseAdminDto>> GetAllOrderReports()
+        public async Task<IEnumerable<OrderAdminResponseDto>> GetAllOrderReports()
         {
             var orderReports = await _orderReportRepository.GetAllAsync();
 
-            return orderReports.Select(report => _mapper.Map<OrderResponseAdminDto>(report.Order));
+            return orderReports.Select(report => _mapper.Map<OrderAdminResponseDto>(report.Order));
         }
 
         public async Task<IEnumerable<ProductResponseAdminDto>> GetAllProductReports()
@@ -154,7 +154,13 @@ namespace keepscape_api.Services.Reports
                 return false;
             }
 
+            if (order.Status != OrderStatus.AwaitingConfirmation)
+            {
+                return false;
+            }
+
             order.OrderReport!.IsRefunded = true;
+            order.Status = OrderStatus.Refunded;
 
             var balance = await _balanceRepository.GetBalanceByUserId(order.BuyerProfile!.UserId);
 
@@ -184,7 +190,13 @@ namespace keepscape_api.Services.Reports
                 return false;
             }
 
+            if (order.Status != OrderStatus.AwaitingConfirmation)
+            {
+                return false;
+            }
+
             order.OrderReport!.IsResolved = true;
+            order.Status = OrderStatus.Delivered;
 
             var balance = await _balanceRepository.GetBalanceByUserId(order.SellerProfile!.UserId);
 

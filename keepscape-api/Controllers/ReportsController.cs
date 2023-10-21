@@ -25,7 +25,7 @@ namespace keepscape_api.Controllers
 
         [HttpPost("products/{productId}")]
         [Authorize(Policy = "Buyer")]
-        public async Task<IActionResult> CreateProductReport(Guid productId, ReportProductRequestDto reportRequestDto)
+        public async Task<IActionResult> CreateProductReport(Guid productId, ReportRequestDto reportRequestDto)
         {
             try
             {
