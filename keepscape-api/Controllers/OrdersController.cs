@@ -124,7 +124,8 @@ namespace keepscape_api.Controllers
             }
         }
 
- 
+        [HttpPost("sellers/{orderId}/deliver")]
+
 
         [HttpPost("sellers/{orderId}/logs")]
         [Authorize(Policy = "Seller")]
