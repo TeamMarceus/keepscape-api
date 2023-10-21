@@ -1,13 +1,14 @@
-﻿using keepscape_api.Services.Reports;
+﻿using keepscape_api.Dtos.Reports;
+using keepscape_api.Services.Reports;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 
 namespace keepscape_api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Policy = "Admin")]
     public class ReportsController : ControllerBase
     {
         private readonly ILogger<IReportService> _logger;
@@ -22,7 +23,40 @@ namespace keepscape_api.Controllers
             _reportService = reportService;
         }
 
+        [HttpPost("products/{productId}")]
+        [Authorize(Policy = "Buyer")]
+        public async Task<IActionResult> CreateProductReport(Guid productId, ReportProductRequestDto reportRequestDto)
+        {
+            try
+            {
+                var userId = Guid.TryParse(User.FindFirstValue("UserId"), out var id) ? id : Guid.Empty;
+
+                if (userId == Guid.Empty)
+                {
+                    return BadRequest("Invalid credentials.");
+                }
+
+                var result = await _reportService.CreateProductReport(
+                    productId, 
+                    userId,
+                    reportRequestDto);
+
+                if (!result)
+                {
+                    return NotFound();
+                }
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_reportService.CreateProductReport)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
         [HttpGet("products")]
+        [Authorize(Policy = "Admin")]
         public async Task<IActionResult> GetProductReports()
         {
             try
@@ -44,6 +78,7 @@ namespace keepscape_api.Controllers
         }
 
         [HttpGet("products/{productId}")]
+        [Authorize(Policy = "Admin")]
         public async Task<IActionResult> GetProductReports(Guid productId)
         {
             try
@@ -65,6 +100,7 @@ namespace keepscape_api.Controllers
         }
 
         [HttpPost("products/{productId}/resolve")]
+        [Authorize(Policy = "Admin")]
         public async Task<IActionResult> ResolveProductReports(Guid productId)
         {
             try
@@ -86,6 +122,7 @@ namespace keepscape_api.Controllers
         }
 
         [HttpGet("orders")]
+        [Authorize(Policy = "Admin")]
         public async Task<IActionResult> GetOrderReports()
         {
             try
@@ -107,6 +144,7 @@ namespace keepscape_api.Controllers
         }
 
         [HttpGet("orders/{orderId}")]
+        [Authorize(Policy = "Admin")]
         public async Task<IActionResult> GetOrderReports(Guid orderId)
         {
             try
@@ -128,6 +166,7 @@ namespace keepscape_api.Controllers
         }
 
         [HttpPost("orders/{orderId}/resolve")]
+        [Authorize(Policy = "Admin")]
         public async Task<IActionResult> ResolveOrderReport(Guid orderId)
         {
             try
@@ -149,6 +188,7 @@ namespace keepscape_api.Controllers
         }
 
         [HttpPost("orders/{orderId}/refund")]
+        [Authorize(Policy = "Admin")]
         public async Task<IActionResult> RefundOrderReport(Guid orderId)
         {
             try

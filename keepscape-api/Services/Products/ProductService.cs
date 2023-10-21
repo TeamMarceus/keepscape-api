@@ -7,6 +7,7 @@ using keepscape_api.Models.Checkouts.Products;
 using keepscape_api.QueryModels;
 using keepscape_api.Repositories.Interfaces;
 using keepscape_api.Services.BaseImages;
+using keepscape_api.Services.Emails;
 using Microsoft.IdentityModel.Tokens;
 
 namespace keepscape_api.Services.Products
@@ -15,32 +16,32 @@ namespace keepscape_api.Services.Products
     {
         private readonly IProductRepository _productRepository;
         private readonly IProductReviewRepository _productReviewRepository;
-        private readonly IProductReportRepository _productReportRepository;
-        private readonly IOrderRepository _orderRepository;
         private readonly ICategoryRepository _categoryRepository;
         private readonly IPlaceRepository _placeRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IOrderRepository _orderRepository;
         private readonly IImageService _imageUrlService;
+        private readonly IEmailService _emailService;
         private readonly IMapper _mapper;
 
         public ProductService(
             IProductRepository productRepository, 
             IProductReviewRepository productReviewRepository,
-            IProductReportRepository productReportRepository,
-            IOrderRepository orderRepository,
             ICategoryRepository categoryRepository, 
             IPlaceRepository placeRepository,
             IUserRepository userRepository,
+            IOrderRepository orderRepository,
             IImageService imageUrlService,
+            IEmailService emailService,
             IMapper mapper)
         {
             _productRepository = productRepository;
             _productReviewRepository = productReviewRepository;
-            _productReportRepository = productReportRepository;
-            _orderRepository = orderRepository;
             _categoryRepository = categoryRepository;
             _placeRepository = placeRepository;
+            _orderRepository = orderRepository;
             _imageUrlService = imageUrlService;
+            _emailService = emailService;
             _userRepository = userRepository;
             _mapper = mapper;
         }
@@ -177,9 +178,13 @@ namespace keepscape_api.Services.Products
             {
                 product.Description = productUpdateDto.Description;
             }
-            if (productUpdateDto.Price != null)
+            if (productUpdateDto.BuyerPrice != null)
             {
-                product.BuyerPrice = productUpdateDto.Price.Value;
+                product.BuyerPrice = productUpdateDto.BuyerPrice.Value;
+            }
+            if (productUpdateDto.SellerPrice != null)
+            {
+                product.SellerPrice = productUpdateDto.SellerPrice.Value;
             }
             if (productUpdateDto.Quantity != null)
             {
@@ -259,6 +264,21 @@ namespace keepscape_api.Services.Products
             {
                 return;
             }
+            if (user.UserType == UserType.Admin)
+            {
+                var subject = "Your product has been deleted";
+                // Create an email message for product being deleted
+                var message = $@"<html>
+                    <p>Dear {product.SellerProfile!.User!.FirstName} {product.SellerProfile!.User!.LastName},</p>
+                    <p>Your product {product.Name} has been deleted.</p>
+                    <p>It has been deleted because it has been reported multiple times and we found it violating Keepscape's TOS.</p>
+                    <p>If you believe that this was a mistake, please send us an email explaining why.</p>
+                    <p>Thank you for your understanding.</p>
+                    <p>Keepscape Team</p>
+                </html>";
+
+                await _emailService.SendEmailAsync(product.SellerProfile!.User!.Email, subject, message);
+            }
 
             await _productRepository.DeleteAsync(product);
         }
@@ -275,6 +295,22 @@ namespace keepscape_api.Services.Products
             var buyer = await _userRepository.GetByIdAsync(userId);
 
             if (buyer == null)
+            {
+                return false;
+            }
+
+            var orders = await _orderRepository.GetByBuyerProfileId(buyer.BuyerProfile!.Id);
+            if (orders.IsNullOrEmpty())
+            {
+                return false;
+            }
+
+            var order = orders
+                .Where(o => o.Status == OrderStatus.Delivered)
+                .Select(o => o.Items.Any(o => o.ProductId == productId))
+                .Where(o => o);
+
+            if (!order.Any())
             {
                 return false;
             }
@@ -453,6 +489,26 @@ namespace keepscape_api.Services.Products
             }
 
             await _categoryRepository.DeleteAsync(category);
+        }
+
+        public async Task<ProductReviewPaginatedDto> GetReviews(Guid productId, ProductReviewQuery productReviewQuery)
+        {
+            var productReviews = await _productReviewRepository.GetReviewsByProductId(productId, productReviewQuery);
+
+            if (productReviews.ProductReviews.IsNullOrEmpty())
+            {
+                return new ProductReviewPaginatedDto
+                {
+                    Reviews = Enumerable.Empty<ProductReviewResponseDto>(),
+                    PageCount = productReviews.PageCount
+                };
+            }
+
+            return new ProductReviewPaginatedDto
+            {
+                Reviews = productReviews.ProductReviews.Select(pr => _mapper.Map<ProductReviewResponseDto>(pr)),
+                PageCount = productReviews.PageCount
+            };
         }
     }
 }

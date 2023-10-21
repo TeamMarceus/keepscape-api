@@ -1,5 +1,6 @@
 ﻿using keepscape_api.Data;
 using keepscape_api.Models;
+using keepscape_api.QueryModels;
 using keepscape_api.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -34,22 +35,33 @@ namespace keepscape_api.Repositories
             _context.Products.Attach(productReview.Product!);
             _context.BuyerProfiles.Attach(productReview.BuyerProfile!);
 
-            _context.ProductReviews.Add(productReview);
+            _dbSet.Add(productReview);
 
             await _context.SaveChangesAsync();
 
-            var productReviews = await _context.ProductReviews
+            var productReviews = await _dbSet
                 .Where(pr => pr.ProductId == productReview.ProductId)
                 .ToListAsync();
 
-            var averageRating = productReviews.Average(pr => pr.Rating);
+            var averageProductRating = productReviews.Average(pr => pr.Rating);
 
             var freshProduct = await _context.Products.FirstOrDefaultAsync(p => p.Id == productReview.Product!.Id);
             if (freshProduct != null)
             {
-                freshProduct.Rating = (decimal)averageRating;
+                freshProduct.Rating = (decimal)averageProductRating;
                 await _context.SaveChangesAsync();
             }
+
+            var sellerProducts = await _context.Products.Where(p => p.SellerProfileId == productReview.Product!.SellerProfileId).ToListAsync();
+            var averageSellerRating = sellerProducts.Average(p => p.Rating);
+
+            var freshSellerProfile = await _context.SellerProfiles.FirstOrDefaultAsync(sp => sp.Id == productReview.Product!.SellerProfileId);
+            if (freshSellerProfile != null)
+            {
+                freshSellerProfile.Rating = averageSellerRating;
+            }
+
+            await _context.SaveChangesAsync();
 
             return productReview;
         }
@@ -65,7 +77,7 @@ namespace keepscape_api.Repositories
         {
             await _context.SaveChangesAsync();
 
-            var productReviews = await _context.ProductReviews
+            var productReviews = await _dbSet
                 .Where(pr => pr.ProductId == productReview.ProductId)
                 .ToListAsync();
 
@@ -85,7 +97,7 @@ namespace keepscape_api.Repositories
         {
             await base.DeleteAsync(productReview);
 
-            var productReviews = await _context.ProductReviews
+            var productReviews = await _dbSet
                 .Where(pr => pr.ProductId == productReview.ProductId)
                 .ToListAsync();
 
@@ -99,6 +111,38 @@ namespace keepscape_api.Repositories
             }
 
             return true;
+        }
+
+        public async Task<(IEnumerable<ProductReview> ProductReviews, int PageCount)> GetReviewsByProductId(Guid productId, ProductReviewQuery productReviewQuery)
+        {
+            var query = _dbSet
+                .Include(pr => pr.BuyerProfile)
+                .Where(pr => pr.ProductId == productId)
+                .AsQueryable();
+
+            if (productReviewQuery.Stars != null)
+            {
+                query = query.Where(pr => pr.Rating == productReviewQuery.Stars);
+            }
+
+            int pageCount = 1;
+
+            if (query.Count() == 0)
+            {
+                return (new List<ProductReview>(), 0);
+            }
+
+            if (productReviewQuery.Page != null && productReviewQuery.PageSize != null)
+            {
+                var skip = (productReviewQuery.Page.Value - 1) * productReviewQuery.PageSize.Value;
+                var take = productReviewQuery.PageSize.Value;
+
+                query = query.Skip(skip).Take(take);
+
+                pageCount = (int)Math.Ceiling((double)query.Count() / productReviewQuery.PageSize.Value);
+            }
+
+            return (await query.ToListAsync(), pageCount);
         }
     }
 }

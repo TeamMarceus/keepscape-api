@@ -23,7 +23,9 @@ namespace keepscape_api.MapperConfigurations
                     Id = src.Place != null ? src.Place!.Id : Guid.Empty,
                     Name = src.Place != null ? src.Place!.Name : string.Empty,
                 }))
-                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.Images.ToList()[0].ImageUrl));
+                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.Images.ToList()[0].ImageUrl))
+                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.BuyerPrice))
+                ;
 
             CreateMap<ProductReview, ProductReviewDto>()
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.BuyerProfile!.User!.FirstName));
@@ -39,34 +41,22 @@ namespace keepscape_api.MapperConfigurations
                     Id = c 
                 })))
                 .ForMember(dest => dest.Place, opt => opt.MapFrom(src => new Place { Id = src.PlaceId }))
-                .ForMember(dest => dest.PlaceId , opt => opt.MapFrom(src => src.PlaceId));
+                .ForMember(dest => dest.PlaceId , opt => opt.MapFrom(src => src.PlaceId))
+                ;
             
             CreateMap<Product, ProductResponseDto>()
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => !src.Images.IsNullOrEmpty() ? src.Images.Select(i => i.ImageUrl) : new List<string>()))
-                .ForMember(dest => dest.Province, opt => opt.MapFrom(src => src.Place != null ? new ProductCategoryPlaceNoImageDto
+                .ForMember(dest => dest.Seller, opt => opt.MapFrom(src => src.SellerProfile != null && src.SellerProfile.User != null ? new ProductSellerDto
                 {
-                    Id = src.Place.Id,
-                    Name = src.Place.Name,
-                } : null))
-                .ForMember(dest => dest.Categories, opt => opt.MapFrom(src => !src.Categories.IsNullOrEmpty() ? src.Categories.Select(c => new ProductCategoryPlaceNoImageDto
-                {
-                    Id = c != null ? c.Id : Guid.Empty,
-                    Name = c != null ? c.Name : string.Empty
-                }) : new List<ProductCategoryPlaceNoImageDto>()))
-                .ForMember(dest => dest.Reviews, opt => opt.MapFrom(src => !src.Reviews.IsNullOrEmpty() ? src.Reviews.Select(r => new ProductReviewDto
-                {
-                    UserName = r.BuyerProfile!.User!.FirstName,
-                    Description = r.Review,
-                    Rating = r.Rating
-                }): new List<ProductReviewDto>()))
-                .ForMember(dest => dest.Seller, opt => opt.MapFrom(src => src.SellerProfile != null ? new ProductSellerDto
-                {
-                    Name = src.SellerProfile!.Name,
-                    Description = src.SellerProfile!.Description,
-                    Email = src.SellerProfile.User != null ? src.SellerProfile!.User!.Email : string.Empty,
-                    Phone = src.SellerProfile.User != null ? src.SellerProfile!.User!.PhoneNumber : string.Empty,
+                    Name = src.SellerProfile.Name,
+                    Description = src.SellerProfile.Description,
+                    Email = src.SellerProfile.User.Email,
+                    Phone = src.SellerProfile.User.PhoneNumber,
+                    Stars = (int)Math.Round(src.SellerProfile.Rating)
                 }: null))
-                .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => Math.Round(src.Rating)))
+                .ForMember(dest => dest.TotalRatings, opt => opt.MapFrom(src => src.Reviews != null ? src.Reviews.Count : 0))
+                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.BuyerPrice))
+                .ForMember(dest => dest.Stars, opt => opt.MapFrom(src => (int)Math.Round(src.Rating)))
                 ;
         }
     }

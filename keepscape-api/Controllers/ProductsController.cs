@@ -174,7 +174,7 @@ namespace keepscape_api.Controllers
 
                 if (sellerId == Guid.Empty)
                 {
-                    if (string.IsNullOrEmpty(role) || role != "Admin")
+                    if (string.IsNullOrEmpty(role) || role != UserType.Admin.ToString())
                     {
                         return BadRequest("Invalid credentials.");
                     }
@@ -425,7 +425,7 @@ namespace keepscape_api.Controllers
 
                 if (!productReview)
                 {
-                    return BadRequest("Product review cannot be added.");
+                    return BadRequest("Product review cannot be added because you have not bought the product or you already have a review.");
                 }
 
                 return Ok();
@@ -438,8 +438,7 @@ namespace keepscape_api.Controllers
         }
 
         [HttpGet("{productId}/reviews")]
-        [Authorize(Policy = "Buyer")]
-        public async Task<IActionResult> GetReview(Guid productId)
+        public async Task<IActionResult> GetReviews([FromQuery] ProductReviewQuery productReviewQuery, Guid productId)
         {
             try
             {
@@ -448,25 +447,13 @@ namespace keepscape_api.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var userId = Guid.TryParse(User.FindFirstValue("UserId"), out Guid userIdParsed) ? userIdParsed : Guid.Empty;
+                var productReviews = await _productService.GetReviews(productId, productReviewQuery);
 
-                if (userId == Guid.Empty)
-                {
-                    return BadRequest("Invalid credentials.");
-                }
-
-                var productReview = await _productService.GetReview(userId, productId);
-
-                if (productReview == null)
-                {
-                    return NoContent();
-                }
-
-                return Ok(productReview);
+                return Ok(productReviews);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"{nameof(_productService.GetReview)} threw an exception");
+                _logger.LogError(ex, $"{nameof(_productService.GetReviews)} threw an exception");
                 return StatusCode(500, "Internal server error");
             }
         }

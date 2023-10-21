@@ -3,6 +3,7 @@ using keepscape_api.Dtos.Orders;
 using keepscape_api.Dtos.Products;
 using keepscape_api.Dtos.Reports;
 using keepscape_api.Enums;
+using keepscape_api.Models;
 using keepscape_api.Repositories.Interfaces;
 using keepscape_api.Services.Emails;
 using Microsoft.IdentityModel.Tokens;
@@ -11,21 +12,27 @@ namespace keepscape_api.Services.Reports
 {
     public class ReportService : IReportService
     {
+        private readonly IUserRepository _userRepository;
         private readonly IProductReportRepository _productReportRepository;
+        private readonly IProductRepository _productRepository;
         private readonly IOrderReportRepository _orderReportRepository;
         private readonly IOrderRepository _orderRepository;
         private readonly IBalanceRepository _balanceRepository;
         private readonly IEmailService _emailService;
         private readonly IMapper _mapper;
         public ReportService(
+            IUserRepository userRepository,
             IProductReportRepository productReportRepository, 
+            IProductRepository productRepository,
             IOrderReportRepository orderReportRepository,
             IOrderRepository orderRepository,
             IBalanceRepository balanceRepository,
             IEmailService emailService,
             IMapper mapper)
         {
+            _userRepository = userRepository;
             _productReportRepository = productReportRepository;
+            _productRepository = productRepository;
             _orderReportRepository = orderReportRepository;
             _orderRepository = orderRepository;
             _balanceRepository = balanceRepository;
@@ -33,14 +40,44 @@ namespace keepscape_api.Services.Reports
             _mapper = mapper;
         }
 
-        public Task<bool> CreateOrderReport(ReportOrderRequestDto reportRequestDto)
+        public Task<bool> CreateOrderReport(Guid orderId, Guid userId, ReportOrderRequestDto reportRequestDto)
         {
             throw new NotImplementedException();
         }
 
-        public Task<bool> CreateProductReport(ReportProductRequestDto reportRequestDto)
+        public async Task<bool> CreateProductReport(Guid productId, Guid userId, ReportProductRequestDto reportRequestDto)
         {
-            throw new NotImplementedException();
+            var product = await _productRepository.GetByIdAsync(productId);
+
+            if (product == null)
+            {
+                return false;
+            }
+
+            var user = await _userRepository.GetByIdAsync(userId);
+
+            if (user == null)
+            {
+                return false;
+            }
+
+            product.Reports.Add(new ProductReport
+            {
+                ProductId = productId,
+                UserId = userId,
+                Reason = reportRequestDto.Reason
+            });
+
+            var subject = $"Product with name {product.Name} has been reported";
+            var email = $"<p>Hi {product.SellerProfile!.User!.FirstName},</p>" +
+                        $"<p>Your product with id {product.Id} has been reported.</p>" +
+                        $"<p>Reason: {reportRequestDto.Reason}</p>" +
+                        $"<p>Please check your product and resolve the issue.</p>" + 
+                        $"<p>Thank you for using Keepscape!</p>";
+
+            await _emailService.SendEmailAsync(product.SellerProfile!.User!.Email, subject, email);
+
+            return await _productRepository.UpdateAsync(product);
         }
 
         public async Task<IEnumerable<OrderResponseAdminDto>> GetAllOrderReports()
@@ -70,7 +107,7 @@ namespace keepscape_api.Services.Reports
                 products.Add(new ProductResponseAdminDto
                 {
                     Id = product.Id,
-                    SellerUserGuid = product.SellerProfile!.User!.Id,
+                    SellerUserId = product.SellerProfile!.User!.Id,
                     DateTimeCreated = product.DateTimeCreated,
                     Name = product.Name,
                     Price = product.BuyerPrice,

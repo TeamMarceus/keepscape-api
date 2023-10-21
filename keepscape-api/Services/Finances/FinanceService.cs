@@ -52,11 +52,19 @@ namespace keepscape_api.Services.Finances
 
             if (status == PaymentStatus.Paid)
             {
-                balance.Amount -= balanceWithdrawal.Amount;
                 balance.BalanceHistories!.Add(new BalanceLog
                 {
                     Amount = -balanceWithdrawal.Amount,
-                    Remarks = "Withdrawal",
+                    Remarks = "Withdrawal Approved",
+                });
+            } 
+            else if (status == PaymentStatus.Rejected)
+            {
+                balance.Amount = balance.Amount + balanceWithdrawal.Amount;
+                balance.BalanceHistories!.Add(new BalanceLog
+                {
+                    Amount = +balanceWithdrawal.Amount,
+                    Remarks = "Withdrawal Rejected",
                 });
             }
             balanceWithdrawal.Status = status;

@@ -7,6 +7,7 @@ namespace keepscape_api.Models
         public Guid UserId { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
+        public decimal Rating { get; set; } = 0;
         public virtual User? User { get; set; }
         public virtual SellerApplication? SellerApplication { get; set; }
         public virtual ICollection<Product>? Products { get; set; }

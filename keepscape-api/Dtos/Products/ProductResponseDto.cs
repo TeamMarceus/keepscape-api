@@ -33,7 +33,7 @@
     public record ProductResponseAdminDto
     {
         public Guid Id { get; init; }
-        public Guid SellerUserGuid { get; init; }
+        public Guid SellerUserId { get; init; }
         public DateTime DateTimeCreated { get; init; }
         public string Name { get; init; } = string.Empty;
         public decimal Price { get; init; }
@@ -63,27 +63,32 @@
         public int Rating { get; init; }
     }
 
+    public record ProductReviewPaginatedDto
+    {
+        public IEnumerable<ProductReviewResponseDto> Reviews { get; init; } = new List<ProductReviewResponseDto>();
+        public int PageCount { get; init; } = 1;
+    }
     public record ProductSellerDto
     {
         public string Name { get; init; } = string.Empty;
         public string Description { get; init; } = string.Empty;
         public string Email { get; init; } = string.Empty;
         public string Phone { get; init; } = string.Empty;
+        public int Stars { get; init; }
     }
     public record ProductResponseDto
     {
         public Guid Id { get; init; }
         public string Name { get; init; } = string.Empty;
         public string Description { get; init; } = string.Empty;
+        public int Stars { get; init; }
         public decimal Price { get; init; }
-        public decimal Rating { get; init; }
         public int Quantity { get; init; }
         public bool IsCustomizable { get; init; }
         public bool IsHidden { get; init; }
-        public ProductCategoryPlaceNoImageDto Province { get; init; } = new ProductCategoryPlaceNoImageDto();
+        public int TotalSold { get; set; }
+        public int TotalRatings { get; set; }
         public ProductSellerDto Seller { get; init; } = new ProductSellerDto();
         public IEnumerable<string> Images { get; init; } = new List<string>();
-        public IEnumerable<ProductCategoryPlaceNoImageDto> Categories { get; init; } = new List<ProductCategoryPlaceNoImageDto>();
-        public IEnumerable<ProductReviewDto> Reviews { get; init; } = new List<ProductReviewDto>();
     }
 }

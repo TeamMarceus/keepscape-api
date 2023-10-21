@@ -1,6 +1,6 @@
 ﻿using keepscape_api.Models.Primitives;
 
-namespace keepscape_api.Models.Checkouts.Products
+namespace keepscape_api.Models
 {
     public class ProductReport : Base
     {

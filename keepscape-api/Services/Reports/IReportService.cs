@@ -9,11 +9,11 @@ namespace keepscape_api.Services.Reports
         Task<IEnumerable<ReportProductResponseDto>> GetProductReports(Guid productId);
         Task<IEnumerable<ProductResponseAdminDto>> GetAllProductReports();
         Task<bool> ResolveProductReports(Guid productId);
-        Task<bool> CreateProductReport(ReportProductRequestDto reportRequestDto);
+        Task<bool> CreateProductReport(Guid productId, Guid userId, ReportProductRequestDto reportRequestDto);
         Task<ReportOrderResponseDto?> GetOrderReport(Guid orderId);
         Task<IEnumerable<OrderResponseAdminDto>> GetAllOrderReports();
         Task<bool> ResolveOrderReport(Guid orderId);
         Task<bool> RefundOrderReport(Guid orderId);
-        Task<bool> CreateOrderReport(ReportOrderRequestDto reportRequestDto);
+        Task<bool> CreateOrderReport(Guid orderId, Guid userId, ReportOrderRequestDto reportRequestDto);
     }
 }

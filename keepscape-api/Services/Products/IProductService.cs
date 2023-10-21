@@ -14,10 +14,11 @@ namespace keepscape_api.Services.Products
         Task<bool> UpdatePlace(Guid placeId, IFormFile image);
         Task<bool> UpdateCategory(Guid categoryId, IFormFile image);
         Task<ProductResponseDto?> GetById(Guid productId);
+        Task<ProductResponseHomePaginatedDto> Get(ProductQuery productQueryParameters);
+        Task<ProductReviewPaginatedDto> GetReviews(Guid productId, ProductReviewQuery productReviewQuery);
+        Task<IEnumerable<ProductResponseDto>> GetAll();
         Task<IEnumerable<ProductCategoryPlaceDto>> GetPlaceCategories();
         Task<IEnumerable<ProductCategoryPlaceDto>> GetProductCategories();
-        Task<ProductResponseHomePaginatedDto> Get(ProductQuery productQueryParameters);
-        Task<IEnumerable<ProductResponseDto>> GetAll();
         Task<bool> Update(Guid sellerId, Guid productId, ProductUpdateDto productUpdateDto);
         Task Delete(Guid sellerId, Guid productId);
         Task DeleteReview(Guid reviewId);

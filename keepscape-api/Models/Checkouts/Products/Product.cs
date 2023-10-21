@@ -16,6 +16,7 @@ namespace keepscape_api.Models
         public int Quantity { get; set; }
         public bool IsCustomizable { get; set; }
         public bool IsHidden { get; set; } = false;
+        public int TotalSold { get; set; } = 0;
         public DateTime? DateTimeDeleted { get; set; }
         public virtual SellerProfile? SellerProfile { get; set; }
         public virtual Place? Place { get; set; }

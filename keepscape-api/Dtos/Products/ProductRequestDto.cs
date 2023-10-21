@@ -13,8 +13,11 @@ namespace keepscape_api.Dtos.Products
         [MaxLength(500, ErrorMessage = $"{nameof(Description)} can have at most 500 characters")]
         public string Description { get; init; } = string.Empty;
         [Required]
-        [Range(0, 1000000, ErrorMessage = $"{nameof(Price)} must be between 0 and 1000000")]
-        public decimal Price { get; init; }
+        [Range(0, 1000000, ErrorMessage = $"{nameof(BuyerPrice)} must be between 0 and 1000000")]
+        public decimal BuyerPrice { get; init; }
+        [Required]
+        [Range(0, 1000000, ErrorMessage = $"{nameof(SellerPrice)} must be between 0 and 1000000")]
+        public decimal SellerPrice { get; init; }
         [Required]
         [Range(0, 1000000, ErrorMessage = $"{nameof(Quantity)} must be between 0 and 1000000")]
         public int Quantity { get; init; }
@@ -56,8 +59,10 @@ namespace keepscape_api.Dtos.Products
         [MinLength(2, ErrorMessage = $"{nameof(Description)} can have at least 2 characters")]
         [MaxLength(500, ErrorMessage = $"{nameof(Description)} can have at most 500 characters")]
         public string? Description { get; init; }
-        [Range(0, 1000000, ErrorMessage = $"{nameof(Price)} must be between 0 and 1000000")]
-        public decimal? Price { get; init; }
+        [Range(0, 1000000, ErrorMessage = $"{nameof(BuyerPrice)} must be between 0 and 1000000")]
+        public decimal? BuyerPrice { get; init; }
+        [Range(0, 1000000, ErrorMessage = $"{nameof(SellerPrice)} must be between 0 and 1000000")]
+        public decimal? SellerPrice { get; init; }
         [Range(0, 1000000, ErrorMessage = $"{nameof(Quantity)} must be between 0 and 1000000")]
         public int? Quantity { get; init; }
         public bool? IsCustomizable { get; init; }

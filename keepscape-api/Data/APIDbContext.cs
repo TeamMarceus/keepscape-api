@@ -130,6 +130,9 @@ namespace keepscape_api.Data
                 .WithOne(p => p.SellerProfile)
                 .HasForeignKey(p => p.SellerProfileId)
                 .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<SellerProfile>()
+                .Property(s => s.Rating)
+                .HasPrecision(18, 2);
             modelBuilder.Entity<SellerApplication>()
                 .HasOne(sa => sa.SellerProfile)
                 .WithOne(s => s.SellerApplication)

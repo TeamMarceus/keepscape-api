@@ -9,9 +9,12 @@ namespace keepscape_api.MapperConfigurations
     {
         public ReportMapper()
         {
-            CreateMap<ProductReport, ReportProductResponseDto>();
+            CreateMap<ProductReport, ReportProductResponseDto>()
+                .ForMember(dest => dest.BuyerName, opt => opt.MapFrom(src => $"{src.User!.FirstName} {src.User!.LastName}"))
+                ;
             CreateMap<OrderReport, ReportOrderResponseDto>()
                 .ForMember(dest => dest.SellerId, opt => opt.MapFrom(src => src.User!.SellerProfile!.Id))
+                .ForMember(dest => dest.BuyerName, opt => opt.MapFrom(src => $"{src.User!.FirstName} {src.User!.LastName}"))
                 ;
         }
     }

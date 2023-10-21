@@ -1,4 +1,5 @@
-﻿using keepscape_api.Models;
+﻿using keepscape_api.Enums;
+using keepscape_api.Models;
 using keepscape_api.QueryModels;
 using keepscape_api.Repositories.Generics;
 

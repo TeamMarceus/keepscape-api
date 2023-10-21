@@ -1,4 +1,5 @@
 ﻿using keepscape_api.Dtos.Dashboards.Admin;
+using keepscape_api.Dtos.Dashboards.Seller;
 using keepscape_api.Enums;
 using keepscape_api.Repositories.Interfaces;
 
@@ -57,6 +58,25 @@ namespace keepscape_api.Services.Dashboards
             }
 
             return dashboard;
+        }
+
+        public async Task<SellerDashboardResponseDto?> GetSellerDashboard(Guid sellerId)
+        {
+            var seller = await _userRepository.GetByIdAsync(sellerId);
+
+            if (seller == null)
+            {
+                return null;
+            }
+
+            var sellerOrders = await _orderRepository.GetBySellerProfileId(seller.SellerProfile!.Id);
+
+            return new SellerDashboardResponseDto
+            {
+                PendingOrders = sellerOrders.Count(o => o.Status == OrderStatus.Pending),
+                OngoingOrders = sellerOrders.Count(o => o.Status == OrderStatus.Ongoing),
+                CompletedOrders = sellerOrders.Count(o => o.Status == OrderStatus.Delivered)
+            };
         }
     }
 }

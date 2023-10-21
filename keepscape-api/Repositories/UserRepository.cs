@@ -46,7 +46,7 @@ namespace keepscape_api.Repositories
             return _dbSet.CountAsync();
         }
 
-        private async Task<(IEnumerable<User> query, int pageCount)> GetQuery(UserQuery userQuery, UserType userType)
+        private async Task<(IEnumerable<User> Users, int PageCount)> GetQuery(UserQuery userQuery, UserType userType)
         {
             IQueryable<User> query;
 
