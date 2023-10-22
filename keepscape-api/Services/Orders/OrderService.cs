@@ -89,7 +89,7 @@ namespace keepscape_api.Services.Orders
             return _mapper.Map<OrderSellerResponseDto>(order);
         }
 
-        public async Task<OrderSellerResponseDto?> DeliveryOrder(Guid userId, Guid orderId)
+        public async Task<OrderSellerResponseDto?> DeliverOrder(Guid userId, Guid orderId)
         {
             var user = await _userRepository.GetByIdAsync(userId);
             var order = await _orderRepository.GetByIdAsync(orderId);

@@ -14,19 +14,22 @@ namespace keepscape_api.Repositories
         public override async Task<IEnumerable<Balance>> GetAllAsync()
         {
             return await _dbSet
-                .Include(b => b.BalanceHistories)
+                .Include(b => b.Histories)
+                .Include(b => b.Withdrawals)
                 .ToListAsync();
         }
         public override async Task<Balance?> GetByIdAsync(Guid id)
         {
             return await _dbSet
-                .Include(b => b.BalanceHistories)
+                .Include(b => b.Histories)
+                .Include(b => b.Withdrawals)
                 .FirstOrDefaultAsync(b => b.Id == id);
         }
         public async Task<Balance?> GetBalanceByUserId(Guid userId)
         {
             return await _dbSet
-                .Include(b => b.BalanceHistories)
+                .Include(b => b.Histories)
+                .Include(b => b.Withdrawals)
                 .FirstOrDefaultAsync(b => b.UserId == userId);
         }
     }

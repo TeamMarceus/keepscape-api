@@ -9,6 +9,6 @@ namespace keepscape_api.Services.Orders
         Task<OrderSellerResponsePaginatedDto?> GetSellerOrders(Guid userId, OrderQuery orderQuery);
         Task<OrderSellerResponseDto?> UpdateDeliveryFee(Guid userId, Guid orderId, OrderUpdateDeliveryFeeDto orderUpdateDeliveryFeeDto);
         Task<OrderSellerResponseDto?> CancelOrder(Guid userId, Guid orderId);
-        Task<OrderSellerResponseDto?> DeliveryOrder(Guid userId, Guid orderId);
+        Task<OrderSellerResponseDto?> DeliverOrder(Guid userId, Guid orderId);
     }
 }

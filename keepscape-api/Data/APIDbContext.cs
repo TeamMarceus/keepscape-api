@@ -146,7 +146,7 @@ namespace keepscape_api.Data
                 .HasForeignKey<Balance>(b => b.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<Balance>()
-                .HasMany(b => b.BalanceHistories)
+                .HasMany(b => b.Histories)
                 .WithOne(bh => bh.Balance)
                 .HasForeignKey(bh => bh.BalanceId)
                 .OnDelete(DeleteBehavior.Cascade);

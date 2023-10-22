@@ -125,6 +125,37 @@ namespace keepscape_api.Controllers
         }
 
         [HttpPost("sellers/{orderId}/deliver")]
+        public async Task<IActionResult> DeliverOrder(Guid orderId)
+        {
+            try
+            {
+                if (ModelState.IsValid == false)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var sellerId = Guid.TryParse(User.FindFirstValue("UserId"), out var id) ? id : Guid.Empty;
+
+                if (sellerId == Guid.Empty)
+                {
+                    return BadRequest("Invalid credentials.");
+                }
+
+                var order = await _orderService.DeliverOrder(sellerId, orderId);
+
+                if (order == null)
+                {
+                    return BadRequest("Invalid credentials.");
+                }
+
+                return Ok(order);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_orderService.DeliverOrder)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
 
 
         [HttpPost("sellers/{orderId}/logs")]

@@ -14,4 +14,18 @@ namespace keepscape_api.Dtos.Finances
         public string Remarks { get; set; } = string.Empty;
         public string Status { get; set; } = PaymentStatus.Pending.ToString();
     }
+
+    public record BalanceLogResponseDto
+    {
+        public Guid Id { get; init; }
+        public decimal Amount { get; init; }
+        public string Remarks { get; init; } = string.Empty;
+    }
+    public record BalanceResponseDto
+    {
+        public Guid Id { get; init; }
+        public decimal Amount { get; init; }
+        public IEnumerable<BalanceLogResponseDto> Histories { get; init; } = new List<BalanceLogResponseDto>();
+        public IEnumerable<BalanceWithdrawalResponseDto> Withdrawals { get; init; } = new List<BalanceWithdrawalResponseDto>();
+    }
 }

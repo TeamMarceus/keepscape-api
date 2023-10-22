@@ -61,6 +61,10 @@ namespace keepscape_api.Repositories
                 query = _dbSet
                 .Include(u => u.SellerProfile)
                     .ThenInclude(u => u!.SellerApplication)
+                .Include(u => u.Balance)
+                    .ThenInclude(b => b!.Histories)
+                .Include(u => u.Balance)
+                    .ThenInclude(b => b!.Withdrawals)
                 .Where(u => u.UserType == userType);
             }
             else
