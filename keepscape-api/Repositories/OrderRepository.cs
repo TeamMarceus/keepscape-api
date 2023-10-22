@@ -85,14 +85,6 @@ namespace keepscape_api.Repositories
                 .AsQueryable();
 
             int pageCount = 1;
-            if (orderQuery.BuyerProfileId != null)
-            {
-                query = query.Where(o => o.BuyerProfileId == orderQuery.BuyerProfileId);
-            }
-            if (orderQuery.SellerProfileId != null)
-            {
-                query = query.Where(o => o.SellerProfileId == orderQuery.SellerProfileId);
-            }
             if (orderQuery.ProductName != null)
             {
                 query = query.Where(o => o.Items.Any(oi => oi.Product!.Name == orderQuery.ProductName));

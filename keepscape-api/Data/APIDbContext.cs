@@ -226,7 +226,7 @@ namespace keepscape_api.Data
                 .IsRequired(true);
             modelBuilder.Entity<ProductReport>()
                 .HasOne(pr => pr.Product)
-                .WithMany()
+                .WithMany(p => p.Reports)
                 .HasForeignKey(pr => pr.ProductId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired(true); 
