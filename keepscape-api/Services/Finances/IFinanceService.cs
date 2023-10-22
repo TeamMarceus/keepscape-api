@@ -1,4 +1,5 @@
 ﻿using keepscape_api.Dtos.Finances;
+using keepscape_api.QueryModels;
 
 namespace keepscape_api.Services.Finances
 {
@@ -6,7 +7,7 @@ namespace keepscape_api.Services.Finances
     {
         Task<BalanceResponseDto?> GetBalance(Guid userId);
         Task<BalanceWithdrawalResponseDto?> CreateBalanceWithdrawal(Guid userId, BalanceWithdrawalCreateDto balanceWithdrawalCreateDto);
-        Task<IEnumerable<BalanceWithdrawalResponseDto>> GetBalanceWithdrawals();
+        Task<BalanceWithdrawalPaginatedResponseDto> GetBalanceWithdrawals(BalanceWithdrawalQuery balanceWithdrawalQuery);
         Task<bool> UpdateBalanceWithdrawal(Guid balanceWithdrawalId, BalanceWithdrawalUpdateDto balanceWithdrawalUpdateDto);
     }
 }

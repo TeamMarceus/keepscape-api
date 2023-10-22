@@ -23,6 +23,9 @@ namespace keepscape_api.MapperConfigurations
                 .ForMember(dest => dest.Withdrawals, opt => opt.MapFrom(src => src.Withdrawals.Select(x => new BalanceWithdrawalResponseDto
                 {
                     Id = x.Id,
+                    SellerId = x.Balance.User != null ? x.Balance.User.Id : Guid.Empty,
+                    FullName = x.Balance.User != null ? x.Balance.User.SellerProfile != null ? $"{x.Balance.User.FirstName} {x.Balance.User.LastName}" : "" : "",
+                    SellerName = x.Balance.User != null ? x.Balance.User.SellerProfile != null ? x.Balance.User.SellerProfile.Name : "" : "",
                     BalanceId = x.BalanceId,
                     Amount = x.Amount,
                     PaymentMethod = x.PaymentMethod.ToString(),

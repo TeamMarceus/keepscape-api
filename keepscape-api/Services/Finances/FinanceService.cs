@@ -2,6 +2,7 @@
 using keepscape_api.Dtos.Finances;
 using keepscape_api.Enums;
 using keepscape_api.Models;
+using keepscape_api.QueryModels;
 using keepscape_api.Repositories.Interfaces;
 using keepscape_api.Services.BaseImages;
 
@@ -96,11 +97,15 @@ namespace keepscape_api.Services.Finances
             return _mapper.Map<BalanceResponseDto>(balance);
         }
 
-        public async Task<IEnumerable<BalanceWithdrawalResponseDto>> GetBalanceWithdrawals()
+        public async Task<BalanceWithdrawalPaginatedResponseDto> GetBalanceWithdrawals(BalanceWithdrawalQuery balanceWithdrawalQuery)
         {
-            var balanceWithdrawals = await _balanceWithdrawalRepository.GetAllAsync();
+            var balanceWithdrawalsQuery = await _balanceWithdrawalRepository.Get(balanceWithdrawalQuery);
 
-            return balanceWithdrawals.Select(balanceWithdrawal => _mapper.Map<BalanceWithdrawalResponseDto>(balanceWithdrawal));
+            return new BalanceWithdrawalPaginatedResponseDto
+            {
+                BalanceWithdrawals = balanceWithdrawalsQuery.BalanceWithdrawals.Select(balanceWithdrawal => _mapper.Map<BalanceWithdrawalResponseDto>(balanceWithdrawal)),
+                PageCount = balanceWithdrawalsQuery.PageCount
+            };
         }
 
         public async Task<bool> UpdateBalanceWithdrawal(Guid balanceWithdrawalId, BalanceWithdrawalUpdateDto balanceWithdrawalUpdateDto)

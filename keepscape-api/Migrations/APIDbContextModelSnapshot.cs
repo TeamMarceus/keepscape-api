@@ -37,7 +37,7 @@ namespace keepscape_api.Migrations
 
                     b.HasIndex("ProductsId");
 
-                    b.ToTable("CategoryProduct");
+                    b.ToTable("CategoryProduct", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.Announcement", b =>
@@ -60,7 +60,7 @@ namespace keepscape_api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Announcements");
+                    b.ToTable("Announcements", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.Balance", b =>
@@ -87,7 +87,7 @@ namespace keepscape_api.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Balances");
+                    b.ToTable("Balances", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.BalanceLog", b =>
@@ -116,7 +116,7 @@ namespace keepscape_api.Migrations
 
                     b.HasIndex("BalanceId");
 
-                    b.ToTable("BalanceLogs");
+                    b.ToTable("BalanceLogs", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.BalanceWithdrawal", b =>
@@ -165,7 +165,7 @@ namespace keepscape_api.Migrations
 
                     b.HasIndex("BalanceId");
 
-                    b.ToTable("BalanceWithdrawals");
+                    b.ToTable("BalanceWithdrawals", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.BuyerCategoryPreference", b =>
@@ -196,7 +196,7 @@ namespace keepscape_api.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("BuyerCategoryPreferences");
+                    b.ToTable("BuyerCategoryPreferences", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.BuyerProfile", b =>
@@ -246,7 +246,7 @@ namespace keepscape_api.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("BuyerProfiles");
+                    b.ToTable("BuyerProfiles", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.Cart", b =>
@@ -269,7 +269,7 @@ namespace keepscape_api.Migrations
                     b.HasIndex("BuyerProfileId")
                         .IsUnique();
 
-                    b.ToTable("Carts");
+                    b.ToTable("Carts", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.CartItem", b =>
@@ -303,7 +303,7 @@ namespace keepscape_api.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("CartItems");
+                    b.ToTable("CartItems", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.Categories.Category", b =>
@@ -327,7 +327,7 @@ namespace keepscape_api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.Categories.Place", b =>
@@ -351,7 +351,7 @@ namespace keepscape_api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Places");
+                    b.ToTable("Places", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.Checkouts.Products.ProductImage", b =>
@@ -377,7 +377,7 @@ namespace keepscape_api.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductImages");
+                    b.ToTable("ProductImages", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.ConfirmationCode", b =>
@@ -412,7 +412,7 @@ namespace keepscape_api.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ConfirmationCodes");
+                    b.ToTable("ConfirmationCodes", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.Order", b =>
@@ -454,7 +454,7 @@ namespace keepscape_api.Migrations
 
                     b.HasIndex("SellerProfileId");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Orders", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.OrderDeliveryLog", b =>
@@ -483,7 +483,7 @@ namespace keepscape_api.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("OrderDeliveryLogs");
+                    b.ToTable("OrderDeliveryLogs", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.OrderItem", b =>
@@ -523,7 +523,7 @@ namespace keepscape_api.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrderItems");
+                    b.ToTable("OrderItems", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.OrderReport", b =>
@@ -560,7 +560,7 @@ namespace keepscape_api.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("OrderReports");
+                    b.ToTable("OrderReports", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.Product", b =>
@@ -623,7 +623,7 @@ namespace keepscape_api.Migrations
 
                     b.HasIndex("SellerProfileId");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.ProductReport", b =>
@@ -656,7 +656,7 @@ namespace keepscape_api.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ProductReports");
+                    b.ToTable("ProductReports", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.ProductReview", b =>
@@ -690,7 +690,7 @@ namespace keepscape_api.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductReviews");
+                    b.ToTable("ProductReviews", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.SellerApplication", b =>
@@ -728,7 +728,7 @@ namespace keepscape_api.Migrations
                     b.HasIndex("SellerProfileId")
                         .IsUnique();
 
-                    b.ToTable("SellerApplications");
+                    b.ToTable("SellerApplications", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.SellerProfile", b =>
@@ -763,7 +763,7 @@ namespace keepscape_api.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("SellerProfiles");
+                    b.ToTable("SellerProfiles", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.Token", b =>
@@ -799,7 +799,7 @@ namespace keepscape_api.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Tokens");
+                    b.ToTable("Tokens", (string)null);
                 });
 
             modelBuilder.Entity("keepscape_api.Models.User", b =>
@@ -856,7 +856,7 @@ namespace keepscape_api.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("CategoryProduct", b =>

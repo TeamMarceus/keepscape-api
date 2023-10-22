@@ -6,6 +6,9 @@ namespace keepscape_api.Dtos.Finances
     {
         public Guid Id { get; init; }
         public Guid BalanceId { get; set; }
+        public Guid SellerId { get; set; }
+        public string SellerName { get; set; } = string.Empty;
+        public string FullName { get; set; } = string.Empty;
         public decimal Amount { get; set; }
         public string PaymentMethod { get; set; } = Enums.PaymentMethod.BankTransfer.ToString();
         public string PaymentDetails { get; set; } = string.Empty;
@@ -13,6 +16,12 @@ namespace keepscape_api.Dtos.Finances
         public string? PaymentProofImageUrl { get; set; }
         public string Remarks { get; set; } = string.Empty;
         public string Status { get; set; } = PaymentStatus.Pending.ToString();
+    }
+
+    public record BalanceWithdrawalPaginatedResponseDto
+    {
+        public IEnumerable<BalanceWithdrawalResponseDto> BalanceWithdrawals { get; init; } = new List<BalanceWithdrawalResponseDto>();
+        public int PageCount { get; init; }
     }
 
     public record BalanceLogResponseDto

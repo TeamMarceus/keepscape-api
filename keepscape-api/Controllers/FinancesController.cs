@@ -1,4 +1,5 @@
 ﻿using keepscape_api.Dtos.Finances;
+using keepscape_api.QueryModels;
 using keepscape_api.Services.Finances;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -87,11 +88,16 @@ namespace keepscape_api.Controllers
 
         [HttpGet("balance/withdrawals")]
         [Authorize(Policy = "Admin")]
-        public async Task<IActionResult> GetBalanceWithdrawals()
+        public async Task<IActionResult> GetBalanceWithdrawals([FromQuery] BalanceWithdrawalQuery balanceWithdrawalQuery)
         {
             try
             {
-                var balanceWithdrawals = await _financeService.GetBalanceWithdrawals();
+                var balanceWithdrawals = await _financeService.GetBalanceWithdrawals(balanceWithdrawalQuery);
+
+                if (balanceWithdrawals == null)
+                {
+                    return NoContent();
+                }
 
                 return Ok(balanceWithdrawals);
             }

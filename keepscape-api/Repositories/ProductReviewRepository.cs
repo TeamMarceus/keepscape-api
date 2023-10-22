@@ -134,12 +134,26 @@ namespace keepscape_api.Repositories
 
             if (productReviewQuery.Page != null && productReviewQuery.PageSize != null)
             {
-                var skip = (productReviewQuery.Page.Value - 1) * productReviewQuery.PageSize.Value;
-                var take = productReviewQuery.PageSize.Value;
+                int queryPageCount = await query.CountAsync();
 
-                query = query.Skip(skip).Take(take);
+                pageCount = (int)Math.Ceiling((double)queryPageCount / (int)productReviewQuery.PageSize);
 
-                pageCount = (int)Math.Ceiling((double)query.Count() / productReviewQuery.PageSize.Value);
+                if (productReviewQuery.Page > pageCount)
+                {
+                    productReviewQuery.Page = pageCount;
+                }
+                else if (productReviewQuery.Page < 1)
+                {
+                    productReviewQuery.Page = 1;
+                }
+                else if (pageCount == 0)
+                {
+                    pageCount = 1;
+                    productReviewQuery.Page = 1;
+                }
+
+                int skipAmount = ((int)productReviewQuery.Page - 1) * (int)productReviewQuery.PageSize;
+                query = query.Skip(skipAmount).Take((int)productReviewQuery.PageSize);
             }
 
             return (await query.ToListAsync(), pageCount);

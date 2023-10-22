@@ -14,6 +14,7 @@ namespace keepscape_api.Repositories
         public override async Task<IEnumerable<Balance>> GetAllAsync()
         {
             return await _dbSet
+                .Include(b => b.User)
                 .Include(b => b.Histories)
                 .Include(b => b.Withdrawals)
                 .ToListAsync();
@@ -21,6 +22,7 @@ namespace keepscape_api.Repositories
         public override async Task<Balance?> GetByIdAsync(Guid id)
         {
             return await _dbSet
+                .Include(b => b.User)
                 .Include(b => b.Histories)
                 .Include(b => b.Withdrawals)
                 .FirstOrDefaultAsync(b => b.Id == id);
@@ -28,6 +30,7 @@ namespace keepscape_api.Repositories
         public async Task<Balance?> GetBalanceByUserId(Guid userId)
         {
             return await _dbSet
+                .Include(b => b.User)
                 .Include(b => b.Histories)
                 .Include(b => b.Withdrawals)
                 .FirstOrDefaultAsync(b => b.UserId == userId);

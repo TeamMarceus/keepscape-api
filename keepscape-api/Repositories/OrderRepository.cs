@@ -111,10 +111,26 @@ namespace keepscape_api.Repositories
             }
             if (orderQuery.Page != null && orderQuery.PageSize != null)
             {
-                var skip = (int)orderQuery.Page * (int)orderQuery.PageSize;
-                query = query.Skip(skip);
-                query = query.Take((int)orderQuery.PageSize);
-                pageCount = (int)Math.Ceiling((double)query.Count() / (int)orderQuery.PageSize);
+                int queryPageCount = await query.CountAsync();
+
+                pageCount = (int)Math.Ceiling((double)queryPageCount / (int)orderQuery.PageSize);
+
+                if (orderQuery.Page > pageCount)
+                {
+                    orderQuery.Page = pageCount;
+                }
+                else if (orderQuery.Page < 1)
+                {
+                    orderQuery.Page = 1;
+                }
+                else if (pageCount == 0)
+                {
+                    pageCount = 1;
+                    orderQuery.Page = 1;
+                }
+
+                int skipAmount = ((int)orderQuery.Page - 1) * (int)orderQuery.PageSize;
+                query = query.Skip(skipAmount).Take((int)orderQuery.PageSize);
             }
 
             return (await query.ToListAsync(), pageCount);
