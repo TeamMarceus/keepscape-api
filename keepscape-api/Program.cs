@@ -24,6 +24,7 @@ using keepscape_api.Services.Dashboards;
 using keepscape_api.Services.Reports;
 using keepscape_api.Services.Finances;
 using keepscape_api.Services.Orders;
+using keepscape_api.Services.Carts;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -184,4 +185,5 @@ async Task ConfigureServices(IServiceCollection services, IConfiguration configu
     services.AddScoped<IReportService, ReportService>();
     services.AddScoped<IFinanceService, FinanceService>();
     services.AddScoped<IOrderService, OrderService>();
+    services.AddScoped<ICartService, CartService>();
 }

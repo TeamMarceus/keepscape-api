@@ -3,7 +3,14 @@
     public record CartResponseDto
     {
         public Guid Id { get; set; }
-        public IDictionary<string, CartItemResponseDto> SellerCartItems { get; set; } = new Dictionary<string, CartItemResponseDto>();
+        public IEnumerable<CartSellerDto> CartSellers { get; set; } = new List<CartSellerDto>();
+    }
+
+    public record CartSellerDto
+    {
+        public Guid Id { get; set; }
+        public string SellerName { get; set; } = string.Empty;
+        public IEnumerable<CartItemResponseDto> CartItems { get; set; } = new List<CartItemResponseDto>();
     }
 
     public record CartItemResponseDto

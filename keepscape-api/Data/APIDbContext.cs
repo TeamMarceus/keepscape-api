@@ -92,11 +92,6 @@ namespace keepscape_api.Data
                 .HasForeignKey<BuyerProfile>(b => b.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<BuyerProfile>()
-                .HasOne(b => b.Cart)
-                .WithOne(c => c.BuyerProfile)
-                .HasForeignKey<Cart>(c => c.BuyerProfileId)
-                .OnDelete(DeleteBehavior.Cascade);
-            modelBuilder.Entity<BuyerProfile>()
                 .HasMany(b => b.Orders)
                 .WithOne(o => o.BuyerProfile)
                 .HasForeignKey(o => o.BuyerProfileId)

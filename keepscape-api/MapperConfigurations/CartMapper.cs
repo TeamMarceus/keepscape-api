@@ -15,10 +15,6 @@ namespace keepscape_api.MapperConfigurations
                 .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.Quantity))
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 ;
-
-            CreateMap<Cart, CartResponseDto>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                ;
         }
     }
 }

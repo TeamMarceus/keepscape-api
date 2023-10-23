@@ -6,7 +6,6 @@ namespace keepscape_api.Dtos.Finances
     {
         [Required]
         public string Status { get; init; } = string.Empty;
-        [Required]
         public string Reason { get; init; } = string.Empty;
         public IFormFile? PaymentProofImage { get; init; }
     }

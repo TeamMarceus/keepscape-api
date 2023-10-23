@@ -5,7 +5,6 @@ namespace keepscape_api.Models
     public class BuyerProfile : Base, IProfile
     {
         public Guid UserId { get; set; }
-        public Guid CartId { get; set; }
         public string Preferences { get; set; } = string.Empty;
         public string Interests { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;

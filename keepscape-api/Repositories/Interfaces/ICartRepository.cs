@@ -5,7 +5,6 @@ namespace keepscape_api.Repositories.Interfaces
 {
     public interface ICartRepository : IBaseRepository<Cart>
     {
-        Task<Cart?> CreateCartItemByCartId(Guid cartId, CartItem cartItem);
-        Task<Cart?> GetCartByUserGuid(Guid buyerProfileId);
+        Task<Cart?> GetCartByBuyerProfileId(Guid buyerProfileId);
     }
 }

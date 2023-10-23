@@ -26,21 +26,8 @@ namespace keepscape_api.Repositories
                         .ThenInclude(p => p!.Images)
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
-        public async Task<Cart?> CreateCartItemByCartId(Guid cartId, CartItem cartItem)
-        {
-            var cart = await _dbSet.Include(t => t.CartItems).FirstOrDefaultAsync(t => t.Id == cartId);
 
-            if (cart == null)
-            {
-                return null;
-            }
-
-            cart.CartItems.Add(cartItem);
-
-            return await _context.SaveChangesAsync() > 0 ? cart : null;
-        }
-
-        public async Task<Cart?> GetCartByUserGuid(Guid buyerProfileId)
+        public async Task<Cart?> GetCartByBuyerProfileId(Guid buyerProfileId)
         {
             var cart = await _dbSet
                 .Include(t => t.CartItems)
@@ -55,6 +42,16 @@ namespace keepscape_api.Repositories
             }
 
             return cart;
+        }
+
+        public new async Task<bool> UpdateAsync(Cart cart)
+        {
+            foreach (var cartItem in cart.CartItems)
+            {
+                _context.Products.Attach(cartItem.Product!);
+            }
+
+            return await base.UpdateAsync(cart);
         }
     }
 }
