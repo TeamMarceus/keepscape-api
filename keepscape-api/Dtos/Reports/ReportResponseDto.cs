@@ -13,8 +13,5 @@
 
     public record ReportOrderResponseDto : ReportResponseDto
     {
-        public Guid OrderId { get; init; }
-        public Guid SellerId { get; init; }
-        public string BuyerName { get; init; } = string.Empty;
     }
 }

@@ -4,6 +4,7 @@ using keepscape_api.Dtos.Products;
 using keepscape_api.Dtos.Reports;
 using keepscape_api.Enums;
 using keepscape_api.Models;
+using keepscape_api.QueryModels;
 using keepscape_api.Repositories.Interfaces;
 using keepscape_api.Services.Emails;
 using Microsoft.IdentityModel.Tokens;
@@ -40,8 +41,22 @@ namespace keepscape_api.Services.Reports
             _mapper = mapper;
         }
 
-        public Task<bool> CreateOrderReport(Guid orderId, Guid userId, ReportRequestDto reportRequestDto)
+        public async Task<bool> CreateOrderReport(Guid orderId, Guid userId, ReportRequestDto reportRequestDto)
         {
+            var user = await _userRepository.GetByIdAsync(userId);
+
+            if (user == null)
+            {
+                return false;
+            }
+
+            var order = await _orderRepository.GetByIdAsync(orderId);
+
+            if (order == null)
+            {
+                return false;
+            }
+
             throw new NotImplementedException();
         }
 
@@ -80,16 +95,22 @@ namespace keepscape_api.Services.Reports
             return await _productRepository.UpdateAsync(product);
         }
 
-        public async Task<IEnumerable<OrderAdminResponseDto>> GetAllOrderReports()
+        public async Task<OrderAdminResponsePaginatedDto> GetAllOrderWithReports(OrderReportQuery orderReportQuery)
         {
-            var orderReports = await _orderReportRepository.GetAllAsync();
+            var orderReportsQuery = await _orderRepository.GetForAdmin(orderReportQuery);
+            var orders = orderReportsQuery.Orders;
 
-            return orderReports.Select(report => _mapper.Map<OrderAdminResponseDto>(report.Order));
+            return new OrderAdminResponsePaginatedDto
+            {
+                Orders = orders.Select(o => _mapper.Map<OrderAdminResponseDto>(o)),
+                PageCount = orderReportsQuery.PageCount
+            };
         }
 
-        public async Task<IEnumerable<ProductResponseAdminDto>> GetAllProductReports()
+        public async Task<ProductResponseAdminPaginatedDto> GetAllProductWithReports(ProductReportQuery productReportQuery)
         {
-            var productReports = await _productReportRepository.GetAllAsync();
+            var productReportsQuery = await _productReportRepository.Get(productReportQuery);
+            var productReports = productReportsQuery.ProductReports;
             var uniqueProducts = productReports.Select(p => p.Product).Distinct();
 
             var products = new List<ProductResponseAdminDto>();
@@ -118,19 +139,11 @@ namespace keepscape_api.Services.Reports
                 });
             }
 
-            return products;
-        }
-
-        public async Task<ReportOrderResponseDto?> GetOrderReport(Guid orderId)
-        {
-            var orderReport = await _orderReportRepository.GetOrderReport(orderId);
-
-            if (orderReport == null)
+            return new ProductResponseAdminPaginatedDto
             {
-                return null;
-            }
-
-            return _mapper.Map<ReportOrderResponseDto>(orderReport);
+                Products = products.OrderByDescending(p => p.TotalReports),
+                PageCount = productReportsQuery.PageCount
+            };
         }
 
         public async Task<IEnumerable<ReportProductResponseDto>> GetProductReports(Guid productId)
@@ -145,7 +158,7 @@ namespace keepscape_api.Services.Reports
             return productReports.Select(report => _mapper.Map<ReportProductResponseDto>(report));
         }
 
-        public async Task<bool> RefundOrderReport(Guid orderId)
+        public async Task<bool> RefundOrderWithReport(Guid orderId)
         {
             var order = await _orderRepository.GetByIdAsync(orderId);
 
@@ -171,17 +184,24 @@ namespace keepscape_api.Services.Reports
 
             balance.Amount += order.TotalPrice;
 
-            var email = $"<p>Hi {order.BuyerProfile!.User!.FirstName},</p>" +
+            var buyerEmail = $"<p>Hi {order.BuyerProfile!.User!.FirstName},</p>" +
                         $"<p>Your order with id {order.Id} will be refunded.</p>" +
                         $"<p>Please wait for our refund in a few days.</p>" + 
                         $"<p>Thank you for using Keepscape!</p>";
 
-            await _emailService.SendEmailAsync(order.BuyerProfile!.User!.Email, "Order Refunded", email);
+            var sellerEmail = $"<p>Hi {order.SellerProfile!.User!.FirstName},</p>" +
+                        $"<p>Your order with id {order.Id} has been refunded.</p>" +
+                        $"<p>We have found that the buyer's report to be factual.</p>" +
+                        $"<p>Reason: {order.OrderReport.Reason}</p>" +
+                        $"<p>Thank you for using Keepscape!</p>";
+
+            await _emailService.SendEmailAsync(order.BuyerProfile!.User!.Email, "Order Refunded", buyerEmail);
+            await _emailService.SendEmailAsync(order.SellerProfile!.User!.Email, "Order Refunded", sellerEmail);
 
             return await _orderRepository.UpdateAsync(order) && await _balanceRepository.UpdateAsync(balance);
         }
 
-        public async Task<bool> ResolveOrderReport(Guid orderId)
+        public async Task<bool> ResolveOrderWithReport(Guid orderId)
         {
             var order = await _orderRepository.GetByIdAsync(orderId);
 
@@ -205,12 +225,32 @@ namespace keepscape_api.Services.Reports
                 return false;
             }
 
-            balance.Amount += order.TotalPrice;
+            balance.Amount += order.Items.Select(i => i.Product!.SellerPrice * i.Quantity).Sum();
+            balance.Histories.Add(new BalanceLog
+            {
+                Amount = order.TotalPrice,
+                DateTimeCreated = DateTime.UtcNow,
+                Remarks = $"Order with id {order.Id} has been delivered."
+            });
+
+            var buyerEmail = $"<p>Hi {order.BuyerProfile!.User!.FirstName},</p>" +
+                        $"<p>We found that your report lacks factual details and support for us to accept your refund.</p>" +
+                        $"<p>Thus, we have marked the item as delivered.</p>" +
+                        $"<p>Thank you for using Keepscape!</p>";
+
+            var sellerEmail = $"<p>Hi {order.SellerProfile!.User!.FirstName},</p>" +
+                $"<p>Your order with id {order.Id} has been delivered.</p>" +
+                        $"<p>We have found that the buyer's report to be false.</p>" +
+                        $"<p>Reason: {order.OrderReport.Reason}</p>" +
+                        $"<p>Thank you for using Keepscape!</p>";
+
+            await _emailService.SendEmailAsync(order.BuyerProfile!.User!.Email, "Order Delivered", buyerEmail);
+            await _emailService.SendEmailAsync(order.SellerProfile!.User!.Email, "Order Delivered", sellerEmail);
 
             return await _orderRepository.UpdateAsync(order) && await _balanceRepository.UpdateAsync(balance);
         }
 
-        public async Task<bool> ResolveProductReports(Guid productId)
+        public async Task<bool> ResolveProductWithReports(Guid productId)
         {
             var productReports = await _productReportRepository.GetByProductIdAsync(productId);
 

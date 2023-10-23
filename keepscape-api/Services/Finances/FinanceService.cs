@@ -5,6 +5,7 @@ using keepscape_api.Models;
 using keepscape_api.QueryModels;
 using keepscape_api.Repositories.Interfaces;
 using keepscape_api.Services.BaseImages;
+using keepscape_api.Services.Emails;
 
 namespace keepscape_api.Services.Finances
 {
@@ -14,12 +15,14 @@ namespace keepscape_api.Services.Finances
         private readonly IBalanceRepository _balanceRepository;
         private readonly IBalanceWithdrawalRepository _balanceWithdrawalRepository;
         private readonly IImageService _imageService;
+        private readonly IEmailService _emailService;
         private readonly IMapper _mapper;
         public FinanceService(
             IUserRepository userRepository,
             IBalanceRepository balanceRepository,
             IBalanceWithdrawalRepository balanceWithdrawalRepository,
             IImageService imageService,
+            IEmailService emailService,
             IMapper mapper
             )
         {
@@ -27,6 +30,7 @@ namespace keepscape_api.Services.Finances
             _balanceRepository = balanceRepository;
             _balanceWithdrawalRepository = balanceWithdrawalRepository;
             _imageService = imageService;
+            _emailService = emailService;
             _mapper = mapper;
         }
 
@@ -137,6 +141,10 @@ namespace keepscape_api.Services.Finances
                     Amount = 0,
                     Remarks = "Withdrawal Approved",
                 });
+
+                var emailString = $"Your withdrawal request has been approved. Please wait for 3-5 business days for the money to be transferred to your account. Thank you.";
+                await _emailService.SendEmailAsync(balanceWithdrawal.Balance!.User!.Email, "Withdrawal Approved", emailString);
+
             } 
             else if (status == PaymentStatus.Rejected)
             {
@@ -144,8 +152,11 @@ namespace keepscape_api.Services.Finances
                 balance.Histories!.Add(new BalanceLog
                 {
                     Amount = +balanceWithdrawal.Amount,
-                    Remarks = "Withdrawal Rejected",
+                    Remarks = $"Withdrawal Rejected, Reason: {balanceWithdrawalUpdateDto.Reason}",
                 });
+
+                var emailString = $"Your withdrawal request has been rejected. Reason: {balanceWithdrawalUpdateDto.Reason}. Please contact us for more information. Thank you.";
+                await _emailService.SendEmailAsync(balanceWithdrawal.Balance!.User!.Email, "Withdrawal Rejected", emailString);  
             }
             balanceWithdrawal.Status = status;
             balanceWithdrawal.PaymentProofImageUrl = balanceWithdrawalUpdateDto.PaymentProofImage != null ? 

@@ -1,4 +1,5 @@
-﻿using keepscape_api.Enums;
+﻿using keepscape_api.Dtos.Reports;
+using keepscape_api.Enums;
 
 namespace keepscape_api.Dtos.Orders
 {
@@ -19,15 +20,21 @@ namespace keepscape_api.Dtos.Orders
     public record OrderAdminResponseDto
     {
         public Guid Id { get; init; }
-        public Guid BuyerProfileId { get; init; }
-        public Guid SellerProfileId { get; init; }
-        public Guid ReportId { get; init; }
+        public OrderSellerDto Seller { get; init; } = null!;
+        public OrderBuyerDto Buyer { get; init; } = null!;
+        public ReportOrderResponseDto Report { get; init; } = null!;
         public DateTime DateTimeCreated { get; init; }
         public IEnumerable<OrderItemResponseDto> Items { get; init; } = new List<OrderItemResponseDto>();
+        public IEnumerable<OrderDeliveryLogDto> DeliveryLogs { get; init; } = new List<OrderDeliveryLogDto>();
+        public string? DeliveryFeeProofImageUrl { get; set; }
+        public decimal DeliveryFee { get; set; }
+        public decimal TotalPrice { get; set; }
+        public string Status { get; init; } = OrderStatus.Pending.ToString();
     }
 
     public record OrderBuyerDto
     {
+        public Guid Id { get; init; }
         public string FirstName { get; init; } = string.Empty;
         public string LastName { get; init; } = string.Empty;
         public string FullName => $"{FirstName} {LastName}";
@@ -43,6 +50,7 @@ namespace keepscape_api.Dtos.Orders
 
     public record OrderSellerDto
     {
+        public Guid Id { get; init; }
         public string Email { get; init; } = string.Empty;
         public string PhoneNumber { get; init; } = string.Empty;
         public string IdImageUrl { get; init; } = string.Empty;
@@ -60,15 +68,20 @@ namespace keepscape_api.Dtos.Orders
     {
         public Guid Id { get; init; }
         public DateTime DateTimeCreated { get; init; }
-        public OrderBuyerDto BuyerProfile { get; init; } = new();
+        public OrderBuyerDto Buyer { get; init; } = null!;
         public IEnumerable<OrderItemResponseDto> Items { get; init; } = new List<OrderItemResponseDto>();
         public IEnumerable<OrderDeliveryLogDto> DeliveryLogs { get; init; } = new List<OrderDeliveryLogDto>();
-        public string? DeliveryFeeProofImageUrl { get; set; }
-        public decimal DeliveryFee { get; set; }
-        public decimal TotalPrice { get; set; }
+        public string? DeliveryFeeProofImageUrl { get; init; }
+        public decimal DeliveryFee { get; init; }
+        public decimal TotalPrice { get; init; }
         public string Status { get; init; } = OrderStatus.Pending.ToString();
     }
 
+    public record OrderAdminResponsePaginatedDto
+    {
+        public IEnumerable<OrderAdminResponseDto> Orders { get; init; } = new List<OrderAdminResponseDto>();
+        public int PageCount { get; init; }
+    }
     public record OrderSellerResponsePaginatedDto
     {
         public IEnumerable<OrderSellerResponseDto> Orders { get; init; } = new List<OrderSellerResponseDto>();

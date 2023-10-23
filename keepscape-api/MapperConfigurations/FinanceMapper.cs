@@ -11,6 +11,9 @@ namespace keepscape_api.MapperConfigurations
             CreateMap<BalanceWithdrawal, BalanceWithdrawalResponseDto>()
                 .ForMember(dest => dest.PaymentMethod, opt => opt.MapFrom(src => src.PaymentMethod.ToString()))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
+                .ForMember(dest => dest.SellerId, opt => opt.MapFrom(src => src.Balance.User != null ? src.Balance.User.Id : Guid.Empty))
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.Balance.User != null ? src.Balance.User.SellerProfile != null ? $"{src.Balance.User.FirstName} {src.Balance.User.LastName}" : "" : ""))
+                .ForMember(dest => dest.SellerName, opt => opt.MapFrom(src => src.Balance.User != null ? src.Balance.User.SellerProfile != null ? src.Balance.User.SellerProfile.Name : "" : ""))
                 ;
             CreateMap<BalanceLog, BalanceLogResponseDto>();
             CreateMap<Balance, BalanceResponseDto>()

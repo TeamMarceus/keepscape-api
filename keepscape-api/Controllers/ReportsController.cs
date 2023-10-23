@@ -1,4 +1,5 @@
 ﻿using keepscape_api.Dtos.Reports;
+using keepscape_api.QueryModels;
 using keepscape_api.Services.Reports;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -57,22 +58,17 @@ namespace keepscape_api.Controllers
 
         [HttpGet("products")]
         [Authorize(Policy = "Admin")]
-        public async Task<IActionResult> GetProductReports()
+        public async Task<IActionResult> GetProductWithReports([FromQuery] ProductReportQuery productReportQuery)
         {
             try
             {
-                var productReports = await _reportService.GetAllProductReports();
-
-                if (productReports.IsNullOrEmpty())
-                {
-                    return NotFound();
-                }
+                var productReports = await _reportService.GetAllProductWithReports(productReportQuery);
 
                 return Ok(productReports);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"{nameof(_reportService.GetAllProductReports)} threw an exception");
+                _logger.LogError(ex, $"{nameof(_reportService.GetAllProductWithReports)} threw an exception");
                 return StatusCode(500, "Internal server error");
             }
         }
@@ -101,11 +97,11 @@ namespace keepscape_api.Controllers
 
         [HttpPost("products/{productId}/resolve")]
         [Authorize(Policy = "Admin")]
-        public async Task<IActionResult> ResolveProductReports(Guid productId)
+        public async Task<IActionResult> ResolveProductWithReports(Guid productId)
         {
             try
             {
-                var result = await _reportService.ResolveProductReports(productId);
+                var result = await _reportService.ResolveProductWithReports(productId);
 
                 if (!result)
                 {
@@ -116,62 +112,35 @@ namespace keepscape_api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"{nameof(_reportService.ResolveProductReports)} threw an exception");
+                _logger.LogError(ex, $"{nameof(_reportService.ResolveProductWithReports)} threw an exception");
                 return StatusCode(500, "Internal server error");
             }
         }
 
         [HttpGet("orders")]
         [Authorize(Policy = "Admin")]
-        public async Task<IActionResult> GetOrderReports()
+        public async Task<IActionResult> GetOrderWithReports([FromQuery] OrderReportQuery orderReportQuery)
         {
             try
             {
-                var orderReports = await _reportService.GetAllOrderReports();
-
-                if (orderReports.IsNullOrEmpty())
-                {
-                    return NotFound();
-                }
+                var orderReports = await _reportService.GetAllOrderWithReports(orderReportQuery);
 
                 return Ok(orderReports);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"{nameof(_reportService.GetAllOrderReports)} threw an exception");
-                return StatusCode(500, "Internal server error");
-            }
-        }
-
-        [HttpGet("orders/{orderId}")]
-        [Authorize(Policy = "Admin")]
-        public async Task<IActionResult> GetOrderReports(Guid orderId)
-        {
-            try
-            {
-                var orderReport = await _reportService.GetOrderReport(orderId);
-
-                if (orderReport == null)
-                {
-                    return NotFound();
-                }
-
-                return Ok(orderReport);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"{nameof(_reportService.GetOrderReport)} threw an exception");
+                _logger.LogError(ex, $"{nameof(_reportService.GetAllOrderWithReports)} threw an exception");
                 return StatusCode(500, "Internal server error");
             }
         }
 
         [HttpPost("orders/{orderId}/resolve")]
         [Authorize(Policy = "Admin")]
-        public async Task<IActionResult> ResolveOrderReport(Guid orderId)
+        public async Task<IActionResult> ResolveOrderWithReport(Guid orderId)
         {
             try
             {
-                var result = await _reportService.ResolveOrderReport(orderId);
+                var result = await _reportService.ResolveOrderWithReport(orderId);
 
                 if (!result)
                 {
@@ -182,18 +151,18 @@ namespace keepscape_api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"{nameof(_reportService.ResolveOrderReport)} threw an exception");
+                _logger.LogError(ex, $"{nameof(_reportService.ResolveOrderWithReport)} threw an exception");
                 return StatusCode(500, "Internal server error");
             }
         }
 
         [HttpPost("orders/{orderId}/refund")]
         [Authorize(Policy = "Admin")]
-        public async Task<IActionResult> RefundOrderReport(Guid orderId)
+        public async Task<IActionResult> RefundOrderWithReport(Guid orderId)
         {
             try
             {
-                var result = await _reportService.RefundOrderReport(orderId);
+                var result = await _reportService.RefundOrderWithReport(orderId);
 
                 if (!result)
                 {
@@ -204,7 +173,7 @@ namespace keepscape_api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"{nameof(_reportService.RefundOrderReport)} threw an exception");
+                _logger.LogError(ex, $"{nameof(_reportService.RefundOrderWithReport)} threw an exception");
                 return StatusCode(500, "Internal server error");
             }
         }

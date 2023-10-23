@@ -53,7 +53,7 @@ namespace keepscape_api.Repositories
 
         public override async Task<IEnumerable<Order>> GetAllAsync()
         {
-            return await _context.Orders
+            return await _dbSet
                 .Include(o => o.BuyerProfile)
                 .Include(o => o.SellerProfile)
                 .Include(o => o.OrderReport)
@@ -71,7 +71,7 @@ namespace keepscape_api.Repositories
                 .ToListAsync();
         }
 
-        public async Task<(IEnumerable<Order> Orders, int PageCount)> Get(OrderQuery orderQuery)
+        public async Task<(IEnumerable<Order> Orders, int PageCount)> GetForSeller(OrderQuery orderQuery)
         {
             var query = _dbSet
                 .Include(o => o.BuyerProfile)
@@ -93,7 +93,7 @@ namespace keepscape_api.Repositories
             {
                 if (orderQuery.Status == "Completed")
                 {
-                    query = query.Where(o => o.Status == OrderStatus.Cancelled || o.Status == OrderStatus.Delivered);
+                    query = query.Where(o => o.Status == OrderStatus.Cancelled || o.Status == OrderStatus.Delivered || o.Status == OrderStatus.Refunded);
                 }
                 else
                 {
@@ -131,6 +131,67 @@ namespace keepscape_api.Repositories
 
                 int skipAmount = ((int)orderQuery.Page - 1) * (int)orderQuery.PageSize;
                 query = query.Skip(skipAmount).Take((int)orderQuery.PageSize);
+            }
+
+            return (await query.ToListAsync(), pageCount);
+        }
+
+        public async Task<(IEnumerable<Order> Orders, int PageCount)> GetForAdmin(OrderReportQuery orderReportQuery)
+        {
+            var confirmationMaxDate = DateTime.UtcNow.AddDays(-7);
+            var query = _dbSet
+                .Include(o => o.BuyerProfile)
+                    .ThenInclude(b => b!.User)
+                .Include(o => o.SellerProfile)
+                    .ThenInclude(s => s!.User)
+                .Include(o => o.SellerProfile)
+                    .ThenInclude(s => s!.SellerApplication)
+                .Include(o => o.OrderReport)
+                .Include(o => o.DeliveryLogs)
+                .Include(o => o.Items)
+                    .ThenInclude(oi => oi.Product)
+                .Where(o => (o.OrderReport != null && o.Status == OrderStatus.AwaitingConfirmation) || 
+                (o.Status == OrderStatus.AwaitingConfirmation && o.DateTimeUpdated < confirmationMaxDate))
+                .AsQueryable();
+
+            int pageCount = 1;
+
+            if (!string.IsNullOrEmpty(orderReportQuery.SellerName))
+            {
+                query = query.Where(o => o.SellerProfile!.Name == orderReportQuery.SellerName);
+            }
+            if (!string.IsNullOrEmpty(orderReportQuery.BuyerName))
+            {
+                query = query.Where(
+                    x => $"{x.BuyerProfile!.User!.FirstName} + {x.BuyerProfile!.User!.LastName}"
+                    .ToLower().Contains(orderReportQuery.BuyerName.ToLower()));
+            }
+            if (query.Count() == 0)
+            {
+                return (await query.ToListAsync(), 0);
+            }
+            if (orderReportQuery.Page != null && orderReportQuery.PageSize != null)
+            {
+                int queryPageCount = await query.CountAsync();
+
+                pageCount = (int)Math.Ceiling((double)queryPageCount / (int)orderReportQuery.PageSize);
+
+                if (orderReportQuery.Page > pageCount)
+                {
+                    orderReportQuery.Page = pageCount;
+                }
+                else if (orderReportQuery.Page < 1)
+                {
+                    orderReportQuery.Page = 1;
+                }
+                else if (pageCount == 0)
+                {
+                    pageCount = 1;
+                    orderReportQuery.Page = 1;
+                }
+
+                int skipAmount = ((int)orderReportQuery.Page - 1) * (int)orderReportQuery.PageSize;
+                query = query.Skip(skipAmount).Take((int)orderReportQuery.PageSize);
             }
 
             return (await query.ToListAsync(), pageCount);

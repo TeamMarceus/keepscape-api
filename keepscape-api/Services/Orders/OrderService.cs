@@ -134,7 +134,7 @@ namespace keepscape_api.Services.Orders
                 return null;
             }
 
-            var (orders, pageCount) = await _orderRepository.Get(orderQuery);
+            var (orders, pageCount) = await _orderRepository.GetForSeller(orderQuery);
             var orderSellerResponseDtos = _mapper.Map<IEnumerable<OrderSellerResponseDto>>(orders);
             return new OrderSellerResponsePaginatedDto
             {
