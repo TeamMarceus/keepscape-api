@@ -162,14 +162,6 @@ namespace keepscape_api.Services.Products
 
         private async Task<Product> UpdateProduct(Product product, ProductUpdateDto productUpdateDto)
         {
-            var formFiles = new List<IFormFile?>() {
-                    productUpdateDto.Image1,
-                    productUpdateDto.Image2,
-                    productUpdateDto.Image3,
-                    productUpdateDto.Image4,
-                    productUpdateDto.Image5
-                };
-
             if (!string.IsNullOrEmpty(productUpdateDto.Name))
             {
                 product.Name = productUpdateDto.Name;
@@ -198,34 +190,33 @@ namespace keepscape_api.Services.Products
             {
                 product.IsHidden = productUpdateDto.IsHidden.Value;
             }
-            if (formFiles.Any(s => s != null))
+            if (productUpdateDto.Images != null)
             {
-                foreach (var image in product.Images)
-                {
-                    await _imageUrlService.Delete(image.ImageUrl);
-                }
+               foreach (var key in productUpdateDto.Images.Keys)
+               {
+                    var formFile = productUpdateDto.Images[key];
 
-                product.Images.Clear();
-
-                foreach (var file in formFiles)
-                {
-                    if (file == null)
+                    if (formFile == null)
                     {
                         continue;
                     }
 
-                    var imageUrl = await _imageUrlService.Upload("products", file);
+                    var imageUrl = await _imageUrlService.Upload("products", formFile);
 
                     if (imageUrl == null)
                     {
                         continue;
                     }
 
-                    product.Images.Add(new ProductImage
+                    var productImage = product.Images.FirstOrDefault(i => i.ImageUrl.Contains(key));
+
+                    if (productImage == null || !key.Contains("new"))
                     {
-                        ImageUrl = imageUrl
-                    });
-                }
+                        continue;
+                    }
+
+                    productImage.ImageUrl = imageUrl;
+               }
             }
             if (productUpdateDto.CategoryIds != null)
             {

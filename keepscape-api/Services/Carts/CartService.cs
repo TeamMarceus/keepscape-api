@@ -2,23 +2,27 @@
 using keepscape_api.Dtos.Carts;
 using keepscape_api.Models;
 using keepscape_api.Repositories.Interfaces;
+using Microsoft.IdentityModel.Tokens;
 
 namespace keepscape_api.Services.Carts
 {
     public class CartService : ICartService
     {
         private readonly ICartRepository _cartRepository;
+        private readonly IOrderRepository _orderRepository;
         private readonly IProductRepository _productRepository;
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
 
         public CartService(
             ICartRepository cartRepository, 
+            IOrderRepository orderRepository,
             IProductRepository productRepository, 
             IUserRepository userRepository, 
             IMapper mapper)
         {
             _cartRepository = cartRepository;
+            _orderRepository = orderRepository;
             _productRepository = productRepository;
             _userRepository = userRepository;
             _mapper = mapper;
@@ -51,9 +55,11 @@ namespace keepscape_api.Services.Carts
                 return null;
             }
 
-            var existingCartItem = cart.CartItems.SingleOrDefault(x => x.ProductId == cartRequestDto.ProductId);
+            var existingCartItem = cart.Items.SingleOrDefault(x => x.ProductId == cartRequestDto.ProductId);
 
-            if (existingCartItem != null && existingCartItem.CustomizationMessage == cartRequestDto.CustomizationMessage)
+            if (existingCartItem != null 
+                && (!existingCartItem.Product!.IsCustomizable || 
+                (existingCartItem.Product.IsCustomizable && existingCartItem.CustomizationMessage == cartRequestDto.CustomizationMessage)))
             {
                 existingCartItem.Quantity += cartRequestDto.Quantity;
             }
@@ -62,15 +68,70 @@ namespace keepscape_api.Services.Carts
                 var cartItem = new CartItem
                 {
                     Product = product,
-                    Quantity = cartRequestDto.Quantity
+                    Quantity = cartRequestDto.Quantity,
+                    CustomizationMessage = cartRequestDto.CustomizationMessage ?? ""
                 };
 
-                cart.CartItems.Add(cartItem);
+                cart.Items.Add(cartItem);
             }
 
             await _cartRepository.UpdateAsync(cart);
 
             return await Get(userId);
+        }
+
+        public async Task<bool> Checkout(Guid userId)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+
+            if (user == null)
+            {
+                return false;
+            }
+
+            if (user.BuyerProfile == null)
+            {
+                return false;
+            }
+
+            var cart = await _cartRepository.GetCartByBuyerProfileId(user.BuyerProfile.Id);
+
+            if (cart == null)
+            {
+                return false;
+            }
+
+            if (cart.Items.IsNullOrEmpty())
+            {
+                return false;
+            }
+
+            var sellerIdToItems = cart.Items.GroupBy(x => x.Product!.SellerProfile!.Id!).ToDictionary(x => x.Key, x => x.ToList());
+
+            foreach (var sellerIdToItem in sellerIdToItems)
+            {
+                var sellerId = sellerIdToItem.Key;
+                var items = sellerIdToItem.Value;
+
+                var order = new Order
+                {
+                    BuyerProfile = user.BuyerProfile,
+                    SellerProfileId = sellerId,
+                    Items = items.Select(x => new OrderItem
+                    {
+                        Product = x.Product,
+                        Quantity = x.Quantity,
+                        CustomizationMessage = x.CustomizationMessage
+                    }).ToList(),
+                    TotalPrice = items.Sum(x => x.Product!.BuyerPrice * x.Quantity)
+                };
+
+                await _orderRepository.AddAsync(order);
+            }
+
+            cart.Items.Clear();
+
+            return await _cartRepository.UpdateAsync(cart);
         }
 
         public async Task<CartResponseDto?> Delete(Guid userId, Guid cartItemId)
@@ -94,14 +155,14 @@ namespace keepscape_api.Services.Carts
                 return null;
             }
 
-            var cartItem = cart.CartItems.SingleOrDefault(x => x.Id == cartItemId);
+            var cartItem = cart.Items.SingleOrDefault(x => x.Id == cartItemId);
 
             if (cartItem == null)
             {
                 return null;
             }
 
-            cart.CartItems.Remove(cartItem);
+            cart.Items.Remove(cartItem);
 
             await _cartRepository.UpdateAsync(cart);
 
@@ -129,7 +190,16 @@ namespace keepscape_api.Services.Carts
                 return null;
             }
 
-            var sellers = cart.CartItems.GroupBy(i => i.Product!.SellerProfileId).Select(g => g.First().Product!.SellerProfile);
+            if (cart.Items.IsNullOrEmpty())
+            {
+                return new CartResponseDto
+                {
+                    Id = cart.Id,
+                    CartSellers = new List<CartSellerDto>()
+                };
+            }
+
+            var sellers = cart.Items.GroupBy(i => i.Product!.SellerProfileId).Select(g => g.First().Product!.SellerProfile);
 
             var cartSellers = new List<CartSellerDto>();
 
@@ -139,7 +209,7 @@ namespace keepscape_api.Services.Carts
                 {
                     Id = seller!.UserId,
                     SellerName = seller.Name,
-                    CartItems = cart.CartItems.Where(x => x.Product!.SellerProfile!.UserId == seller.UserId).Select(x => _mapper.Map<CartItemResponseDto>(x))
+                    CartItems = cart.Items.Where(x => x.Product!.SellerProfile!.UserId == seller.UserId).Select(x => _mapper.Map<CartItemResponseDto>(x))
                 });
             }
             
@@ -172,7 +242,7 @@ namespace keepscape_api.Services.Carts
             }
 
             var cartItemDictKeys = cartUpdateDto.CartItems.Select(x => x.Key).ToList();
-            var cartItems = cart.CartItems.Where(x => cartItemDictKeys.Contains(x.Id));
+            var cartItems = cart.Items.Where(x => cartItemDictKeys.Contains(x.Id));
 
             foreach (var cartItem in cartItems)
             {

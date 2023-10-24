@@ -99,6 +99,7 @@ namespace keepscape_api.Services.Reports
         {
             var orderReportsQuery = await _orderRepository.GetForAdmin(orderReportQuery);
             var orders = orderReportsQuery.Orders;
+            orders.Select(o => o.DeliveryLogs.OrderByDescending(d => d.DateTime));
 
             return new OrderAdminResponsePaginatedDto
             {
@@ -175,15 +176,6 @@ namespace keepscape_api.Services.Reports
             order.OrderReport!.IsRefunded = true;
             order.Status = OrderStatus.Refunded;
 
-            var balance = await _balanceRepository.GetBalanceByUserId(order.BuyerProfile!.UserId);
-
-            if (balance == null)
-            {
-                return false;
-            }
-
-            balance.Amount += order.TotalPrice;
-
             var buyerEmail = $"<p>Hi {order.BuyerProfile!.User!.FirstName},</p>" +
                         $"<p>Your order with id {order.Id} will be refunded.</p>" +
                         $"<p>Please wait for our refund in a few days.</p>" + 
@@ -198,7 +190,7 @@ namespace keepscape_api.Services.Reports
             await _emailService.SendEmailAsync(order.BuyerProfile!.User!.Email, "Order Refunded", buyerEmail);
             await _emailService.SendEmailAsync(order.SellerProfile!.User!.Email, "Order Refunded", sellerEmail);
 
-            return await _orderRepository.UpdateAsync(order) && await _balanceRepository.UpdateAsync(balance);
+            return await _orderRepository.UpdateAsync(order);
         }
 
         public async Task<bool> ResolveOrderWithReport(Guid orderId)

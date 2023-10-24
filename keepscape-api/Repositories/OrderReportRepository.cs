@@ -19,6 +19,7 @@ namespace keepscape_api.Repositories
                 .Include(x => x.User)
                     .ThenInclude(x => x.BuyerProfile)
                 .Where(o => !o.IsResolved)
+                .AsSplitQuery()
                 .SingleOrDefaultAsync(x => x.OrderId == orderId);
         }
 
@@ -30,6 +31,7 @@ namespace keepscape_api.Repositories
                 .Include(x => x.User)
                     .ThenInclude(x => x.BuyerProfile)
                 .Where(o => !o.IsResolved)
+                .AsSplitQuery()
                 .ToListAsync();
         }
 
@@ -41,6 +43,7 @@ namespace keepscape_api.Repositories
                 .Include(x => x.User)
                     .ThenInclude(x => x.BuyerProfile)
                 .Where(o => !o.IsResolved)
+                .AsSplitQuery()
                 .SingleOrDefaultAsync(x => x.Id == id);
         }
     }

@@ -158,13 +158,14 @@ namespace keepscape_api.Repositories
 
             if (!string.IsNullOrEmpty(orderReportQuery.SellerName))
             {
-                query = query.Where(o => o.SellerProfile!.Name == orderReportQuery.SellerName);
+                query = query.Where(o => o.SellerProfile!.Name.ToLower().Contains(orderReportQuery.SellerName));
             }
             if (!string.IsNullOrEmpty(orderReportQuery.BuyerName))
             {
                 query = query.Where(
-                    x => $"{x.BuyerProfile!.User!.FirstName} + {x.BuyerProfile!.User!.LastName}"
-                    .ToLower().Contains(orderReportQuery.BuyerName.ToLower()));
+                    x => x.BuyerProfile!.User!.FirstName.ToLower().Contains(orderReportQuery.BuyerName) ||
+                    x.BuyerProfile!.User!.LastName.ToLower().Contains(orderReportQuery.BuyerName)
+                    );
             }
             if (query.Count() == 0)
             {
@@ -195,6 +196,18 @@ namespace keepscape_api.Repositories
             }
 
             return (await query.ToListAsync(), pageCount);
+        }
+
+        public new async Task<Order> AddAsync(Order order)
+        {
+            foreach (var item in order.Items)
+            {
+                _context.Products.Attach(item.Product!);
+                _context.SellerProfiles.Attach(item.Product!.SellerProfile!);
+                _context.BuyerProfiles.Attach(order.BuyerProfile!);
+            }
+
+            return await base.AddAsync(order);
         }
     }
 }

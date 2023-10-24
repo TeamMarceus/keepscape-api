@@ -105,7 +105,7 @@ namespace keepscape_api.Controllers
 
                 if (!result)
                 {
-                    return NotFound();
+                    return BadRequest("Product not found or product has no reports.");
                 }
 
                 return Ok();
@@ -144,7 +144,7 @@ namespace keepscape_api.Controllers
 
                 if (!result)
                 {
-                    return NotFound();
+                    return BadRequest("Order not found or order not eligible for resolving.");
                 }
 
                 return Ok();
@@ -166,7 +166,7 @@ namespace keepscape_api.Controllers
 
                 if (!result)
                 {
-                    return NotFound();
+                    return BadRequest("Order not found or order not eligible for refund.");
                 }
 
                 return Ok();

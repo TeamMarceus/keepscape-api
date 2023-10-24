@@ -23,7 +23,7 @@ namespace keepscape_api.MapperConfigurations
                     Id = src.Place != null ? src.Place!.Id : Guid.Empty,
                     Name = src.Place != null ? src.Place!.Name : string.Empty,
                 }))
-                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.Images.ToList()[0].ImageUrl))
+                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => !src.Images.IsNullOrEmpty() ? src.Images.First().ImageUrl : ""))
                 .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.BuyerPrice))
                 ;
 

@@ -150,6 +150,7 @@ async Task ConfigureServices(IServiceCollection services, IConfiguration configu
         options.AddPolicy("Admin", policy => policy.RequireClaim("Role", "Admin"));
         options.AddPolicy("Seller", policy => policy.RequireClaim("Role", "Seller"));
         options.AddPolicy("Buyer", policy => policy.RequireClaim("Role", "Buyer"));
+        options.AddPolicy("Admin|Seller", policy => policy.RequireClaim("Role", "Admin", "Seller"));
     });
     services.AddTransient<APIDbContext>();
     services.AddSingleton(sp => StorageClient.Create(googleCredential));

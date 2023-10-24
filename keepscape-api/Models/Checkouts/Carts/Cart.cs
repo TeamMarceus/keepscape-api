@@ -6,6 +6,6 @@ namespace keepscape_api.Models
     {
         public Guid BuyerProfileId { get; set; }
         public virtual BuyerProfile? BuyerProfile { get; set; }
-        public virtual ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
+        public virtual ICollection<CartItem> Items { get; set; } = new List<CartItem>();
     }
 }

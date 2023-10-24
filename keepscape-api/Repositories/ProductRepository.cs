@@ -4,6 +4,7 @@ using keepscape_api.Models;
 using keepscape_api.QueryModels;
 using keepscape_api.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace keepscape_api.Repositories
 {
@@ -19,10 +20,15 @@ namespace keepscape_api.Repositories
                 .Include(p => p.Place)
                 .Include(p => p.Images)
                 .Include(p => p.SellerProfile)
+                    .ThenInclude(sp => sp!.User)
                 .Include(p => p.Categories)
-                .Where(p => p.IsHidden == false && 
-                p.Quantity > 0 && 
-                p.SellerProfile!.SellerApplication!.Status == ApplicationStatus.Approved)
+                .Where(
+                    p => !p.IsHidden && 
+                    p.Quantity > 0 && 
+                    p.SellerProfile!.SellerApplication!.Status == ApplicationStatus.Approved &&
+                    p.DateTimeDeleted == null &&
+                    !p.SellerProfile.User!.IsBanned
+                )
                 .AsSplitQuery()
                 .AsNoTracking();
 
@@ -37,15 +43,13 @@ namespace keepscape_api.Repositories
             {
                 query = query.Where(p => p.IsHidden == productQueryParameters.IsHidden);
             }
-            if (!string.IsNullOrEmpty(productQueryParameters.Category))
+            if (!productQueryParameters.Categories.IsNullOrEmpty())
             {
-                query = query.Where(p => p.Categories
-                .Any(pc => pc.Name == productQueryParameters.Category));
+                query = query.Where(p => p.Categories.Any(c => productQueryParameters.Categories.Contains(c.Name)));
             }
-            if (!string.IsNullOrEmpty(productQueryParameters.Province))
+            if (!productQueryParameters.Provinces.IsNullOrEmpty())
             {
-                query = query.Where(p => p.Place!.Name
-                == productQueryParameters.Province);
+                query = query.Where(p => p.Place != null && productQueryParameters.Provinces.Contains(p.Place.Name));
             }
             if (!string.IsNullOrEmpty(productQueryParameters.Search))
             {
@@ -58,6 +62,10 @@ namespace keepscape_api.Repositories
             else
             {
                 query = query.OrderBy(p => p.DateTimeCreated);
+            }
+            if(productQueryParameters.Rating != null)
+            {
+                query = query.Where(p => p.Rating >= (int)productQueryParameters.Rating);
             }
             if (productQueryParameters.MinPrice != null)
             {

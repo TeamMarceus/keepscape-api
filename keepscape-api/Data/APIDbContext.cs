@@ -60,18 +60,8 @@ namespace keepscape_api.Data
             }
         }
 
-        private void ApplySoftDeleteFilter<TEntity>(ModelBuilder modelBuilder) where TEntity : class, ISoftDeletable
-        {
-            modelBuilder.Entity<TEntity>().HasQueryFilter(entity => entity.DateTimeDeleted == null);
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            ApplySoftDeleteFilter<Product>(modelBuilder);
-            modelBuilder.Entity<CartItem>().HasQueryFilter(ci => !ci.Product!.DateTimeDeleted.HasValue);
-            modelBuilder.Entity<ProductReview>().HasQueryFilter(pr => !pr.Product!.DateTimeDeleted.HasValue);
-            modelBuilder.Entity<ProductReport>().HasQueryFilter(pi => !pi.Product!.DateTimeDeleted.HasValue);
-
             // User
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email)
@@ -233,7 +223,7 @@ namespace keepscape_api.Data
                 .HasForeignKey<Cart>(c => c.BuyerProfileId)
                 .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<Cart>()
-                .HasMany(c => c.CartItems)
+                .HasMany(c => c.Items)
                 .WithOne(c => c.Cart)
                 .HasForeignKey(c => c.CartId)
                 .OnDelete(DeleteBehavior.Cascade);

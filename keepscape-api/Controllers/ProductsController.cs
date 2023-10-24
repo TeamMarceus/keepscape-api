@@ -159,8 +159,7 @@ namespace keepscape_api.Controllers
         }
 
         [HttpDelete("{productId}")]
-        [Authorize(Policy = "Seller")]
-        [Authorize(Policy = "Admin")]
+        [Authorize(Policy = "Admin|Seller")]
         public async Task<IActionResult> Delete(Guid productId)
         {
             try

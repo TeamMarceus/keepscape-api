@@ -8,6 +8,7 @@ namespace keepscape_api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Policy = "Buyer")]
     public class CartsController : ControllerBase
     {
         private readonly ICartService _cartService;
@@ -22,7 +23,6 @@ namespace keepscape_api.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = "Buyer")]
         public async Task<IActionResult> Get()
         {
             try
@@ -51,7 +51,6 @@ namespace keepscape_api.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = "Buyer")]
         public async Task<IActionResult> AddProduct([FromBody]CartRequestDto cartRequestDto)
         {
             try
@@ -71,7 +70,7 @@ namespace keepscape_api.Controllers
 
                 if (cartItem == null)
                 {
-                    return BadRequest("Invalid credentials.");
+                    return BadRequest("User or Product does not exist.");
                 }
 
                 return Ok(cartItem);
@@ -84,7 +83,6 @@ namespace keepscape_api.Controllers
         }
 
         [HttpPut]
-        [Authorize(Policy = "Buyer")]
         public async Task<IActionResult> Update([FromBody]CartUpdateDto cartUpdateDto)
         {
             try
@@ -118,7 +116,6 @@ namespace keepscape_api.Controllers
         }
 
         [HttpDelete("{cartItemId}")]
-        [Authorize(Policy = "Buyer")]
         public async Task<IActionResult> Delete(Guid cartItemId)
         {
             try
@@ -147,6 +144,39 @@ namespace keepscape_api.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"{nameof(_cartService.Delete)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpPost("checkout")]
+        public async Task<IActionResult> Checkout()
+        {
+            try
+            {
+                if (ModelState.IsValid == false)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var userId = Guid.TryParse(User.FindFirstValue("UserId"), out var id) ? id : Guid.Empty;
+
+                if (userId == Guid.Empty)
+                {
+                    return BadRequest("Invalid credentials.");
+                }
+
+                var success = await _cartService.Checkout(userId);
+
+                if (success == false)
+                {
+                    return BadRequest("Invalid credentials.");
+                }
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_cartService.Checkout)} threw an exception");
                 return StatusCode(500, "Internal server error");
             }
         }

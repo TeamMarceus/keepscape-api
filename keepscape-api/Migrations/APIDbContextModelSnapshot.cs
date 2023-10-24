@@ -489,7 +489,7 @@ namespace keepscape_api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("CustomizedMessage")
+                    b.Property<string>("CustomizationMessage")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("DateTimeCreated")
@@ -948,7 +948,7 @@ namespace keepscape_api.Migrations
             modelBuilder.Entity("keepscape_api.Models.CartItem", b =>
                 {
                     b.HasOne("keepscape_api.Models.Cart", "Cart")
-                        .WithMany("CartItems")
+                        .WithMany("Items")
                         .HasForeignKey("CartId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1161,7 +1161,7 @@ namespace keepscape_api.Migrations
 
             modelBuilder.Entity("keepscape_api.Models.Cart", b =>
                 {
-                    b.Navigation("CartItems");
+                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("keepscape_api.Models.Categories.Place", b =>

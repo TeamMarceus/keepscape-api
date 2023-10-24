@@ -2,6 +2,7 @@
 using keepscape_api.Dtos.Orders;
 using keepscape_api.Dtos.Reports;
 using keepscape_api.Models;
+using Microsoft.IdentityModel.Tokens;
 
 namespace keepscape_api.MapperConfigurations
 {
@@ -41,7 +42,8 @@ namespace keepscape_api.MapperConfigurations
                     Id = i.Id,
                     ProductId = i.ProductId,
                     ProductName = i.Product != null ? i.Product.Name : "",
-                    CustomizedMessage = i.CustomizedMessage ?? "",
+                    ProductImageUrl = i.Product != null ? !i.Product.Images.IsNullOrEmpty() ? i.Product.Images.First().ImageUrl : "" : "",
+                    CustomizedMessage = i.CustomizationMessage ?? "",
                     Quantity = i.Quantity,
                     Price = i.Price,
                 })))
@@ -76,7 +78,7 @@ namespace keepscape_api.MapperConfigurations
                     Id = i.Id,
                     ProductId = i.ProductId,
                     ProductName = i.Product != null ? i.Product.Name : "",
-                    CustomizedMessage = i.CustomizedMessage ?? "",
+                    CustomizedMessage = i.CustomizationMessage ?? "",
                     Quantity = i.Quantity,
                     Price = i.Price,
                 })))

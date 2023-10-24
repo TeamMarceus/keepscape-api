@@ -8,5 +8,6 @@ namespace keepscape_api.Services.Carts
         Task<CartResponseDto?> Get(Guid userId);
         Task<CartResponseDto?> Update(Guid userId, CartUpdateDto cartUpdateDto);
         Task<CartResponseDto?> Delete(Guid userId, Guid cartItemId);
+        Task<bool> Checkout(Guid userId);
     }
 }

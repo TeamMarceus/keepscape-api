@@ -13,7 +13,7 @@ namespace keepscape_api.Repositories
         public override async Task<IEnumerable<Cart>> GetAllAsync()
         {
             return await _dbSet
-                .Include(c => c.CartItems)
+                .Include(c => c.Items)
                     .ThenInclude(ci => ci.Product)
                         .ThenInclude(p => p!.Images)
                 .ToListAsync();
@@ -21,7 +21,7 @@ namespace keepscape_api.Repositories
         public override async Task<Cart?> GetByIdAsync(Guid id)
         {
             return await _dbSet
-                .Include(c => c.CartItems)
+                .Include(c => c.Items)
                     .ThenInclude(ci => ci.Product)
                         .ThenInclude(p => p!.Images)
                 .FirstOrDefaultAsync(c => c.Id == id);
@@ -30,15 +30,19 @@ namespace keepscape_api.Repositories
         public async Task<Cart?> GetCartByBuyerProfileId(Guid buyerProfileId)
         {
             var cart = await _dbSet
-                .Include(t => t.CartItems)
+                .Include(t => t.Items)
+                    .ThenInclude(t => t.Product)
+                        .ThenInclude(t => t!.SellerProfile)
+                            .ThenInclude(t => t!.User)
+                .Include(t => t.Items)
                     .ThenInclude(t => t.Product)
                         .ThenInclude(t => t!.Images)
                 .AsSplitQuery()
                 .FirstOrDefaultAsync(t => t.BuyerProfileId == buyerProfileId);
 
-            if (cart != null && cart.CartItems != null)
+            if (cart != null && cart.Items != null)
             {
-                cart.CartItems = cart.CartItems.OrderBy(ci => ci.DateTimeCreated).ToList();
+                cart.Items = cart.Items.OrderBy(ci => ci.DateTimeCreated).ToList();
             }
 
             return cart;
@@ -46,11 +50,26 @@ namespace keepscape_api.Repositories
 
         public new async Task<bool> UpdateAsync(Cart cart)
         {
-            foreach (var cartItem in cart.CartItems)
+            foreach (var cartItem in cart.Items)
             {
-                _context.Products.Attach(cartItem.Product!);
-            }
+                var product = cartItem.Product;
+                var sellerProfile = product!.SellerProfile;
+                var buyerProfile = cart.BuyerProfile!;
 
+                if (context.Entry(product).State == EntityState.Detached)
+                {
+                    context.Products.Attach(product);
+                }
+                if (context.Entry(sellerProfile).State == EntityState.Detached)
+                {
+                    _context.SellerProfiles.Attach(cartItem.Product!.SellerProfile!);
+                }
+                if (context.Entry(buyerProfile).State == EntityState.Detached)
+                {
+                    _context.BuyerProfiles.Attach(cart.BuyerProfile!);
+                }
+            }
+            
             return await base.UpdateAsync(cart);
         }
     }

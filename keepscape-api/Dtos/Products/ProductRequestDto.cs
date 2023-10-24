@@ -69,12 +69,8 @@ namespace keepscape_api.Dtos.Products
         public bool? IsHidden { get; init; }
         [Required]
         [MinLength(1, ErrorMessage = $"{nameof(CategoryIds)} must have at least 1 category")]
-        public IEnumerable<Guid>? CategoryIds { get; init; }
-        public IFormFile? Image1 { get; init; }
-        public IFormFile? Image2 { get; init; }
-        public IFormFile? Image3 { get; init; }
-        public IFormFile? Image4 { get; init; }
-        public IFormFile? Image5 { get; init; }
+        public IEnumerable<Guid>? CategoryIds { get; init; } = new List<Guid>();
+        public IDictionary<string, IFormFile>? Images { get; init; } = new Dictionary<string, IFormFile>();
     }
 
     public record ProductCategoryPlaceCreateDto

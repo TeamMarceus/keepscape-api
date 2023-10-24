@@ -4,8 +4,8 @@
     {
         public Guid? SellerProfileId { get; set; }
         public string Search { get; set; } = string.Empty;
-        public string Province { get; set; } = string.Empty;
-        public string Category { get; set; } = string.Empty;
+        public IEnumerable<string> Provinces { get; set; } = new List<string>();
+        public IEnumerable<string> Categories { get; set; } = new List<string>();
         public int? Rating { get; set; }
         public decimal? MinPrice { get; set; }
         public decimal? MaxPrice { get; set; }

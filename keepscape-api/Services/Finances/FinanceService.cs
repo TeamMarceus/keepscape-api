@@ -123,10 +123,11 @@ namespace keepscape_api.Services.Finances
 
             var balanceWithdrawal = await _balanceWithdrawalRepository.GetByIdAsync(balanceWithdrawalId);
 
-            if (balanceWithdrawal == null)
+            if (balanceWithdrawal == null || balanceWithdrawal.Status != PaymentStatus.Pending)
             {
                 return false;
             }
+
             var balance = await _balanceRepository.GetByIdAsync(balanceWithdrawal.BalanceId);
 
             if (balance == null)
