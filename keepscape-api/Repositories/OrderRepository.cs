@@ -209,5 +209,13 @@ namespace keepscape_api.Repositories
 
             return await base.AddAsync(order);
         }
+
+        public async Task<int> GetByBuyerProfileIdCount(Guid buyerProfileId)
+        {
+            return await _dbSet.CountAsync(
+                o => o.BuyerProfileId == buyerProfileId && 
+                o.Status == OrderStatus.AwaitingBuyer
+            );
+        }
     }
 }

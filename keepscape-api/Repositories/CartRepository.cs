@@ -54,17 +54,17 @@ namespace keepscape_api.Repositories
             {
                 var product = cartItem.Product;
                 var sellerProfile = product!.SellerProfile;
-                var buyerProfile = cart.BuyerProfile!;
+                var buyerProfile = cart.BuyerProfile;
 
-                if (context.Entry(product).State == EntityState.Detached)
+                if (product != null)
                 {
-                    context.Products.Attach(product);
+                    _context.Products.Attach(product);
                 }
-                if (context.Entry(sellerProfile).State == EntityState.Detached)
+                if (sellerProfile != null)
                 {
                     _context.SellerProfiles.Attach(cartItem.Product!.SellerProfile!);
                 }
-                if (context.Entry(buyerProfile).State == EntityState.Detached)
+                if (buyerProfile != null)
                 {
                     _context.BuyerProfiles.Attach(cart.BuyerProfile!);
                 }

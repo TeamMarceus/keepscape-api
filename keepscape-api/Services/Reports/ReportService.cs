@@ -182,10 +182,10 @@ namespace keepscape_api.Services.Reports
                         $"<p>Thank you for using Keepscape!</p>";
 
             var sellerEmail = $"<p>Hi {order.SellerProfile!.User!.FirstName},</p>" +
-                        $"<p>Your order with id {order.Id} has been refunded.</p>" +
+                        $"<p>We have refunded the buyer with the order with id {order.Id}</p>" +
                         $"<p>We have found that the buyer's report to be factual.</p>" +
                         $"<p>Reason: {order.OrderReport.Reason}</p>" +
-                        $"<p>Thank you for using Keepscape!</p>";
+                        $"<p>Please abide with the Terms of Service to ensure a good marketplace.</p>";
 
             await _emailService.SendEmailAsync(order.BuyerProfile!.User!.Email, "Order Refunded", buyerEmail);
             await _emailService.SendEmailAsync(order.SellerProfile!.User!.Email, "Order Refunded", sellerEmail);

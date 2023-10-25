@@ -143,7 +143,9 @@ namespace keepscape_api.Services.Finances
                     Remarks = "Withdrawal Approved",
                 });
 
-                var emailString = $"Your withdrawal request has been approved. Please wait for 3-5 business days for the money to be transferred to your account. Thank you.";
+                var emailString = $"<p>Your withdrawal request has been approved.</p>" +
+                    $"<p>Please wait for 3-5 business days for the money to be transferred to your account.</p>" +
+                    $"<p>Thank you for using Keepscape.</p>";
                 await _emailService.SendEmailAsync(balanceWithdrawal.Balance!.User!.Email, "Withdrawal Approved", emailString);
 
             } 
@@ -156,7 +158,9 @@ namespace keepscape_api.Services.Finances
                     Remarks = $"Withdrawal Rejected, Reason: {balanceWithdrawalUpdateDto.Reason}",
                 });
 
-                var emailString = $"Your withdrawal request has been rejected. Reason: {balanceWithdrawalUpdateDto.Reason}. Please contact us for more information. Thank you.";
+                var emailString = $"<p>Your withdrawal request has been rejected.</p>" +
+                    $"<p>Reason: {balanceWithdrawalUpdateDto.Reason}.</p>" +
+                    $"Please contact us for more information. Thank you.</p>";
                 await _emailService.SendEmailAsync(balanceWithdrawal.Balance!.User!.Email, "Withdrawal Rejected", emailString);  
             }
             balanceWithdrawal.Status = status;

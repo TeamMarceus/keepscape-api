@@ -81,11 +81,11 @@ namespace keepscape_api.Dtos.Orders
     public record OrderAdminResponsePaginatedDto
     {
         public IEnumerable<OrderAdminResponseDto> Orders { get; init; } = new List<OrderAdminResponseDto>();
-        public int PageCount { get; init; }
+        public int PageCount { get; init; } = 0;
     }
     public record OrderSellerResponsePaginatedDto
     {
         public IEnumerable<OrderSellerResponseDto> Orders { get; init; } = new List<OrderSellerResponseDto>();
-        public int PageCount { get; init; }
+        public int PageCount { get; init; } = 0;
     }
 }

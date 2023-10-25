@@ -21,7 +21,7 @@ namespace keepscape_api.Dtos.Finances
     public record BalanceWithdrawalPaginatedResponseDto
     {
         public IEnumerable<BalanceWithdrawalResponseDto> BalanceWithdrawals { get; init; } = new List<BalanceWithdrawalResponseDto>();
-        public int PageCount { get; init; }
+        public int PageCount { get; init; } = 0;
     }
 
     public record BalanceLogResponseDto

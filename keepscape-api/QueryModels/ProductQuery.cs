@@ -3,7 +3,7 @@
     public class ProductQuery : PaginatorQuery
     {
         public Guid? SellerProfileId { get; set; }
-        public string Search { get; set; } = string.Empty;
+        public string? Search { get; set; }
         public IEnumerable<string> Provinces { get; set; } = new List<string>();
         public IEnumerable<string> Categories { get; set; } = new List<string>();
         public int? Rating { get; set; }

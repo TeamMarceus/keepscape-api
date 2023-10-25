@@ -190,6 +190,40 @@ namespace keepscape_api.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
+        // Sellers
+        [HttpGet("~/api/sellers/products")]
+        [Authorize(Policy = "Seller")]
+        public async Task<IActionResult> GetBySeller([FromQuery] ProductQuery productQueryParameters)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var sellerId = Guid.TryParse(User.FindFirstValue("UserId"), out Guid sellerIdParsed) ? sellerIdParsed : Guid.Empty;
+
+                if (sellerId == Guid.Empty)
+                {
+                    return BadRequest("Invalid credentials.");
+                }
+
+                var products = await _productService.GetBySellerId(sellerId, productQueryParameters);
+
+                if (products == null)
+                {
+                    return NoContent();
+                }
+
+                return Ok(products);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_productService.GetBySellerId)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
 
         // Categories
         [HttpPost("categories")]

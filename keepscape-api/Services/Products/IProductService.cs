@@ -15,6 +15,7 @@ namespace keepscape_api.Services.Products
         Task<bool> UpdateCategory(Guid categoryId, IFormFile image);
         Task<ProductResponseDto?> GetById(Guid productId);
         Task<ProductResponseHomePaginatedDto> Get(ProductQuery productQueryParameters);
+        Task<ProductResponsePaginatedDto?> GetBySellerId(Guid userId, ProductQuery productQueryParameters);
         Task<ProductReviewPaginatedDto> GetReviews(Guid productId, ProductReviewQuery productReviewQuery);
         Task<IEnumerable<ProductResponseDto>> GetAll();
         Task<IEnumerable<ProductCategoryPlaceDto>> GetPlaceCategories();

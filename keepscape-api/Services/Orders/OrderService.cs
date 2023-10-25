@@ -118,6 +118,25 @@ namespace keepscape_api.Services.Orders
             return _mapper.Map<OrderSellerResponseDto>(order);
         }
 
+        public async Task<int> GetBuyerOrdersCount(Guid userId)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+
+            if (user == null)
+            {
+                return 0;
+            }
+
+            var buyerProfileId = user.BuyerProfile != null ? user.BuyerProfile.Id : Guid.Empty;
+
+            if (buyerProfileId == Guid.Empty)
+            {
+                return 0;
+            }
+
+            return await _orderRepository.GetByBuyerProfileIdCount(buyerProfileId);
+        }
+
         public async Task<OrderSellerResponsePaginatedDto?> GetSellerOrders(Guid userId, OrderQuery orderQuery)
         {
             var user = await _userRepository.GetByIdAsync(userId);

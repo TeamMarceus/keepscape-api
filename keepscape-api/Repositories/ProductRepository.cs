@@ -22,6 +22,7 @@ namespace keepscape_api.Repositories
                 .Include(p => p.SellerProfile)
                     .ThenInclude(sp => sp!.User)
                 .Include(p => p.Categories)
+                .Include(p => p.Reviews)
                 .Where(
                     p => !p.IsHidden && 
                     p.Quantity > 0 && 
@@ -124,8 +125,6 @@ namespace keepscape_api.Repositories
                 .Include(p => p.Place)
                 .Include(p => p.Categories)
                 .Include(p => p.Reviews)
-                    .ThenInclude(pr => pr.BuyerProfile)
-                        .ThenInclude(bp => bp!.User)
                 .AsSplitQuery()
                 .FirstOrDefaultAsync(p => p.Id == id);
         }

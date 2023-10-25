@@ -65,16 +65,20 @@ namespace keepscape_api.Dtos.Users
     {
         public string? FirstName { get; init; }
         public string? LastName { get; init; }
+        [Phone]
+        public string? PhoneNumber { get; init; }   
         public string? Preferences { get; init; }
         public string? Interests { get; init; }
         public string? Description { get; init; }
         public string? DeliveryFullName { get; init; }
         public string? DeliveryAddress { get; init; }
+        [Phone]
         public string? AltMobileNumber { get; init; }
     }
     public record UserUpdateSellerDto : UserUpdateBaseDto
     {
         public string? SellerName { get; init; }
+        public string? PhoneNumber { get; init; }
         public string? Description { get; init; }
     }
     public record UserUpdatePasswordDto

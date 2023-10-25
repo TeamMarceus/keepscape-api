@@ -27,7 +27,7 @@
     {
         public IEnumerable<ProductResponseHomeDto> Products { get; init; } = new List<ProductResponseHomeDto>();
 
-        public int PageCount { get; init; } = 1;
+        public int PageCount { get; init; } = 0;
     }
 
     public record ProductResponseAdminDto
@@ -51,15 +51,16 @@
 
     public record ProductReviewDto
     {
-        public string UserName { get; init; } = string.Empty;
-        public string Description { get; init; } = string.Empty;
+        public string FullName { get; init; } = string.Empty;
+        public string Review { get; init; } = string.Empty;
         public int Rating { get; init; }
     }
 
     public record ProductReviewResponseDto
     {
         public Guid Id { get; init; }
-        public string Description { get; init; } = string.Empty;
+        public string FullName { get; init; } = string.Empty;
+        public string Review { get; init; } = string.Empty;
         public int Rating { get; init; }
     }
 
@@ -91,5 +92,13 @@
         public int TotalRatings { get; set; }
         public ProductSellerDto Seller { get; init; } = new ProductSellerDto();
         public IEnumerable<string> Images { get; init; } = new List<string>();
+        public IEnumerable<ProductCategoryPlaceDto> Provinces { get; init; } = new List<ProductCategoryPlaceDto>();
+        public IEnumerable<ProductCategoryPlaceDto> Categories { get; init; } = new List<ProductCategoryPlaceDto>();
+    }
+
+    public record ProductResponsePaginatedDto
+    {
+        public IEnumerable<ProductResponseDto> Products { get; init; } = new List<ProductResponseDto>();
+        public int PageCount { get; init; } = 0;
     }
 }

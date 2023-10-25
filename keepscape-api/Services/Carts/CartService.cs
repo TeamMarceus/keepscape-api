@@ -55,19 +55,25 @@ namespace keepscape_api.Services.Carts
                 return null;
             }
 
-            var existingCartItem = cart.Items.SingleOrDefault(x => x.ProductId == cartRequestDto.ProductId);
+            var existingCartItem = cart.Items.Where(x => x.ProductId == cartRequestDto.ProductId);
 
-            if (existingCartItem != null 
-                && (!existingCartItem.Product!.IsCustomizable || 
-                (existingCartItem.Product.IsCustomizable && existingCartItem.CustomizationMessage == cartRequestDto.CustomizationMessage)))
+            if (!existingCartItem.IsNullOrEmpty() && !existingCartItem.First().Product!.IsCustomizable)
             {
-                existingCartItem.Quantity += cartRequestDto.Quantity;
+                existingCartItem.First().Quantity += cartRequestDto.Quantity;
+            }
+            else if (
+                !existingCartItem.IsNullOrEmpty() && 
+                existingCartItem.Any(x => x.Product!.IsCustomizable) &&
+                existingCartItem.Any(x => x.CustomizationMessage == cartRequestDto.CustomizationMessage)
+            ) 
+            { 
+                existingCartItem.First(x => x.CustomizationMessage == cartRequestDto.CustomizationMessage).Quantity += cartRequestDto.Quantity;
             }
             else
             {
                 var cartItem = new CartItem
                 {
-                    Product = product,
+                    ProductId = product.Id,
                     Quantity = cartRequestDto.Quantity,
                     CustomizationMessage = cartRequestDto.CustomizationMessage ?? ""
                 };

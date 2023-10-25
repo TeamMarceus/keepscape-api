@@ -395,6 +395,14 @@ namespace keepscape_api.Services.Users
             {
                 return false;
             }
+            if (passwordVerificationResult == PasswordVerificationResult.Success && userUpdatePasswordDto.NewPassword == userUpdatePasswordDto.OldPassword)
+            {
+                return false;
+            }
+            if (userUpdatePasswordDto.NewPassword != userUpdatePasswordDto.ConfirmNewPassword)
+            {
+                return false;
+            }
 
             user.Password = passwordHasher.HashPassword(user, userUpdatePasswordDto.NewPassword);
 
@@ -529,6 +537,10 @@ namespace keepscape_api.Services.Users
             {
                 user.LastName = buyer.LastName;
             }
+            if (!string.IsNullOrEmpty(buyer.PhoneNumber))
+            {
+                user.PhoneNumber = buyer.PhoneNumber;
+            }
             if (!string.IsNullOrEmpty(buyer.Preferences))
             {
                 user.BuyerProfile!.Preferences = buyer.Preferences;
@@ -541,6 +553,18 @@ namespace keepscape_api.Services.Users
             {
                 user.BuyerProfile!.Description = buyer.Description;
             }
+            if (!string.IsNullOrEmpty(buyer.DeliveryAddress))
+            {
+                user.BuyerProfile!.DeliveryAddress = buyer.DeliveryAddress;
+            }
+            if (!string.IsNullOrEmpty(buyer.DeliveryFullName))
+            {
+                user.BuyerProfile!.DeliveryFullName = buyer.DeliveryFullName;
+            }
+            if (!string.IsNullOrEmpty(buyer.AltMobileNumber))
+            {
+                user.BuyerProfile!.AltMobileNumber = buyer.AltMobileNumber;
+            }
         }
 
         private void UpdateSeller(ref User user, UserUpdateSellerDto seller)
@@ -548,6 +572,10 @@ namespace keepscape_api.Services.Users
             if (!string.IsNullOrEmpty(seller.Description))
             {
                 user.SellerProfile!.Description = seller.Description;
+            }
+            if (!string.IsNullOrEmpty(seller.PhoneNumber))
+            {
+                user.PhoneNumber = seller.PhoneNumber;
             }
             if (!string.IsNullOrEmpty(seller.SellerName))
             {

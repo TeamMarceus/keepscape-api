@@ -190,7 +190,7 @@ namespace keepscape_api.Services.Products
             {
                 product.IsHidden = productUpdateDto.IsHidden.Value;
             }
-            if (productUpdateDto.Images != null)
+            if (productUpdateDto.Images != null && productUpdateDto.Images.Keys.IsNullOrEmpty())
             {
                foreach (var key in productUpdateDto.Images.Keys)
                {
@@ -218,7 +218,7 @@ namespace keepscape_api.Services.Products
                     productImage.ImageUrl = imageUrl;
                }
             }
-            if (productUpdateDto.CategoryIds != null)
+            if (productUpdateDto.CategoryIds != null && !productUpdateDto.CategoryIds.IsNullOrEmpty())
             {
                 product.Categories.Clear();
 
@@ -499,6 +499,38 @@ namespace keepscape_api.Services.Products
             {
                 Reviews = productReviews.ProductReviews.Select(pr => _mapper.Map<ProductReviewResponseDto>(pr)),
                 PageCount = productReviews.PageCount
+            };
+        }
+
+        public async Task<ProductResponsePaginatedDto?> GetBySellerId(Guid userId, ProductQuery productQueryParameters)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+
+            if (user == null)
+            {
+                return null;
+            }
+
+            if (user.SellerProfile == null)
+            {
+                return null;
+            }
+
+            productQueryParameters.SellerProfileId = user.SellerProfile.Id;
+
+            var productQueryResult = await _productRepository.Get(productQueryParameters);
+
+            var products = productQueryResult.Products;
+
+            if (products.IsNullOrEmpty())
+            {
+                return new ProductResponsePaginatedDto();
+            }
+
+            return new ProductResponsePaginatedDto
+            {
+                Products = products.Select(products => _mapper.Map<ProductResponseDto>(products)),
+                PageCount = productQueryResult.PageCount
             };
         }
     }

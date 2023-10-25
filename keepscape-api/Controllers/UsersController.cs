@@ -207,7 +207,9 @@ namespace keepscape_api.Controllers
 
                 if (!userResponseDto)
                 {
-                    return BadRequest("Invalid email.");
+                    return BadRequest(
+                        "Unable to update password because old password does not match, " +
+                        "or new password is the same as the old password.");
                 }
 
                 return Ok(userResponseDto);
