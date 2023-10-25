@@ -151,7 +151,10 @@ namespace keepscape_api.Repositories
         {
             foreach (var category in product.Categories)
             {
-                _context.Categories.Attach(category);
+                if (_context.Entry(category).State == EntityState.Detached)
+                {
+                    _context.Categories.Attach(category);
+                }
             }
 
             return await base.UpdateAsync(product);

@@ -92,7 +92,7 @@
         public int TotalRatings { get; set; }
         public ProductSellerDto Seller { get; init; } = new ProductSellerDto();
         public IEnumerable<string> Images { get; init; } = new List<string>();
-        public IEnumerable<ProductCategoryPlaceDto> Provinces { get; init; } = new List<ProductCategoryPlaceDto>();
+        public ProductCategoryPlaceDto? Province { get; init; } = null!;
         public IEnumerable<ProductCategoryPlaceDto> Categories { get; init; } = new List<ProductCategoryPlaceDto>();
     }
 

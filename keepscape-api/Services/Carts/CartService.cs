@@ -55,6 +55,11 @@ namespace keepscape_api.Services.Carts
                 return null;
             }
 
+            if (product.Quantity < cartRequestDto.Quantity)
+            {
+                return null;
+            }
+
             var existingCartItem = cart.Items.Where(x => x.ProductId == cartRequestDto.ProductId);
 
             if (!existingCartItem.IsNullOrEmpty() && !existingCartItem.First().Product!.IsCustomizable)
@@ -123,7 +128,7 @@ namespace keepscape_api.Services.Carts
                 {
                     BuyerProfile = user.BuyerProfile,
                     SellerProfileId = sellerId,
-                    Items = items.Select(x => new OrderItem
+                    Items = items.Where(x => x.Product!.Quantity > x.Quantity).Select(x => new OrderItem
                     {
                         Product = x.Product,
                         Quantity = x.Quantity,
@@ -215,14 +220,18 @@ namespace keepscape_api.Services.Carts
                 {
                     Id = seller!.UserId,
                     SellerName = seller.Name,
-                    CartItems = cart.Items.Where(x => x.Product!.SellerProfile!.UserId == seller.UserId).Select(x => _mapper.Map<CartItemResponseDto>(x))
+                    CartItems = cart.Items.Where(x => x.Product!.SellerProfile!.UserId == seller.UserId && x.Product.Quantity > x.Quantity).Select(x => _mapper.Map<CartItemResponseDto>(x)),
                 });
             }
             
+            var message = cart.Items.Any(x => x.Product!.Quantity < x.Quantity) ? "Some items are out of stock" : null;
+            var hiddenItems = cart.Items.Where(x => x.Product!.Quantity < x.Quantity).Select(x => _mapper.Map<CartItemResponseDto>(x));
             return new CartResponseDto
             {
                 Id = cart.Id,
-                CartSellers = cartSellers
+                CartSellers = cartSellers,
+                Message = message,
+                HiddenItems = hiddenItems
             };
         }
 

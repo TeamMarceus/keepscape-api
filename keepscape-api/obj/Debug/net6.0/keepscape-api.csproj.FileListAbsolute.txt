@@ -97,3 +97,4 @@ D:\College\BSCS\CS Year 4\Keepscape\keepscape-api\obj\Debug\net6.0\keepscape-api
 D:\College\BSCS\CS Year 4\Keepscape\keepscape-api\obj\Debug\net6.0\keepscape-api.genruntimeconfig.cache
 D:\College\BSCS\CS Year 4\Keepscape\keepscape-api\obj\Debug\net6.0\ref\keepscape-api.dll
 D:\College\BSCS\CS Year 4\Keepscape\keepscape-api\bin\Debug\net6.0\global.json
+D:\College\BSCS\CS Year 4\Keepscape\keepscape-api\bin\Debug\net6.0\OpenAI_API.dll

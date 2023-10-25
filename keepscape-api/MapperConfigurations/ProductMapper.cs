@@ -57,11 +57,11 @@ namespace keepscape_api.MapperConfigurations
                 .ForMember(dest => dest.TotalRatings, opt => opt.MapFrom(src => src.Reviews != null ? src.Reviews.Count : 0))
                 .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.BuyerPrice))
                 .ForMember(dest => dest.Stars, opt => opt.MapFrom(src => (int)Math.Round(src.Rating)))
-                .ForMember(dest => dest.Provinces, opt => opt.MapFrom(src => src.Place != null ? new List<ProductCategoryPlaceDto> { new ProductCategoryPlaceDto
+                .ForMember(dest => dest.Province, opt => opt.MapFrom(src => src.Place != null ? new ProductCategoryPlaceDto
                 {
                     Id = src.Place.Id,
                     Name = src.Place.Name
-                }} : new List<ProductCategoryPlaceDto>()))
+                } : null))
                 .ForMember(dest => dest.Categories, opt => opt.MapFrom(src => src.Categories != null ? src.Categories.Select(c => new ProductCategoryPlaceDto
                 {
                     Id = c.Id,

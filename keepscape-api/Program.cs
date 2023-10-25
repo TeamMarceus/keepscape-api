@@ -25,6 +25,7 @@ using keepscape_api.Services.Reports;
 using keepscape_api.Services.Finances;
 using keepscape_api.Services.Orders;
 using keepscape_api.Services.Carts;
+using keepscape_api.Services.OpenAI;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -79,6 +80,7 @@ async Task ConfigureServices(IServiceCollection services, IConfiguration configu
     KeyVaultSecret dbSecret = await secretClient.GetSecretAsync("prod-new-db");
     KeyVaultSecret jwtSecret = await secretClient.GetSecretAsync("jwt-secret");
     KeyVaultSecret googleKey = await secretClient.GetSecretAsync("GoogleCloudServiceAccountKey");
+    KeyVaultSecret openAPIKey = await secretClient.GetSecretAsync("open-API-secret");
     configuration["JwtConfig:Secret"] = jwtSecret.Value;
 
     GoogleCredential googleCredential;
@@ -127,6 +129,13 @@ async Task ConfigureServices(IServiceCollection services, IConfiguration configu
     });
     services.Configure<JwtConfig>(configuration.GetSection("JwtConfig"));
     services.Configure<EmailConfig>(configuration.GetSection("EmailConfig"));
+
+    var openAIConfig = new OpenAIConfig
+    {
+        Key = openAPIKey.Value
+    };
+
+    services.AddSingleton(openAIConfig);
 
     services.AddAuthentication(options => 
     {
@@ -187,4 +196,5 @@ async Task ConfigureServices(IServiceCollection services, IConfiguration configu
     services.AddScoped<IFinanceService, FinanceService>();
     services.AddScoped<IOrderService, OrderService>();
     services.AddScoped<ICartService, CartService>();
+    services.AddScoped<IOpenAIService, OpenAIService>();
 }

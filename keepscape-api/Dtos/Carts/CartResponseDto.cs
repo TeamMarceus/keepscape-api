@@ -4,6 +4,8 @@
     {
         public Guid Id { get; set; }
         public IEnumerable<CartSellerDto> CartSellers { get; set; } = new List<CartSellerDto>();
+        public IEnumerable<CartItemResponseDto> HiddenItems { get; set; } = new List<CartItemResponseDto>();
+        public string? Message { get; set; }
     }
 
     public record CartSellerDto

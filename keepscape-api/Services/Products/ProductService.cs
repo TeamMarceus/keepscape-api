@@ -9,6 +9,7 @@ using keepscape_api.Repositories.Interfaces;
 using keepscape_api.Services.BaseImages;
 using keepscape_api.Services.Emails;
 using Microsoft.IdentityModel.Tokens;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace keepscape_api.Services.Products
 {
@@ -162,6 +163,14 @@ namespace keepscape_api.Services.Products
 
         private async Task<Product> UpdateProduct(Product product, ProductUpdateDto productUpdateDto)
         {
+            var newImages = new List<IFormFile?>()
+            {
+                productUpdateDto.Image1,
+                productUpdateDto.Image2,
+                productUpdateDto.Image3,
+                productUpdateDto.Image4,
+                productUpdateDto.Image5
+            };
             if (!string.IsNullOrEmpty(productUpdateDto.Name))
             {
                 product.Name = productUpdateDto.Name;
@@ -190,51 +199,69 @@ namespace keepscape_api.Services.Products
             {
                 product.IsHidden = productUpdateDto.IsHidden.Value;
             }
-            if (productUpdateDto.Images != null && productUpdateDto.Images.Keys.IsNullOrEmpty())
+            if (productUpdateDto.PlaceId != null)
             {
-               foreach (var key in productUpdateDto.Images.Keys)
-               {
-                    var formFile = productUpdateDto.Images[key];
+                var place = await _placeRepository.GetByIdAsync(productUpdateDto.PlaceId.Value);
 
-                    if (formFile == null)
-                    {
-                        continue;
-                    }
-
-                    var imageUrl = await _imageUrlService.Upload("products", formFile);
-
-                    if (imageUrl == null)
-                    {
-                        continue;
-                    }
-
-                    var productImage = product.Images.FirstOrDefault(i => i.ImageUrl.Contains(key));
-
-                    if (productImage == null || !key.Contains("new"))
-                    {
-                        continue;
-                    }
-
-                    productImage.ImageUrl = imageUrl;
-               }
+                if (place != null)
+                {
+                    product.Place = place;
+                }
             }
             if (productUpdateDto.CategoryIds != null && !productUpdateDto.CategoryIds.IsNullOrEmpty())
             {
-                product.Categories.Clear();
+                var currentCategoryIds = product.Categories.Select(c => c.Id).ToList();
 
-                foreach (var categoryId in productUpdateDto.CategoryIds)
+                var categoriesToAdd = productUpdateDto.CategoryIds.Except(currentCategoryIds).ToList();
+
+                var categoriesToRemove = currentCategoryIds.Except(productUpdateDto.CategoryIds).ToList();
+
+                foreach (var categoryId in categoriesToAdd)
                 {
                     var category = await _categoryRepository.GetByIdAsync(categoryId);
-
-                    if (category == null)
+                    if (category != null)
                     {
-                        continue;
+                        product.Categories.Add(category);
                     }
+                }
 
-                    product.Categories.Add(category);
+                foreach (var categoryId in categoriesToRemove)
+                {
+                    var category = product.Categories.FirstOrDefault(c => c.Id == categoryId);
+                    if (category != null)
+                    {
+                        product.Categories.Remove(category);
+                    }
                 }
             }
 
+            if (newImages.Where(image => image != null).Any())
+            {
+                product.Images.Clear();
+
+                var uploadTasks = newImages
+                    .Where(image => image != null)
+                    .Select(async newImage =>
+                    {
+                        var imageUrl = await _imageUrlService.Upload("products", newImage!);
+                        if (imageUrl != null)
+                        {
+                            return new ProductImage
+                            {
+                                ImageUrl = imageUrl
+                            };
+                        }
+                        return null;
+                    });
+
+                var uploadedImages = await Task.WhenAll(uploadTasks);
+
+                foreach (var image in uploadedImages.Where(img => img != null))
+                {
+                    product.Images.Add(image!);
+                }
+            }
+            
             return product;
         }
 
