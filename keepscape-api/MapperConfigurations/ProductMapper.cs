@@ -60,12 +60,14 @@ namespace keepscape_api.MapperConfigurations
                 .ForMember(dest => dest.Province, opt => opt.MapFrom(src => src.Place != null ? new ProductCategoryPlaceDto
                 {
                     Id = src.Place.Id,
-                    Name = src.Place.Name
+                    Name = src.Place.Name,
+                    ImageUrl = src.Place.ImageUrl ?? string.Empty
                 } : null))
                 .ForMember(dest => dest.Categories, opt => opt.MapFrom(src => src.Categories != null ? src.Categories.Select(c => new ProductCategoryPlaceDto
                 {
                     Id = c.Id,
-                    Name = c.Name
+                    Name = c.Name,
+                    ImageUrl = c.ImageUrl ?? string.Empty
                 }) : new List<ProductCategoryPlaceDto>()))
                 ;
         }

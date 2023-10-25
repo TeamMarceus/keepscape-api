@@ -191,7 +191,7 @@ namespace keepscape_api.Controllers
             }
         }
         // Sellers
-        [HttpGet("seller")]
+        [HttpGet("sellers")]
         [Authorize(Policy = "Seller")]
         public async Task<IActionResult> GetBySeller([FromQuery] ProductQuery productQueryParameters)
         {
