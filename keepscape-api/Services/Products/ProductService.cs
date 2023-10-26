@@ -205,7 +205,7 @@ namespace keepscape_api.Services.Products
 
                 if (place != null)
                 {
-                    product.Place = place;
+                    product.PlaceId = place.Id;
                 }
             }
             if (productUpdateDto.CategoryIds != null && !productUpdateDto.CategoryIds.IsNullOrEmpty())
@@ -234,31 +234,33 @@ namespace keepscape_api.Services.Products
                     }
                 }
             }
-
-            if (newImages.Where(image => image != null).Any())
+            if (!productUpdateDto.DeleteUrls.IsNullOrEmpty())
             {
-                product.Images.Clear();
-
-                var uploadTasks = newImages
-                    .Where(image => image != null)
-                    .Select(async newImage =>
-                    {
-                        var imageUrl = await _imageUrlService.Upload("products", newImage!);
-                        if (imageUrl != null)
-                        {
-                            return new ProductImage
-                            {
-                                ImageUrl = imageUrl
-                            };
-                        }
-                        return null;
-                    });
-
-                var uploadedImages = await Task.WhenAll(uploadTasks);
-
-                foreach (var image in uploadedImages.Where(img => img != null))
+                foreach (var url in productUpdateDto.DeleteUrls!)
                 {
-                    product.Images.Add(image!);
+                    var image = product.Images.FirstOrDefault(i => i.ImageUrl == url);
+                    if (image != null)
+                    {
+                        product.Images.Remove(image);
+                    }
+                }
+            }
+            newImages = newImages.Where(image => image != null).ToList();
+            if (newImages.Any())
+            {
+                var imageSpace = 5 - product.Images.Count;
+
+                for (int i = 0; i < imageSpace && i < newImages.Count; i++)
+                {
+                    var imageUrl = await _imageUrlService.Upload("products", newImages[i]!);
+
+                    if (imageUrl != null)
+                    {
+                        product.Images.Add(new ProductImage
+                        {
+                            ImageUrl = imageUrl
+                        });
+                    }
                 }
             }
             

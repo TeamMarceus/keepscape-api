@@ -69,6 +69,7 @@ namespace keepscape_api.Dtos.Products
         public bool? IsHidden { get; init; }
         public Guid? PlaceId { get; init; }
         public IEnumerable<Guid>? CategoryIds { get; init; }
+        public IEnumerable<string>? DeleteUrls { get; init; }
         public IFormFile? Image1 { get; init; }
         public IFormFile? Image2 { get; init; }
         public IFormFile? Image3 { get; init; }
