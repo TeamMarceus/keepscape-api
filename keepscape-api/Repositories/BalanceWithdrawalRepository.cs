@@ -33,14 +33,48 @@ namespace keepscape_api.Repositories
                 .FirstOrDefaultAsync(x => x.Id == Id);
         }
 
-        public async Task<BalanceWithdrawal?> GetByBalanceId(Guid balanceId)
+        public async Task<(IEnumerable<BalanceWithdrawal> BalanceWithdrawals, int PageCount)> GetByBalanceId(Guid balanceId, PaginatorQuery paginatorQuery)
         {
-            return await _dbSet
+            var query = _dbSet
                 .Include(x => x.Balance)
                 .ThenInclude(b => b.User)
                         .ThenInclude(u => u!.SellerProfile)
-                .Where(x => x.Status == PaymentStatus.Pending)
-                .FirstOrDefaultAsync(x => x.BalanceId == balanceId);
+                .Where(x => x.BalanceId == balanceId)
+                .OrderByDescending(x => x.DateTimeCreated)
+                .AsQueryable();
+
+            int pageCount = 1;
+
+            if (query.Count() == 0)
+            {
+                return (await query.ToListAsync(), 0);
+            }
+
+            if (paginatorQuery.Page != null && paginatorQuery.PageSize != null)
+            {
+                int queryPageCount = await query.CountAsync();
+
+                pageCount = (int)Math.Ceiling((double)queryPageCount / (int)paginatorQuery.PageSize);
+
+                if (paginatorQuery.Page > pageCount)
+                {
+                    paginatorQuery.Page = pageCount;
+                }
+                else if (paginatorQuery.Page < 1)
+                {
+                    paginatorQuery.Page = 1;
+                }
+                else if (pageCount == 0)
+                {
+                    pageCount = 1;
+                    paginatorQuery.Page = 1;
+                }
+
+                int skipAmount = ((int)paginatorQuery.Page - 1) * (int)paginatorQuery.PageSize;
+                query = query.Skip(skipAmount).Take((int)paginatorQuery.PageSize);
+            }
+
+            return (await query.ToListAsync(), pageCount);
         }
 
         public async Task<(IEnumerable<BalanceWithdrawal> BalanceWithdrawals, int PageCount)> Get(BalanceWithdrawalQuery balanceWithdrawalQuery)
@@ -49,6 +83,7 @@ namespace keepscape_api.Repositories
                 .Include(x => x.Balance)
                 .ThenInclude(b => b.User)
                         .ThenInclude(u => u!.SellerProfile)
+                .OrderByDescending(x => x.DateTimeCreated)
                 .AsQueryable();
 
             int pageCount = 1;

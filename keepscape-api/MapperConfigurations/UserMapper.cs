@@ -27,6 +27,7 @@ namespace keepscape_api.MapperConfigurations
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.User!.FirstName))
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.User!.LastName))
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(opt => opt.User!.Email))
+                .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.User!.PhoneNumber))
                 .ForMember(dest => dest.IdImageUrl, opt => opt.MapFrom(opt => opt.SellerApplication!.IdImageUrl))
                 .ForMember(dest => dest.BusinessPermitUrl, opt => opt.MapFrom(opt => opt.SellerApplication!.BusinessPermitUrl))
                 .ForMember(dest => dest.DateTimeApproved, opt => opt.MapFrom(src => src.SellerApplication!.DateTimeUpdated))

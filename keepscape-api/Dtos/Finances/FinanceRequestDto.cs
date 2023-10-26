@@ -19,9 +19,8 @@ namespace keepscape_api.Dtos.Finances
         public string PaymentMethod { get; init; } = string.Empty;
         [Required]
         public string PaymentDetails { get; init; } = string.Empty;
-        [Required]
-        public IFormFile PaymentProfileImage { get; init; } = null!;
-        public string Remarks { get; init; } = string.Empty;
+        public IFormFile? PaymentProfileImage { get; init; }
+        public string? Remarks { get; init; }
     }   
 }
     

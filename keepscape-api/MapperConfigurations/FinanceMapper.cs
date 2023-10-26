@@ -15,7 +15,8 @@ namespace keepscape_api.MapperConfigurations
                 .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.Balance.User != null ? src.Balance.User.SellerProfile != null ? $"{src.Balance.User.FirstName} {src.Balance.User.LastName}" : "" : ""))
                 .ForMember(dest => dest.SellerName, opt => opt.MapFrom(src => src.Balance.User != null ? src.Balance.User.SellerProfile != null ? src.Balance.User.SellerProfile.Name : "" : ""))
                 ;
-            CreateMap<BalanceLog, BalanceLogResponseDto>();
+            CreateMap<BalanceLog, BalanceLogResponseDto>()
+                .ForMember(dest => dest.Remarks, opt => opt.MapFrom(src => src.Remarks ?? ""));
             CreateMap<Balance, BalanceResponseDto>()
                 .ForMember(dest => dest.Histories, opt => opt.MapFrom(src => src.Histories.Select(x => new BalanceLogResponseDto
                 {

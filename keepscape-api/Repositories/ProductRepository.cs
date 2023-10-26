@@ -24,8 +24,7 @@ namespace keepscape_api.Repositories
                 .Include(p => p.Categories)
                 .Include(p => p.Reviews)
                 .Where(
-                    p => !p.IsHidden && 
-                    p.Quantity > 0 && 
+                    p => p.Quantity > 0 && 
                     p.SellerProfile!.SellerApplication!.Status == ApplicationStatus.Approved &&
                     p.DateTimeDeleted == null &&
                     !p.SellerProfile.User!.IsBanned

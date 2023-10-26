@@ -116,7 +116,7 @@ namespace keepscape_api.Controllers
         }
 
         [HttpDelete("{cartItemId}")]
-        public async Task<IActionResult> Delete(Guid cartItemId)
+        public async Task<IActionResult> Delete(IEnumerable<Guid> cartItemIds)
         {
             try
             {
@@ -132,7 +132,7 @@ namespace keepscape_api.Controllers
                     return BadRequest("Invalid credentials.");
                 }
 
-                var cart = await _cartService.Delete(userId, cartItemId);
+                var cart = await _cartService.Delete(userId, cartItemIds);
 
                 if (cart == null)
                 {

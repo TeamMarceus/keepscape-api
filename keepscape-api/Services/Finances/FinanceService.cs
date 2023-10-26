@@ -72,8 +72,9 @@ namespace keepscape_api.Services.Finances
                 Amount = balanceWithdrawalCreateDto.Amount,
                 PaymentMethod = Enum.Parse<PaymentMethod>(balanceWithdrawalCreateDto.PaymentMethod),
                 PaymentDetails = balanceWithdrawalCreateDto.PaymentDetails,
-                PaymentProfileImageUrl = await _imageService.Upload("payment-profile", balanceWithdrawalCreateDto.PaymentProfileImage) ?? "",
-                Remarks = balanceWithdrawalCreateDto.Remarks,
+                PaymentProfileImageUrl = balanceWithdrawalCreateDto.PaymentProfileImage != null 
+                ? await _imageService.Upload("payment-profile", balanceWithdrawalCreateDto.PaymentProfileImage) ?? "" : "",
+                Remarks = balanceWithdrawalCreateDto.Remarks ?? "",
                 Status = PaymentStatus.Pending,
             };
 
@@ -101,9 +102,69 @@ namespace keepscape_api.Services.Finances
             return _mapper.Map<BalanceResponseDto>(balance);
         }
 
+        public async Task<BalanceLogResponsePaginatedDto> GetBalanceLogs(Guid userId, PaginatorQuery paginatorQuery)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+
+            if (user == null)
+            {
+                return new BalanceLogResponsePaginatedDto();
+            }
+
+            if (user.Balance == null)
+            {
+                return new BalanceLogResponsePaginatedDto();
+            }
+
+            var balance = await _balanceRepository.GetByIdAsync(user.Balance.Id);
+
+            if (balance == null)
+            {
+                return new BalanceLogResponsePaginatedDto();
+            }
+
+            var logs = await _balanceRepository.GetLogsByBalanceId(balance.Id, paginatorQuery);
+
+            return new BalanceLogResponsePaginatedDto
+            {
+                Logs = logs.BalanceLogs.Select(balanceLog => _mapper.Map<BalanceLogResponseDto>(balanceLog)),
+                PageCount = logs.PageCount
+            };
+        }
+
         public async Task<BalanceWithdrawalPaginatedResponseDto> GetBalanceWithdrawals(BalanceWithdrawalQuery balanceWithdrawalQuery)
         {
             var balanceWithdrawalsQuery = await _balanceWithdrawalRepository.Get(balanceWithdrawalQuery);
+
+            return new BalanceWithdrawalPaginatedResponseDto
+            {
+                BalanceWithdrawals = balanceWithdrawalsQuery.BalanceWithdrawals.Select(balanceWithdrawal => _mapper.Map<BalanceWithdrawalResponseDto>(balanceWithdrawal)),
+                PageCount = balanceWithdrawalsQuery.PageCount
+            };
+        }
+
+        public async Task<BalanceWithdrawalPaginatedResponseDto> GetBalanceWithdrawals(Guid userId, PaginatorQuery paginatorQuery)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+
+            if (user == null)
+            {
+                return new BalanceWithdrawalPaginatedResponseDto();
+            }
+
+            if (user.Balance == null)
+            {
+                return new BalanceWithdrawalPaginatedResponseDto();
+            }
+
+            var balance = await _balanceRepository.GetByIdAsync(user.Balance.Id);
+
+            if (balance == null)
+            {
+                return new BalanceWithdrawalPaginatedResponseDto();
+            }
+
+            var balanceWithdrawalsQuery = await _balanceWithdrawalRepository.GetByBalanceId(balance.Id, paginatorQuery);
 
             return new BalanceWithdrawalPaginatedResponseDto
             {

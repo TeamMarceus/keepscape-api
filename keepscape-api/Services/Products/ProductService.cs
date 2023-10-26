@@ -183,7 +183,7 @@ namespace keepscape_api.Services.Products
             {
                 product.BuyerPrice = productUpdateDto.BuyerPrice.Value;
             }
-            if (productUpdateDto.SellerPrice != null)
+            if (productUpdateDto.SellerPrice != null && productUpdateDto.SellerPrice < productUpdateDto.BuyerPrice)
             {
                 product.SellerPrice = productUpdateDto.SellerPrice.Value;
             }

@@ -145,7 +145,7 @@ namespace keepscape_api.Services.Carts
             return await _cartRepository.UpdateAsync(cart);
         }
 
-        public async Task<CartResponseDto?> Delete(Guid userId, Guid cartItemId)
+        public async Task<CartResponseDto?> Delete(Guid userId, IEnumerable<Guid> cartItemIds)
         {
             var user = await _userRepository.GetByIdAsync(userId);
 
@@ -166,15 +166,13 @@ namespace keepscape_api.Services.Carts
                 return null;
             }
 
-            var cartItem = cart.Items.SingleOrDefault(x => x.Id == cartItemId);
-
-            if (cartItem == null)
+            var cartItems = cart.Items.Where(x => cartItemIds.Contains(x.Id));
+            
+            foreach(var cartItem in cartItems)
             {
-                return null;
+                cart.Items.Remove(cartItem);
             }
-
-            cart.Items.Remove(cartItem);
-
+            
             await _cartRepository.UpdateAsync(cart);
 
             return await Get(userId);

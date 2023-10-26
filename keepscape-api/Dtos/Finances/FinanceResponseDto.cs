@@ -16,6 +16,7 @@ namespace keepscape_api.Dtos.Finances
         public string? PaymentProofImageUrl { get; set; }
         public string Remarks { get; set; } = string.Empty;
         public string Status { get; set; } = PaymentStatus.Pending.ToString();
+        public DateTime DateTimeCreated { get; set; }
     }
 
     public record BalanceWithdrawalPaginatedResponseDto
@@ -29,6 +30,7 @@ namespace keepscape_api.Dtos.Finances
         public Guid Id { get; init; }
         public decimal Amount { get; init; }
         public string Remarks { get; init; } = string.Empty;
+        public DateTime DateTimeCreated { get; init; }
     }
     public record BalanceResponseDto
     {
@@ -36,5 +38,11 @@ namespace keepscape_api.Dtos.Finances
         public decimal Amount { get; init; }
         public IEnumerable<BalanceLogResponseDto> Histories { get; init; } = new List<BalanceLogResponseDto>();
         public IEnumerable<BalanceWithdrawalResponseDto> Withdrawals { get; init; } = new List<BalanceWithdrawalResponseDto>();
+    }
+
+    public record BalanceLogResponsePaginatedDto
+    {
+        public IEnumerable<BalanceLogResponseDto> Logs { get; init; } = new List<BalanceLogResponseDto>();
+        public int PageCount { get; init; } = 0;
     }
 }

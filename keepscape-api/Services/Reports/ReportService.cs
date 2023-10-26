@@ -216,7 +216,7 @@ namespace keepscape_api.Services.Reports
                 item.Product!.TotalSold += item.Quantity;
             }
 
-            var balance = await _balanceRepository.GetBalanceByUserId(order.SellerProfile!.UserId);
+            var balance = await _balanceRepository.GetByUserId(order.SellerProfile!.UserId);
 
             if (balance == null)
             {

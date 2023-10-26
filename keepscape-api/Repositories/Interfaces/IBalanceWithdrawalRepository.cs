@@ -6,7 +6,7 @@ namespace keepscape_api.Repositories.Interfaces
 {
     public interface IBalanceWithdrawalRepository : IBaseRepository<BalanceWithdrawal>
     {
-        Task<BalanceWithdrawal?> GetByBalanceId(Guid balanceId);
+        Task<(IEnumerable<BalanceWithdrawal> BalanceWithdrawals, int PageCount)> GetByBalanceId(Guid balanceId, PaginatorQuery paginatorQuery);
         Task<(IEnumerable<BalanceWithdrawal> BalanceWithdrawals, int PageCount)> Get(BalanceWithdrawalQuery balanceWithdrawalQuery);
     }
 }

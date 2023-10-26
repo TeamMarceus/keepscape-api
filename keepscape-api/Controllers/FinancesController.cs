@@ -22,7 +22,8 @@ namespace keepscape_api.Controllers
             _financeService = financeService;
         }
 
-        [HttpGet("balance")]
+        // Sellers
+        [HttpGet("seller/balance")]
         [Authorize(Policy = "Seller")]
         public async Task<IActionResult> GetBalance()
         {
@@ -51,7 +52,7 @@ namespace keepscape_api.Controllers
             }
         }
 
-        [HttpPost("balance/withdrawals")]
+        [HttpPost("seller/balance/withdrawals")]
         [Authorize(Policy = "Seller")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> CreateBalanceWithdrawal([FromForm] BalanceWithdrawalCreateDto balanceWithdrawalCreateDto)
@@ -86,7 +87,66 @@ namespace keepscape_api.Controllers
             }
         }
 
-        [HttpGet("balance/withdrawals")]
+        [HttpGet("seller/balance/logs")]
+        [Authorize(Policy = "Seller")]
+        public async Task<IActionResult> GetBalanceLogs([FromQuery] PaginatorQuery paginatorQuery)
+        {
+            try
+            {
+                var userId = Guid.TryParse(User.FindFirstValue("UserId"), out var id) ? id : Guid.Empty;
+
+                if (userId == Guid.Empty)
+                {
+                    return BadRequest("Invalid credentials.");
+                }
+
+                var balanceLogs = await _financeService.GetBalanceLogs(userId, paginatorQuery);
+
+                if (balanceLogs == null)
+                {
+                    return NoContent();
+                }
+
+                return Ok(balanceLogs);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_financeService.GetBalanceLogs)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpGet("seller/balance/withdrawals")]
+        [Authorize(Policy = "Seller")]
+        public async Task<IActionResult> GetBalanceWithdrawals([FromQuery] PaginatorQuery paginatorQuery)
+        {
+            try
+            {
+                var userId = Guid.TryParse(User.FindFirstValue("UserId"), out var id) ? id : Guid.Empty;
+
+                if (userId == Guid.Empty)
+                {
+                    return BadRequest("Invalid credentials.");
+                }
+
+                var balanceWithdrawals = await _financeService.GetBalanceWithdrawals(userId, paginatorQuery);
+
+                if (balanceWithdrawals == null)
+                {
+                    return NoContent();
+                }
+
+                return Ok(balanceWithdrawals);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_financeService.GetBalanceWithdrawals)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        // Admin
+        [HttpGet("admin/balance/withdrawals")]
         [Authorize(Policy = "Admin")]
         public async Task<IActionResult> GetBalanceWithdrawals([FromQuery] BalanceWithdrawalQuery balanceWithdrawalQuery)
         {
@@ -108,7 +168,7 @@ namespace keepscape_api.Controllers
             }
         }
 
-        [HttpPut("balance/withdrawals/{balanceWithdrawalId}")]
+        [HttpPut("admin/balance/withdrawals/{balanceWithdrawalId}")]
         [Authorize(Policy = "Admin")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> UpdateBalanceWithdrawal(Guid balanceWithdrawalId, [FromForm] BalanceWithdrawalUpdateDto balanceWithdrawalUpdateDto)

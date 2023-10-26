@@ -34,13 +34,13 @@
     {
         public Guid Id { get; init; }
         public Guid SellerUserId { get; init; }
-        public DateTime DateTimeCreated { get; init; }
         public string Name { get; init; } = string.Empty;
         public decimal Price { get; init; }
         public int Quantity { get; init; }
         public IEnumerable<string> ImageUrls { get; init; } = new List<string>();
         public int TotalSold { get; init; }
         public int TotalReports { get; init; }
+        public DateTime DateTimeCreated { get; init; }
     }
 
     public record ProductResponseAdminPaginatedDto
@@ -62,6 +62,7 @@
         public string FullName { get; init; } = string.Empty;
         public string Review { get; init; } = string.Empty;
         public int Rating { get; init; }
+        public DateTime DateTimeCreated { get; init; }
     }
 
     public record ProductReviewPaginatedDto
@@ -90,6 +91,7 @@
         public bool IsHidden { get; init; }
         public int TotalSold { get; set; }
         public int TotalRatings { get; set; }
+        public DateTime DateTimeCreated { get; init; }
         public ProductSellerDto Seller { get; init; } = new ProductSellerDto();
         public IEnumerable<string> Images { get; init; } = new List<string>();
         public ProductCategoryPlaceDto? Province { get; init; } = null!;

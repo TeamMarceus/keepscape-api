@@ -1,5 +1,6 @@
 D:\College\BSCS\CS Year 4\Keepscape\keepscape-api\bin\Debug\net6.0\appsettings.Development.json
 D:\College\BSCS\CS Year 4\Keepscape\keepscape-api\bin\Debug\net6.0\appsettings.json
+D:\College\BSCS\CS Year 4\Keepscape\keepscape-api\bin\Debug\net6.0\global.json
 D:\College\BSCS\CS Year 4\Keepscape\keepscape-api\bin\Debug\net6.0\keepscape-18ce1c8b88ee.json
 D:\College\BSCS\CS Year 4\Keepscape\keepscape-api\bin\Debug\net6.0\keepscape-api.exe
 D:\College\BSCS\CS Year 4\Keepscape\keepscape-api\bin\Debug\net6.0\keepscape-api.deps.json
@@ -53,6 +54,7 @@ D:\College\BSCS\CS Year 4\Keepscape\keepscape-api\bin\Debug\net6.0\Microsoft.Sql
 D:\College\BSCS\CS Year 4\Keepscape\keepscape-api\bin\Debug\net6.0\Microsoft.Win32.SystemEvents.dll
 D:\College\BSCS\CS Year 4\Keepscape\keepscape-api\bin\Debug\net6.0\Mono.TextTemplating.dll
 D:\College\BSCS\CS Year 4\Keepscape\keepscape-api\bin\Debug\net6.0\Newtonsoft.Json.dll
+D:\College\BSCS\CS Year 4\Keepscape\keepscape-api\bin\Debug\net6.0\OpenAI_API.dll
 D:\College\BSCS\CS Year 4\Keepscape\keepscape-api\bin\Debug\net6.0\Swashbuckle.AspNetCore.Swagger.dll
 D:\College\BSCS\CS Year 4\Keepscape\keepscape-api\bin\Debug\net6.0\Swashbuckle.AspNetCore.SwaggerGen.dll
 D:\College\BSCS\CS Year 4\Keepscape\keepscape-api\bin\Debug\net6.0\Swashbuckle.AspNetCore.SwaggerUI.dll
@@ -96,5 +98,3 @@ D:\College\BSCS\CS Year 4\Keepscape\keepscape-api\obj\Debug\net6.0\refint\keepsc
 D:\College\BSCS\CS Year 4\Keepscape\keepscape-api\obj\Debug\net6.0\keepscape-api.pdb
 D:\College\BSCS\CS Year 4\Keepscape\keepscape-api\obj\Debug\net6.0\keepscape-api.genruntimeconfig.cache
 D:\College\BSCS\CS Year 4\Keepscape\keepscape-api\obj\Debug\net6.0\ref\keepscape-api.dll
-D:\College\BSCS\CS Year 4\Keepscape\keepscape-api\bin\Debug\net6.0\global.json
-D:\College\BSCS\CS Year 4\Keepscape\keepscape-api\bin\Debug\net6.0\OpenAI_API.dll

@@ -65,7 +65,10 @@ namespace keepscape_api.Repositories
                     .ThenInclude(b => b!.Histories)
                 .Include(u => u.Balance)
                     .ThenInclude(b => b!.Withdrawals)
-                .Where(u => u.UserType == userType);
+                .Where(
+                    u => u.UserType == userType &&
+                    u.SellerProfile!.SellerApplication!.Status == ApplicationStatus.Approved
+                );
             }
             else
             {
@@ -78,9 +81,10 @@ namespace keepscape_api.Repositories
             if (!string.IsNullOrEmpty(userQuery.Search))
             {
                 query = query.Where(
-                        u => u.FirstName.Contains(userQuery.Search) || 
+                        u => u.FirstName.Contains(userQuery.Search) ||
                         u.LastName.Contains(userQuery.Search) ||
-                        u.Email.Contains(userQuery.Search)
+                        u.Email.Contains(userQuery.Search) ||
+                        (u.SellerProfile != null && u.SellerProfile.Name.Contains(userQuery.Search))
                         );
             }
 
