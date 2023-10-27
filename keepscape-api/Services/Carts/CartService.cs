@@ -132,7 +132,8 @@ namespace keepscape_api.Services.Carts
                     {
                         Product = x.Product,
                         Quantity = x.Quantity,
-                        CustomizationMessage = x.CustomizationMessage
+                        CustomizationMessage = x.CustomizationMessage,
+                        Price = x.Product!.BuyerPrice * x.Quantity
                     }).ToList(),
                     TotalPrice = items.Sum(x => x.Product!.BuyerPrice * x.Quantity)
                 };
