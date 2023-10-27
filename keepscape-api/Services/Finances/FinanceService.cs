@@ -92,9 +92,21 @@ namespace keepscape_api.Services.Finances
                 return null;
             }
 
-            if (user.Balance == null)
+            if (user.UserType != UserType.Seller)
             {
                 return null;
+            }
+
+            if (user.Balance == null)
+            {
+                user.Balance = new Balance
+                {
+                    Amount = 0,
+                    Histories = new List<BalanceLog>(),
+                    Withdrawals = new List<BalanceWithdrawal>(),
+                };
+
+                await _userRepository.UpdateAsync(user);
             }
 
             var balance = await _balanceRepository.GetByIdAsync(user.Balance.Id);

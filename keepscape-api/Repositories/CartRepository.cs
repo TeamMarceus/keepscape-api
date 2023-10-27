@@ -52,18 +52,8 @@ namespace keepscape_api.Repositories
         {
             foreach (var cartItem in cart.Items)
             {
-                var product = cartItem.Product;
-                var sellerProfile = product!.SellerProfile;
                 var buyerProfile = cart.BuyerProfile;
 
-                if (product != null)
-                {
-                    _context.Products.Attach(product);
-                }
-                if (sellerProfile != null)
-                {
-                    _context.SellerProfiles.Attach(cartItem.Product!.SellerProfile!);
-                }
                 if (buyerProfile != null)
                 {
                     _context.BuyerProfiles.Attach(cart.BuyerProfile!);

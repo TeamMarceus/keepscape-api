@@ -53,7 +53,13 @@ namespace keepscape_api.Repositories
             }
             if (!string.IsNullOrEmpty(productQueryParameters.Search))
             {
-                query = query.Where(p => p.Name.Contains(productQueryParameters.Search));
+                query = query.Where(
+                    p => p.Name.Contains(productQueryParameters.Search) ||
+                    p.Description.Contains(productQueryParameters.Search) ||
+                    p.Place!.Name.Contains(productQueryParameters.Search) ||
+                    p.Categories.Any(x => x.Name.Contains(productQueryParameters.Search)) || 
+                    p.SellerProfile!.Name.Contains(productQueryParameters.Search)
+                );
             }
             if (productQueryParameters.Descending)
             {

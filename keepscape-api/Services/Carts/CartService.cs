@@ -126,7 +126,7 @@ namespace keepscape_api.Services.Carts
 
                 var order = new Order
                 {
-                    BuyerProfile = user.BuyerProfile,
+                    BuyerProfileId = user.BuyerProfile.Id,
                     SellerProfileId = sellerId,
                     Items = items.Where(x => x.Product!.Quantity > x.Quantity).Select(x => new OrderItem
                     {

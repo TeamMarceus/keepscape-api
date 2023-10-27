@@ -44,7 +44,7 @@ namespace keepscape_api.Services.Orders
                 return null;
             }
 
-            if (order.Status != OrderStatus.Pending || order.Status != OrderStatus.AwaitingBuyer)
+            if (order.Status != OrderStatus.Pending && order.Status != OrderStatus.AwaitingBuyer)
             {
                 return null;
             }
@@ -77,11 +77,17 @@ namespace keepscape_api.Services.Orders
             {
                 return null;
             }
+            var dateTime = orderDeliveryLogRequestDto.DateTime;
+
+            if (dateTime > DateTime.Now)
+            {
+                return null;
+            }
 
             order.DeliveryLogs.Add(new OrderDeliveryLog
             {
                 Log = orderDeliveryLogRequestDto.Log,
-                DateTime = orderDeliveryLogRequestDto.DateTime
+                DateTime = dateTime
             });
 
             await _orderRepository.UpdateAsync(order);
@@ -153,7 +159,7 @@ namespace keepscape_api.Services.Orders
                 return null;
             }
 
-            var (orders, pageCount) = await _orderRepository.GetForSeller(orderQuery);
+            var (orders, pageCount) = await _orderRepository.GetForSeller(sellerProfileId, orderQuery);
             var orderSellerResponseDtos = _mapper.Map<IEnumerable<OrderSellerResponseDto>>(orders);
             return new OrderSellerResponsePaginatedDto
             {

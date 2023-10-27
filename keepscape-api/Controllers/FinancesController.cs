@@ -40,7 +40,7 @@ namespace keepscape_api.Controllers
 
                 if (balance == null)
                 {
-                    return BadRequest("Invalud credentials.");
+                    return BadRequest("Invalid credentials.");
                 }
 
                 return Ok(balance);

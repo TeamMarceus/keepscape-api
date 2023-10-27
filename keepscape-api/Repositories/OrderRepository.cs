@@ -71,7 +71,7 @@ namespace keepscape_api.Repositories
                 .ToListAsync();
         }
 
-        public async Task<(IEnumerable<Order> Orders, int PageCount)> GetForSeller(OrderQuery orderQuery)
+        public async Task<(IEnumerable<Order> Orders, int PageCount)> GetForSeller(Guid sellerProfileId, OrderQuery orderQuery)
         {
             var query = _dbSet
                 .Include(o => o.BuyerProfile)
@@ -82,6 +82,7 @@ namespace keepscape_api.Repositories
                 .Include(o => o.DeliveryLogs)
                 .Include(o => o.Items)
                     .ThenInclude(oi => oi.Product)
+                .Where(p => p.SellerProfileId == sellerProfileId)
                 .AsQueryable();
 
             int pageCount = 1;
@@ -95,6 +96,10 @@ namespace keepscape_api.Repositories
                 {
                     query = query.Where(o => o.Status == OrderStatus.Cancelled || o.Status == OrderStatus.Delivered || o.Status == OrderStatus.Refunded);
                 }
+                else if (orderQuery.Status == "Onhold")
+                {
+                    query = query.Where(o => o.Status == OrderStatus.AwaitingConfirmation || o.Status == OrderStatus.AwaitingBuyer);
+                }
                 else
                 {
                     var orderStatus = Enum.TryParse<OrderStatus>(orderQuery.Status, out var status);
@@ -104,6 +109,14 @@ namespace keepscape_api.Repositories
                         query = query.Where(o => o.Status == status);
                     }
                 }     
+            }
+            if (!string.IsNullOrEmpty(orderQuery.Search))
+            {
+                query = query.Where(
+                    x => x.BuyerProfile!.User!.FirstName.Contains(orderQuery.Search) ||
+                    x.BuyerProfile!.User!.LastName.Contains(orderQuery.Search) ||
+                    x.Items.Any(oi => oi.Product!.Name.Contains(orderQuery.Search)) ||
+                    x.DateTimeCreated.ToString().Contains(orderQuery.Search));
             }
             if (query.Count() == 0)
             {
