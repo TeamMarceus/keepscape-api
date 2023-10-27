@@ -79,6 +79,7 @@ namespace keepscape_api.MapperConfigurations
                     Id = i.Id,
                     ProductId = i.ProductId,
                     ProductName = i.Product != null ? i.Product.Name : "",
+                    ProductImageUrl = i.Product != null ? !i.Product.Images.IsNullOrEmpty() ? i.Product.Images.First().ImageUrl : "" : "",
                     CustomizedMessage = i.CustomizationMessage ?? "",
                     Quantity = i.Quantity,
                     Price = i.Price,

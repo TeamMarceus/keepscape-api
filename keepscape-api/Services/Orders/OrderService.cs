@@ -79,7 +79,7 @@ namespace keepscape_api.Services.Orders
             }
             var dateTime = orderDeliveryLogRequestDto.DateTime;
 
-            if (dateTime > DateTime.Now)
+            if (dateTime > DateTime.UtcNow)
             {
                 return null;
             }
@@ -190,7 +190,7 @@ namespace keepscape_api.Services.Orders
                 return null;
             }
 
-            order.TotalPrice += order.DeliveryFee;
+            order.TotalPrice += orderUpdateDeliveryFeeDto.DeliveryFee;
             order.DeliveryFee = orderUpdateDeliveryFeeDto.DeliveryFee;
             order.DeliveryFeeProofImageUrl = await _imageService.Upload("delivery-proof", orderUpdateDeliveryFeeDto.DeliveryFeeProofImage);
             order.Status = OrderStatus.AwaitingBuyer;
