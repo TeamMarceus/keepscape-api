@@ -234,6 +234,30 @@ namespace keepscape_api.Services.Carts
             };
         }
 
+        public async Task<int> GetCount(Guid userId)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+
+            if (user == null)
+            {
+                return 0;
+            }
+
+            if (user.BuyerProfile == null)
+            {
+                return 0;
+            }
+
+            var cart = await _cartRepository.GetCartByBuyerProfileId(user.BuyerProfile.Id);
+
+            if (cart == null)
+            {
+                return 0;
+            }
+
+            return cart.Items.Count;
+        }
+
         public async Task<CartResponseDto?> Update(Guid userId, CartUpdateDto cartUpdateDto)
         {
             var user = await _userRepository.GetByIdAsync(userId);

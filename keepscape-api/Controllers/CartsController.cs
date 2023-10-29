@@ -50,6 +50,29 @@ namespace keepscape_api.Controllers
             }
         }
 
+        [HttpGet("count")]
+        public async Task<IActionResult> GetCount()
+        {
+            try
+            {
+                var userId = Guid.TryParse(User.FindFirstValue("UserId"), out var id) ? id : Guid.Empty;
+
+                if (userId == Guid.Empty)
+                {
+                    return BadRequest("Invalid credentials.");
+                }
+
+                var count = await _cartService.GetCount(userId);
+
+                return Ok(count);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_cartService.GetCount)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
         [HttpPost]
         public async Task<IActionResult> AddProduct([FromBody]CartRequestDto cartRequestDto)
         {
