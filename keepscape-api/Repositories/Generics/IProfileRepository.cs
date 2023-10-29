@@ -4,7 +4,7 @@ namespace keepscape_api.Repositories.Generics
 {
     public interface IProfileRepository<T> where T : IProfile
     {
-        Task<T?> GetProfileByUserGuid(Guid userId);
+        Task<T?> GetProfileByUserId(Guid userId);
         Task<int> GetTotalProfileCount();
     }
 }

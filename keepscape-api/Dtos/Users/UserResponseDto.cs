@@ -24,6 +24,7 @@ namespace keepscape_api.Dtos.Users
         public string DeliveryAddress { get; init; } = string.Empty;
         public string AltMobileNumber { get; init; } = string.Empty;
         public string UserType { get; init; } = Enums.UserType.Buyer.ToString();
+        public IDictionary<string, string> CategoryPreference { get; init; } = new Dictionary<string, string>();
     }
 
     public record UserResponseSellerDto : UserResponseBaseDto

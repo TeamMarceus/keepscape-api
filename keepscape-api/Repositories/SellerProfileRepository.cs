@@ -1,6 +1,5 @@
 ﻿using keepscape_api.Data;
 using keepscape_api.Models;
-using keepscape_api.Repositories.Generics;
 using keepscape_api.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -37,7 +36,7 @@ namespace keepscape_api.Repositories
                 .Include(x => x.SellerApplication)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
-        public async Task<SellerProfile?> GetProfileByUserGuid(Guid userId)
+        public async Task<SellerProfile?> GetProfileByUserId(Guid userId)
         {
             return await _dbSet
                 .Include(x => x.User)

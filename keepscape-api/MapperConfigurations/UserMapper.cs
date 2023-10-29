@@ -18,7 +18,9 @@ namespace keepscape_api.MapperConfigurations
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.UserId))
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.User!.FirstName))
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.User!.LastName))
-                .ForMember(dest => dest.Email, opt => opt.MapFrom(opt => opt.User!.Email));
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(opt => opt.User!.Email))
+                .ForMember(dest => dest.CategoryPreference, opt => opt.MapFrom(src => src.BuyerCategoryPreferences != null ?
+                src.BuyerCategoryPreferences.ToDictionary(b => b.Category!.Name, b => b.Description) : null));
 
             CreateMap<SellerProfile, UserResponseSellerDto>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.UserId))
@@ -38,8 +40,13 @@ namespace keepscape_api.MapperConfigurations
                 .ForMember(dest => dest.BuyerProfileId, opt => opt.MapFrom(src => src.BuyerProfile!.Id))
                 .ForMember(dest => dest.Interests, opt => opt.MapFrom(src => src.BuyerProfile!.Interests))
                 .ForMember(dest => dest.Preferences, opt => opt.MapFrom(src => src.BuyerProfile!.Preferences))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.BuyerProfile!.Description));
-
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.BuyerProfile!.Description))
+                .ForMember(dest => dest.DeliveryFullName, opt => opt.MapFrom(src => src.BuyerProfile!.DeliveryFullName))
+                .ForMember(dest => dest.DeliveryAddress, opt => opt.MapFrom(src => src.BuyerProfile!.DeliveryAddress))
+                .ForMember(dest => dest.AltMobileNumber, opt => opt.MapFrom(src => src.BuyerProfile!.AltMobileNumber))
+                .ForMember(dest => dest.CategoryPreference, opt => opt.MapFrom(src => src.BuyerProfile!.BuyerCategoryPreferences!
+                .ToDictionary(b => b.Category!.Name, b => b.Description)));
+   
             CreateMap<User, UserResponseSellerDto>()
                 .ForMember(dest => dest.SellerProfileId, opt => opt.MapFrom(src => src.SellerProfile!.Id))
                 .ForMember(dest => dest.SellerApplicationId, opt => opt.MapFrom(src => src.SellerProfile!.SellerApplication!.Id))

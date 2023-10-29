@@ -72,6 +72,7 @@ namespace keepscape_api.Controllers
         }
 
         [HttpGet]
+        [Consumes("application/x-www-form-urlencoded")]
         public async Task<IActionResult> Get([FromQuery] ProductQuery productQueryParameters)
         {
             try

@@ -1,11 +1,11 @@
 ﻿using keepscape_api.Data;
 using keepscape_api.Models;
-using keepscape_api.Repositories.Generics;
+using keepscape_api.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace keepscape_api.Repositories
 {
-    public class BuyerProfileRepository : BaseRepository<BuyerProfile>, IProfileRepository<BuyerProfile>
+    public class BuyerProfileRepository : BaseRepository<BuyerProfile>, IBuyerProfileRepository
     {
         public BuyerProfileRepository(APIDbContext context) : base(context)
         {
@@ -33,10 +33,12 @@ namespace keepscape_api.Repositories
                 .ToListAsync();
         }
 
-        public Task<BuyerProfile?> GetProfileByUserGuid(Guid userId)
+        public Task<BuyerProfile?> GetProfileByUserId(Guid userId)
         {
             return _dbSet
                 .Include(x => x.User)
+                .Include(x => x.BuyerCategoryPreferences!)
+                    .ThenInclude(x => x.Category)
                 .FirstOrDefaultAsync(x => x.UserId == userId);
         }
 

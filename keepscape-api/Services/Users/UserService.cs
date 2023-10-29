@@ -8,47 +8,55 @@ using keepscape_api.Repositories.Interfaces;
 using keepscape_api.Services.BaseImages;
 using keepscape_api.Services.ConfirmationCodes;
 using keepscape_api.Services.Emails;
+using keepscape_api.Services.OpenAI;
 using keepscape_api.Services.Tokens;
 using Microsoft.AspNetCore.Identity;
+using System.Text.RegularExpressions;
 
 namespace keepscape_api.Services.Users
 {
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
-        private readonly IProfileRepository<BuyerProfile> _buyerProfileRepository;
+        private readonly IBuyerProfileRepository _buyerProfileRepository;
         private readonly ISellerProfileRepository _sellerProfileRepository;
         private readonly ISellerApplicationRepository _sellerApplicationRepository;
+        private readonly ICategoryRepository _categoryRepository;
         private readonly IImageService _baseImageService;
         private readonly ITokenService _tokenService;
         private readonly IEmailService _emailService;
         private readonly IConfirmationCodeService _confirmationCodeService;
+        private readonly IOpenAIService _openAIService;
         private readonly IMapper _mapper;
 
         public UserService(IUserRepository userRepository,          
-            IProfileRepository<BuyerProfile> buyerProfileRepository, 
+            IBuyerProfileRepository buyerProfileRepository, 
             ISellerProfileRepository sellerProfileRepository, 
             ISellerApplicationRepository sellerApplicationRepository,
+            ICategoryRepository categoryRepository,
             IImageService baseImageService,
             ITokenService tokenService,
             IEmailService emailService,
             IConfirmationCodeService confirmationCodeService,
+            IOpenAIService openAIService,
             IMapper mapper)
         {
             _userRepository = userRepository;
             _buyerProfileRepository = buyerProfileRepository;
             _sellerProfileRepository = sellerProfileRepository;
             _sellerApplicationRepository = sellerApplicationRepository;
+            _categoryRepository = categoryRepository;
             _baseImageService = baseImageService;
             _tokenService = tokenService;
             _emailService = emailService;
             _confirmationCodeService = confirmationCodeService;
+            _openAIService = openAIService;
             _mapper = mapper;
         }
 
         public async Task<UserSellerApplicationDto?> GetApplication(Guid userId)
         {
-            var sellerProfile = await _sellerProfileRepository.GetProfileByUserGuid(userId);
+            var sellerProfile = await _sellerProfileRepository.GetProfileByUserId(userId);
 
             if (sellerProfile == null)
             {
@@ -98,7 +106,7 @@ namespace keepscape_api.Services.Users
 
             if (user.UserType == UserType.Buyer)
             {
-                var buyerProfile = await _buyerProfileRepository.GetProfileByUserGuid(user.Id);
+                var buyerProfile = await _buyerProfileRepository.GetProfileByUserId(user.Id);
 
                 if (buyerProfile == null)
                 {
@@ -112,7 +120,7 @@ namespace keepscape_api.Services.Users
 
             if (user.UserType == UserType.Seller)
             {
-                var sellerProfile = await _sellerProfileRepository.GetProfileByUserGuid(user.Id);
+                var sellerProfile = await _sellerProfileRepository.GetProfileByUserId(user.Id);
 
                 if (sellerProfile == null)
                 {
@@ -178,7 +186,7 @@ namespace keepscape_api.Services.Users
 
             if (user.UserType == UserType.Buyer)
             {
-                var buyerProfile = await _buyerProfileRepository.GetProfileByUserGuid(user.Id);
+                var buyerProfile = await _buyerProfileRepository.GetProfileByUserId(user.Id);
 
                 if (buyerProfile == null)
                 {
@@ -192,7 +200,7 @@ namespace keepscape_api.Services.Users
 
             if (user.UserType == UserType.Seller)
             {
-                var sellerProfile = await _sellerProfileRepository.GetProfileByUserGuid(user.Id);
+                var sellerProfile = await _sellerProfileRepository.GetProfileByUserId(user.Id);
 
                 if (sellerProfile == null)
                 {
@@ -452,7 +460,7 @@ namespace keepscape_api.Services.Users
 
             if (user.UserType == UserType.Seller)
             {
-                var sellerProfile = await _sellerProfileRepository.GetProfileByUserGuid(user.Id);
+                var sellerProfile = await _sellerProfileRepository.GetProfileByUserId(user.Id);
 
                 if (sellerProfile == null ||
                     sellerProfile.SellerApplication == null ||
@@ -492,6 +500,10 @@ namespace keepscape_api.Services.Users
             };
 
             var createdUser = await _userRepository.AddAsync(newUser);
+            
+            var buyerProfile = await _buyerProfileRepository.GetProfileByUserId(createdUser.Id);
+
+            createdUser.BuyerProfile = buyerProfile;
 
             return _mapper.Map<UserResponseBuyerDto>(createdUser);
         }
@@ -581,6 +593,115 @@ namespace keepscape_api.Services.Users
             {
                 user.SellerProfile!.Name = seller.SellerName;
             }
+        }
+
+        public async Task<IDictionary<string, string>?> CreateBuyerSuggestions(Guid userId)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+
+            if (user == null)
+            {
+                return null;
+            }
+
+            if (user.UserType != UserType.Buyer)
+            {
+                return null;
+            }
+
+            var categories = await _categoryRepository.GetAllAsync();
+
+            var promptForAI = $"Given the following categories and buyer attitude:\nCategories:\n{string.Join("\n", categories.Select(x => x.Name))}"+
+                $"\nDescription: {user.BuyerProfile!.Description}, Interests: {user.BuyerProfile!.Interests}, Preferences: {user.BuyerProfile!.Preferences}\n"+
+                "Choose strictly the best category that the buyer will most likely love in the list above. Rank the top 3 and explain why in the format:\n"+
+                "\nAddress the description in second person. Connect the description to the nice things in Region 7 in the Philippines.\n"+
+                "[START][1] CategoryName : Description [ENDS HERE]\n" +
+                "[START][2] CategoryName : Description [ENDS HERE]\n" +
+                "[START][3] CategoryName : Description [ENDS HERE]\n"
+                ;
+
+            var response = await _openAIService.Prompt(promptForAI);
+
+            if (response == null)
+            {
+                return null;
+            }
+
+            var categoriesWithDescription = response.Contains("[ENDS HERE]") ? response.Split("[ENDS HERE]") : response.Split("\n");
+
+            var categoriesDescriptionDictionary = new Dictionary<string, string>();
+
+            foreach(var categoryWithDescription in categoriesWithDescription)
+            {
+                var categoryWithDescriptionCleaned = categoryWithDescription.Trim().Replace("\n", "");
+                var categoryWithDescriptionSplit = categoryWithDescriptionCleaned.Split(":");
+
+                if (categoryWithDescriptionSplit.Length != 2)
+                {
+                    continue;
+                }
+
+                var categoryName = categoryWithDescriptionSplit[0].Replace("[START]", "").Trim();
+                var regex = new Regex(@"\[[1-3]\]");
+                categoryName= regex.Replace(categoryName, "", 1).Trim();
+                var categoryDescription = categoryWithDescriptionSplit[1].Trim();
+
+                if (string.IsNullOrEmpty(categoryName) || string.IsNullOrEmpty(categoryDescription))
+                {
+                    continue;
+                }
+                if (categoriesDescriptionDictionary.Any(x => x.Key == categoryName))
+                {
+                    continue;
+                }
+                if (!categories.Any(x => x.Name == categoryName))
+                {
+                    continue;
+                }
+
+                categoriesDescriptionDictionary[categoryName] = categoryDescription;
+            }
+
+            var buyerProfile = await _buyerProfileRepository.GetProfileByUserId(user.Id);
+
+            if (buyerProfile == null)
+            {
+                return null;
+            }
+
+            if (buyerProfile.BuyerCategoryPreferences == null)
+            {
+                buyerProfile.BuyerCategoryPreferences = new List<BuyerCategoryPreference>();
+            }
+            else
+            {
+                buyerProfile.BuyerCategoryPreferences.Clear();
+            }
+
+            foreach (var categoryDescription in categoriesDescriptionDictionary)
+            {
+                var category = categories.FirstOrDefault(x => x.Name == categoryDescription.Key);
+
+                if (category == null)
+                {
+                    continue;
+                }
+
+                var buyerSuggestion = new BuyerCategoryPreference
+                {
+                    CategoryId = category.Id,
+                    Description = categoryDescription.Value
+                };
+
+                if (!buyerProfile.BuyerCategoryPreferences.Any(x => x.CategoryId == category.Id))
+                {
+                    buyerProfile.BuyerCategoryPreferences.Add(buyerSuggestion);
+                }
+            }
+
+            await _buyerProfileRepository.UpdateAsync(buyerProfile);
+
+            return categoriesDescriptionDictionary;
         }
     }
 }

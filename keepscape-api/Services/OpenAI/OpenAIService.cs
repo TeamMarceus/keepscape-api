@@ -12,9 +12,9 @@ namespace keepscape_api.Services.OpenAI
         private readonly OpenAIAPI _client;
         private readonly OpenAIConfig _openAIConfig;
 
-        public OpenAIService(IOptions<OpenAIConfig> openAIConfig)
+        public OpenAIService(OpenAIConfig openAIConfig)
         {
-            _openAIConfig = openAIConfig.Value;
+            _openAIConfig = openAIConfig;
             _client = new OpenAIAPI(_openAIConfig.Key);
         }
 

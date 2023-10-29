@@ -54,6 +54,7 @@ namespace keepscape_api.Repositories
             {
                 query = _dbSet
                 .Include(u => u.BuyerProfile)
+                    .ThenInclude(u => u!.BuyerCategoryPreferences)
                 .Where(u => u.UserType == userType);
             }
             else if (userType == UserType.Seller)

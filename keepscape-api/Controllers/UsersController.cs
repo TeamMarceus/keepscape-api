@@ -284,6 +284,35 @@ namespace keepscape_api.Controllers
             }
         }
 
+        [HttpPut("buyers/suggestions")]
+        [Authorize(Policy = "Buyer")]
+        public async Task<IActionResult> CreateBuyerSuggestions()
+        {
+            try
+            {
+                var userId = Guid.TryParse(User.FindFirstValue("UserId"), out var parsedUserId) ? parsedUserId : Guid.Empty;
+
+                if (userId == Guid.Empty)
+                {
+                    return BadRequest("Invalid user id.");
+                }
+
+                var userResponseDto = await _userService.CreateBuyerSuggestions(userId);
+
+                if (userResponseDto == null)
+                {
+                    return BadRequest("Invalid user id.");
+                }
+
+                return Ok(userResponseDto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_userService.CreateBuyerSuggestions)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
         // Sellers
         [HttpPost("sellers/register")]
         [Consumes("multipart/form-data")]
