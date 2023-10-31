@@ -124,6 +124,32 @@ namespace keepscape_api.Services.Orders
             return _mapper.Map<OrderSellerResponseDto>(order);
         }
 
+        public async Task<OrderBuyerResponsePaginatedDto?> GetBuyerOrders(Guid userId, OrderQuery orderQuery)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+
+            if (user == null)
+            {
+                return null;
+            }
+
+            var buyerProfileId = user.BuyerProfile != null ? user.BuyerProfile.Id : Guid.Empty;
+
+            if (buyerProfileId == Guid.Empty)
+            {
+                return null;
+            }
+
+            var (orders, pageCount) = await _orderRepository.GetForBuyer(buyerProfileId, orderQuery);
+            var orderBuyerResponseDtos = _mapper.Map<IEnumerable<OrderBuyerResponseDto>>(orders);
+
+            return new OrderBuyerResponsePaginatedDto
+            {
+                Orders = orderBuyerResponseDtos,
+                PageCount = pageCount
+            };
+        }
+
         public async Task<int> GetBuyerOrdersCount(Guid userId)
         {
             var user = await _userRepository.GetByIdAsync(userId);

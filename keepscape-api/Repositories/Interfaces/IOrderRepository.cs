@@ -12,5 +12,6 @@ namespace keepscape_api.Repositories.Interfaces
         Task<IEnumerable<Order>> GetByProductId(Guid productId);
         Task<(IEnumerable<Order> Orders, int PageCount)> GetForSeller(Guid sellerProfileId, OrderQuery orderQuery);
         Task<(IEnumerable<Order> Orders, int PageCount)> GetForAdmin(OrderReportQuery orderReportQuery);
+        Task<(IEnumerable<Order> Orders, int PageCount)> GetForBuyer(Guid buyerProfileId, OrderQuery orderQuery);
     }
 }

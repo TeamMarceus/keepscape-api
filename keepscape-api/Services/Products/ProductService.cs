@@ -9,7 +9,6 @@ using keepscape_api.Repositories.Interfaces;
 using keepscape_api.Services.BaseImages;
 using keepscape_api.Services.Emails;
 using Microsoft.IdentityModel.Tokens;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace keepscape_api.Services.Products
 {
@@ -21,6 +20,7 @@ namespace keepscape_api.Services.Products
         private readonly IPlaceRepository _placeRepository;
         private readonly IUserRepository _userRepository;
         private readonly IOrderRepository _orderRepository;
+        private readonly ISellerProfileRepository _sellerProfileRepository;
         private readonly IImageService _imageUrlService;
         private readonly IEmailService _emailService;
         private readonly IMapper _mapper;
@@ -32,6 +32,7 @@ namespace keepscape_api.Services.Products
             IPlaceRepository placeRepository,
             IUserRepository userRepository,
             IOrderRepository orderRepository,
+            ISellerProfileRepository sellerProfileRepository,
             IImageService imageUrlService,
             IEmailService emailService,
             IMapper mapper)
@@ -41,6 +42,7 @@ namespace keepscape_api.Services.Products
             _categoryRepository = categoryRepository;
             _placeRepository = placeRepository;
             _orderRepository = orderRepository;
+            _sellerProfileRepository = sellerProfileRepository;
             _imageUrlService = imageUrlService;
             _emailService = emailService;
             _userRepository = userRepository;
@@ -139,7 +141,11 @@ namespace keepscape_api.Services.Products
                 return null;
             }
 
-            return _mapper.Map<ProductResponseDto>(product);
+            var response =  _mapper.Map<ProductResponseDto>(product);
+
+            response.Seller.TotalSold = await _sellerProfileRepository.TotalSold(response.Seller.SellerProfileId); 
+
+            return response;
         }
 
         public async Task<bool> Update(Guid sellerId, Guid productId, ProductUpdateDto productUpdateDto)
@@ -561,6 +567,22 @@ namespace keepscape_api.Services.Products
                 Products = products.Select(products => _mapper.Map<ProductResponseDto>(products)),
                 PageCount = productQueryResult.PageCount
             };
+        }
+
+        public async Task<ProductSellerDto?> GetSellerProfile(Guid sellerProfileId)
+        {
+            var sellerProfile = await _sellerProfileRepository.GetByIdAsync(sellerProfileId);
+
+            if (sellerProfile == null)
+            {
+                return null;
+            }
+
+            var seller = _mapper.Map<ProductSellerDto>(sellerProfile);
+
+            seller.TotalSold = await _sellerProfileRepository.TotalSold(sellerProfileId);
+
+            return seller;
         }
     }
 }

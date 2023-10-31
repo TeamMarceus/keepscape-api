@@ -70,6 +70,13 @@ namespace keepscape_api.MapperConfigurations
                     ImageUrl = c.ImageUrl ?? string.Empty
                 }) : new List<ProductCategoryPlaceDto>()))
                 ;
+
+            CreateMap<SellerProfile, ProductSellerDto>()
+                .ForMember(dest => dest.SellerProfileId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Stars, opt => opt.MapFrom(src => (int)Math.Round(src.Rating)))
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.User!.Email))
+                .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.User!.PhoneNumber))
+                ;
         }
     }
 }

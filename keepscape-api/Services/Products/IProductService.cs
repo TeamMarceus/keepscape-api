@@ -17,6 +17,7 @@ namespace keepscape_api.Services.Products
         Task<ProductResponseHomePaginatedDto> Get(ProductQuery productQueryParameters);
         Task<ProductResponsePaginatedDto?> GetBySellerId(Guid userId, ProductQuery productQueryParameters);
         Task<ProductReviewPaginatedDto> GetReviews(Guid productId, ProductReviewQuery productReviewQuery);
+        Task<ProductSellerDto?> GetSellerProfile(Guid sellerProfileId);
         Task<IEnumerable<ProductResponseDto>> GetAll();
         Task<IEnumerable<ProductCategoryPlaceDto>> GetPlaceCategories();
         Task<IEnumerable<ProductCategoryPlaceDto>> GetProductCategories();

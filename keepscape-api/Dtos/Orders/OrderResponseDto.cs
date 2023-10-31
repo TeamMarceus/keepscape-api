@@ -78,6 +78,19 @@ namespace keepscape_api.Dtos.Orders
         public string Status { get; init; } = OrderStatus.Pending.ToString();
     }
 
+    public record OrderBuyerResponseDto
+    {
+        public Guid Id { get; init; }
+        public DateTime DateTimeCreated { get; init; }
+        public OrderSellerDto Seller { get; init; } = null!;
+        public IEnumerable<OrderItemResponseDto> Items { get; init; } = new List<OrderItemResponseDto>();
+        public IEnumerable<OrderDeliveryLogDto> DeliveryLogs { get; init; } = new List<OrderDeliveryLogDto>();
+        public string? DeliveryFeeProofImageUrl { get; init; }
+        public decimal DeliveryFee { get; init; }
+        public decimal TotalPrice { get; init; }
+        public string Status { get; init; } = OrderStatus.Pending.ToString();
+    }
+
     public record OrderAdminResponsePaginatedDto
     {
         public IEnumerable<OrderAdminResponseDto> Orders { get; init; } = new List<OrderAdminResponseDto>();
@@ -86,6 +99,11 @@ namespace keepscape_api.Dtos.Orders
     public record OrderSellerResponsePaginatedDto
     {
         public IEnumerable<OrderSellerResponseDto> Orders { get; init; } = new List<OrderSellerResponseDto>();
+        public int PageCount { get; init; } = 0;
+    }
+    public record OrderBuyerResponsePaginatedDto
+    {
+        public IEnumerable<OrderBuyerResponseDto> Orders { get; init; } = new List<OrderBuyerResponseDto>();
         public int PageCount { get; init; } = 0;
     }
 }

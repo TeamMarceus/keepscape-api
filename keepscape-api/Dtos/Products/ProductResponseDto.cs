@@ -78,6 +78,7 @@
         public string Email { get; init; } = string.Empty;
         public string Phone { get; init; } = string.Empty;
         public int Stars { get; init; }
+        public int TotalSold { get; set; }
     }
     public record ProductResponseDto
     {

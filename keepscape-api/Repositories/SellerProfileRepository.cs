@@ -34,6 +34,7 @@ namespace keepscape_api.Repositories
             return await _dbSet
                 .Include(x => x.User)
                 .Include(x => x.SellerApplication)
+                .Include(x => x.Products)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
         public async Task<SellerProfile?> GetProfileByUserId(Guid userId)
@@ -47,6 +48,14 @@ namespace keepscape_api.Repositories
         public Task<int> GetTotalProfileCount()
         {
             return _dbSet.CountAsync();
+        }
+
+        public Task<int> TotalSold(Guid sellerProfileId)
+        {
+            return _dbSet.Include(x => x.Products)
+                .Where(x => x.Id == sellerProfileId)
+                .SelectMany(x => x.Products!)
+                .SumAsync(x => x.TotalSold);
         }
     }
 }

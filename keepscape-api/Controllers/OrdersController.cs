@@ -22,7 +22,41 @@ namespace keepscape_api.Controllers
             _logger = logger;
         }
 
-        // buyers
+        // Buyers
+        [HttpGet("buyers")]
+        [Authorize(Policy = "Buyer")]
+        public async Task<IActionResult> GetBuyerOrders([FromQuery] OrderQuery orderQuery)
+        {
+            try
+            {
+                if (ModelState.IsValid == false)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var buyerId = Guid.TryParse(User.FindFirstValue("UserId"), out var id) ? id : Guid.Empty;
+
+                if (buyerId == Guid.Empty)
+                {
+                    return BadRequest("Invalid credentials.");
+                }
+
+                var orders = await _orderService.GetBuyerOrders(buyerId, orderQuery);
+
+                if (orders == null)
+                {
+                    return BadRequest("Invalid credentials.");
+                }
+
+                return Ok(orders);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_orderService.GetBuyerOrders)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
         [HttpGet("buyers/orders/count")]
         [Authorize(Policy = "Buyer")]
         public async Task<IActionResult> GetBuyerOrdersCount()
@@ -52,7 +86,7 @@ namespace keepscape_api.Controllers
             }
         }
 
-        // sellers
+        // Sellers
         [HttpGet("sellers")]
         [Authorize(Policy = "Seller")]
         public async Task<IActionResult> GetSellerOrders([FromQuery] OrderQuery orderQuery)

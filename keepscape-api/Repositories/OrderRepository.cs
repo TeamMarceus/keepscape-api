@@ -163,7 +163,7 @@ namespace keepscape_api.Repositories
                 .Include(o => o.DeliveryLogs)
                 .Include(o => o.Items)
                     .ThenInclude(oi => oi.Product)
-                .Where(o => (o.OrderReport != null && o.Status == OrderStatus.AwaitingConfirmation) || 
+                .Where(o => (o.OrderReport != null && o.Status == OrderStatus.Reported) || 
                 (o.Status == OrderStatus.AwaitingConfirmation && o.DateTimeUpdated < confirmationMaxDate))
                 .AsQueryable();
 
@@ -229,6 +229,84 @@ namespace keepscape_api.Repositories
                 o => o.BuyerProfileId == buyerProfileId && 
                 o.Status == OrderStatus.AwaitingBuyer
             );
+        }
+
+        public async Task<(IEnumerable<Order> Orders, int PageCount)> GetForBuyer(Guid buyerProfileId, OrderQuery orderQuery)
+        {
+            var query = _dbSet
+                .Include(o => o.BuyerProfile)
+                    .ThenInclude(b => b!.User)
+                .Include(o => o.SellerProfile)
+                    .ThenInclude(s => s!.User)
+                .Include(o => o.OrderReport)
+                .Include(o => o.DeliveryLogs)
+                .Include(o => o.Items)
+                    .ThenInclude(oi => oi.Product)
+                .Where(p => p.BuyerProfileId == buyerProfileId)
+                .AsQueryable();
+
+            int pageCount = 1;
+            if (orderQuery.ProductName != null)
+            {
+                query = query.Where(o => o.Items.Any(oi => oi.Product!.Name == orderQuery.ProductName));
+            }
+            if (orderQuery.Status != null)
+            {
+                if (orderQuery.Status == "Completed")
+                {
+                    query = query.Where(o => o.Status == OrderStatus.Cancelled || o.Status == OrderStatus.Delivered || o.Status == OrderStatus.Refunded);
+                }
+                else if (orderQuery.Status == "Onhold")
+                {
+                    query = query.Where(o => o.Status == OrderStatus.AwaitingConfirmation || o.Status == OrderStatus.AwaitingBuyer);
+                }
+                else
+                {
+                    var orderStatus = Enum.TryParse<OrderStatus>(orderQuery.Status, out var status);
+
+                    if (orderStatus)
+                    {
+                        query = query.Where(o => o.Status == status);
+                    }
+                }
+            }
+            if (!string.IsNullOrEmpty(orderQuery.Search))
+            {
+                query = query.Where(
+                    x => x.BuyerProfile!.User!.FirstName.Contains(orderQuery.Search) ||
+                    x.BuyerProfile!.User!.LastName.Contains(orderQuery.Search) ||
+                    x.Items.Any(oi => oi.Product!.Name.Contains(orderQuery.Search)) ||
+                    x.DateTimeCreated.ToString().Contains(orderQuery.Search));
+            }
+            if (query.Count() == 0)
+            {
+                return (await query.ToListAsync(), 0);
+            }
+            if (orderQuery.Page != null && orderQuery.PageSize != null)
+            {
+                int queryPageCount = await query.CountAsync();
+
+                pageCount = (int)Math.Ceiling((double)queryPageCount / (int)orderQuery.PageSize);
+
+                if (orderQuery.Page > pageCount)
+                {
+                    orderQuery.Page = pageCount;
+                }
+                else if (orderQuery.Page < 1)
+                {
+                    orderQuery.Page = 1;
+                }
+                else if (pageCount == 0)
+                {
+                    pageCount = 1;
+                    orderQuery.Page = 1;
+                }
+
+                int skipAmount = ((int)orderQuery.Page - 1) * (int)orderQuery.PageSize;
+                query = query.Skip(skipAmount).Take((int)orderQuery.PageSize);
+            }
+
+            return (await query.ToListAsync(), pageCount);
         }
     }
 }

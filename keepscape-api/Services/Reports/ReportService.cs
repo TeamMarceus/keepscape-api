@@ -57,7 +57,9 @@ namespace keepscape_api.Services.Reports
                 return false;
             }
 
-            throw new NotImplementedException();
+            order.Status = OrderStatus.Reported;
+
+            return true;
         }
 
         public async Task<bool> CreateProductReport(Guid productId, Guid userId, ReportRequestDto reportRequestDto)
@@ -168,7 +170,7 @@ namespace keepscape_api.Services.Reports
                 return false;
             }
 
-            if (order.Status != OrderStatus.AwaitingConfirmation)
+            if (order.Status != OrderStatus.Reported)
             {
                 return false;
             }
@@ -202,7 +204,7 @@ namespace keepscape_api.Services.Reports
                 return false;
             }
 
-            if (order.Status != OrderStatus.AwaitingConfirmation)
+            if (order.Status != OrderStatus.Reported)
             {
                 return false;
             }

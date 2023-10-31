@@ -17,6 +17,8 @@ namespace keepscape_api.MapperConfigurations
                 .ForMember(dest => dest.CustomizationMessage, opt => opt.MapFrom(src => src.CustomizationMessage))
                 .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.Quantity))
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Product!.Name))
+                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Product!.BuyerPrice));
                 ;
         }
     }

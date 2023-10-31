@@ -7,6 +7,7 @@
         AwaitingSeller,
         Ongoing,
         AwaitingConfirmation,
+        Reported,
         Rejected,
         Cancelled,
         Refunded,

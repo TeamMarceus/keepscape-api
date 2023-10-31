@@ -225,6 +225,32 @@ namespace keepscape_api.Controllers
             }
         }
 
+        [HttpGet("sellers/{sellerProfileId}")]
+        public async Task<IActionResult> GetSellerProfile(Guid sellerProfileId)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var sellerProfile = await _productService.GetSellerProfile(sellerProfileId);
+
+                if (sellerProfile == null)
+                {
+                    return NoContent();
+                }
+
+                return Ok(sellerProfile);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_productService.GetSellerProfile)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
         // Categories
         [HttpPost("categories")]
         [Authorize(Policy = "Admin")]

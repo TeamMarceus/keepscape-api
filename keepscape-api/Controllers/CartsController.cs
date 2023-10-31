@@ -138,7 +138,7 @@ namespace keepscape_api.Controllers
             }
         }
 
-        [HttpDelete("{cartItemId}")]
+        [HttpDelete]
         public async Task<IActionResult> Delete(IEnumerable<Guid> cartItemIds)
         {
             try
