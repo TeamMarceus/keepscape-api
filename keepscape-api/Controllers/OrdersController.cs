@@ -86,6 +86,40 @@ namespace keepscape_api.Controllers
             }
         }
 
+        [HttpPost("buyers/{orderId}/confirm")]
+        [Authorize(Policy = "Buyer")]
+        public async Task<IActionResult> ConfirmOrder(Guid orderId)
+        {
+            try
+            {
+                if (ModelState.IsValid == false)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var buyerId = Guid.TryParse(User.FindFirstValue("UserId"), out var id) ? id : Guid.Empty;
+
+                if (buyerId == Guid.Empty)
+                {
+                    return BadRequest("Invalid credentials.");
+                }
+
+                var order = await _orderService.ConfirmOrder(buyerId, orderId);
+
+                if (order == null)
+                {
+                    return BadRequest("Invalid credentials.");
+                }
+
+                return Ok(order);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_orderService.ConfirmOrder)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
         // Sellers
         [HttpGet("sellers")]
         [Authorize(Policy = "Seller")]

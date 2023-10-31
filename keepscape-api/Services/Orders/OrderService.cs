@@ -56,6 +56,35 @@ namespace keepscape_api.Services.Orders
             return _mapper.Map<OrderSellerResponseDto>(order);
         }
 
+        public async Task<OrderBuyerResponseDto?> ConfirmOrder(Guid userId, Guid orderId)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            var order = await _orderRepository.GetByIdAsync(orderId);
+
+            if (user == null || order == null)
+            {
+                return null;
+            }
+
+            var buyerProfileId = user.BuyerProfile != null ? user.BuyerProfile.Id : Guid.Empty;
+
+            if (buyerProfileId == Guid.Empty || order.BuyerProfileId != buyerProfileId)
+            {
+                return null;
+            }
+
+            if (order.Status != OrderStatus.AwaitingConfirmation && order.Status != OrderStatus.Reported)
+            {
+                return null;
+            }
+
+            order.Status = OrderStatus.Delivered;
+
+            await _orderRepository.UpdateAsync(order);
+
+            return _mapper.Map<OrderBuyerResponseDto>(order);
+        }
+
         public async Task<OrderSellerResponseDto?> CreateSellerOrderDeliveryLogs(Guid userId, Guid orderId, OrderAddDeliveryLogDto orderDeliveryLogRequestDto)
         {
             var user = await _userRepository.GetByIdAsync(userId);

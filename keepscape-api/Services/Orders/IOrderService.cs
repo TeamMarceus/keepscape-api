@@ -12,5 +12,6 @@ namespace keepscape_api.Services.Orders
         Task<OrderSellerResponseDto?> UpdateDeliveryFee(Guid userId, Guid orderId, OrderUpdateDeliveryFeeDto orderUpdateDeliveryFeeDto);
         Task<OrderSellerResponseDto?> CancelOrder(Guid userId, Guid orderId);
         Task<OrderSellerResponseDto?> DeliverOrder(Guid userId, Guid orderId);
+        Task<OrderBuyerResponseDto?> ConfirmOrder(Guid userId, Guid orderId);
     }
 }
