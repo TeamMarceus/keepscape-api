@@ -57,7 +57,7 @@ namespace keepscape_api.Controllers
             }
         }
 
-        [HttpGet("buyers/orders/count")]
+        [HttpGet("buyers/count")]
         [Authorize(Policy = "Buyer")]
         public async Task<IActionResult> GetBuyerOrdersCount()
         {
