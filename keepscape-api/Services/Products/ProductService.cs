@@ -584,5 +584,46 @@ namespace keepscape_api.Services.Products
 
             return seller;
         }
+
+        public async Task<bool> CheckoutProduct(Guid userId, Guid productId)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+
+            if (user == null)
+            {
+                return false;
+            }
+
+            var product = await _productRepository.GetByIdAsync(productId);
+
+            if (product == null)
+            {
+                return false;
+            }
+
+            if (product.Quantity <= 0)
+            {
+                return false;
+            }
+
+            var order = new Order
+            {
+                BuyerProfile = user.BuyerProfile!,
+                SellerProfile = product.SellerProfile!,
+                Status = OrderStatus.Pending,
+                Items = new List<OrderItem>
+                {
+                    new OrderItem
+                    {
+                        ProductId = product.Id,
+                        Quantity = 1
+                    }
+                }
+            };
+
+            await _orderRepository.AddAsync(order);
+
+            return true;
+        }
     }
 }

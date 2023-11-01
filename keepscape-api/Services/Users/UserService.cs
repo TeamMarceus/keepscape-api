@@ -3,7 +3,6 @@ using keepscape_api.Dtos.Users;
 using keepscape_api.Enums;
 using keepscape_api.Models;
 using keepscape_api.QueryModels;
-using keepscape_api.Repositories.Generics;
 using keepscape_api.Repositories.Interfaces;
 using keepscape_api.Services.BaseImages;
 using keepscape_api.Services.ConfirmationCodes;
@@ -250,7 +249,7 @@ namespace keepscape_api.Services.Users
         public async Task<UserResponseBaseDto?> Update(Guid userId, UserUpdateBaseDto userUpdateDto)
         {
             var user = await _userRepository.GetByIdAsync(userId);
-
+            
             if (user == null)
             {
                 return null;
@@ -259,19 +258,17 @@ namespace keepscape_api.Services.Users
             if (userUpdateDto is UserUpdateBuyerDto buyer)
             {
                 UpdateBuyer(ref user, buyer);
-
-                return _mapper.Map<UserResponseBuyerDto>(user);
             }
 
             if (userUpdateDto is UserUpdateSellerDto seller)
             {
 
                 UpdateSeller(ref user, seller);
-
-                return _mapper.Map<UserResponseSellerDto>(user);
             }
 
-            return null;
+            await _userRepository.UpdateAsync(user);
+
+            return user.UserType == UserType.Buyer ? _mapper.Map<UserResponseBuyerDto>(user) : _mapper.Map<UserResponseSellerDto>(user);
         }
 
         public async Task<bool> Update(Guid userId, UserStatusUpdateDto userStatusUpdateDto)
@@ -595,18 +592,18 @@ namespace keepscape_api.Services.Users
             }
         }
 
-        public async Task<IDictionary<string, string>?> CreateBuyerSuggestions(Guid userId)
+        public async Task<bool> CreateBuyerSuggestions(Guid userId)
         {
             var user = await _userRepository.GetByIdAsync(userId);
 
             if (user == null)
             {
-                return null;
+                return false;
             }
 
             if (user.UserType != UserType.Buyer)
             {
-                return null;
+                return false;
             }
 
             var categories = await _categoryRepository.GetAllAsync();
@@ -624,7 +621,7 @@ namespace keepscape_api.Services.Users
 
             if (response == null)
             {
-                return null;
+                return false;
             }
 
             var categoriesWithDescription = response.Contains("[ENDS HERE]") ? response.Split("[ENDS HERE]") : response.Split("\n");
@@ -666,7 +663,7 @@ namespace keepscape_api.Services.Users
 
             if (buyerProfile == null)
             {
-                return null;
+                return false;
             }
 
             if (buyerProfile.BuyerCategoryPreferences == null)
@@ -701,7 +698,69 @@ namespace keepscape_api.Services.Users
 
             await _buyerProfileRepository.UpdateAsync(buyerProfile);
 
-            return categoriesDescriptionDictionary;
+            return true;
+        }
+
+        public async Task<IEnumerable<KeyValuePair<string, string>>> GetBuyerSuggestions(Guid userId)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+
+            if (user == null)
+            {
+                return Enumerable.Empty<KeyValuePair<string, string>>();
+            }
+
+            if (user.UserType != UserType.Buyer)
+            {
+                return Enumerable.Empty<KeyValuePair<string, string>>();
+            }
+
+            var buyerProfile = await _buyerProfileRepository.GetProfileByUserId(user.Id);
+
+            if (buyerProfile == null)
+            {
+                return Enumerable.Empty<KeyValuePair<string, string>>();
+            }
+
+            if (buyerProfile.BuyerCategoryPreferences == null)
+            {
+                var created = await CreateBuyerSuggestions(userId);
+
+                if (!created)
+                {
+                    return Enumerable.Empty<KeyValuePair<string, string>>();
+                }
+
+                buyerProfile = await _buyerProfileRepository.GetProfileByUserId(user.Id);
+
+                if (buyerProfile == null)
+                {
+                    return Enumerable.Empty<KeyValuePair<string, string>>();
+                }
+
+                if (buyerProfile.BuyerCategoryPreferences == null)
+                {
+                    return Enumerable.Empty<KeyValuePair<string, string>>();
+                }
+            }
+
+            var categories = await _categoryRepository.GetAllAsync();
+
+            var buyerSuggestions = new List<KeyValuePair<string, string>>();
+
+            foreach (var buyerCategoryPreference in buyerProfile.BuyerCategoryPreferences)
+            {
+                var category = categories.FirstOrDefault(x => x.Id == buyerCategoryPreference.CategoryId);
+
+                if (category == null)
+                {
+                    continue;
+                }
+
+                buyerSuggestions.Add(new KeyValuePair<string, string>(category.Name, buyerCategoryPreference.Description));
+            }
+
+            return buyerSuggestions;
         }
     }
 }

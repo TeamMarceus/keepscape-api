@@ -91,7 +91,7 @@ namespace keepscape_api.Services.Carts
             return await Get(userId);
         }
 
-        public async Task<bool> Checkout(Guid userId)
+        public async Task<bool> Checkout(Guid userId, IEnumerable<Guid> cartItemIds)
         {
             var user = await _userRepository.GetByIdAsync(userId);
 
@@ -117,7 +117,9 @@ namespace keepscape_api.Services.Carts
                 return false;
             }
 
-            var sellerIdToItems = cart.Items.GroupBy(x => x.Product!.SellerProfile!.Id!).ToDictionary(x => x.Key, x => x.ToList());
+            var cartItems = cart.Items.Where(x => cartItemIds.Contains(x.Id)).ToList();
+
+            var sellerIdToItems = cartItems.GroupBy(x => x.Product!.SellerProfile!.Id!).ToDictionary(x => x.Key, x => x.ToList());
 
             foreach (var sellerIdToItem in sellerIdToItems)
             {
@@ -141,7 +143,7 @@ namespace keepscape_api.Services.Carts
                 await _orderRepository.AddAsync(order);
             }
 
-            cart.Items.Clear();
+            cart.Items = cart.Items.Where(x => !cartItemIds.Contains(x.Id)).ToList();
 
             return await _cartRepository.UpdateAsync(cart);
         }
@@ -167,7 +169,7 @@ namespace keepscape_api.Services.Carts
                 return null;
             }
 
-            var cartItems = cart.Items.Where(x => cartItemIds.Contains(x.Id));
+            var cartItems = cart.Items.Where(x => cartItemIds.Contains(x.Id)).ToList();
             
             foreach(var cartItem in cartItems)
             {

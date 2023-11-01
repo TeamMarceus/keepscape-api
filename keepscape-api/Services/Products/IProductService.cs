@@ -22,6 +22,7 @@ namespace keepscape_api.Services.Products
         Task<IEnumerable<ProductCategoryPlaceDto>> GetPlaceCategories();
         Task<IEnumerable<ProductCategoryPlaceDto>> GetProductCategories();
         Task<bool> Update(Guid sellerId, Guid productId, ProductUpdateDto productUpdateDto);
+        Task<bool> CheckoutProduct(Guid userId, Guid productId);
         Task Delete(Guid sellerId, Guid productId);
         Task DeleteReview(Guid reviewId);
         Task DeletePlace(Guid placeId);

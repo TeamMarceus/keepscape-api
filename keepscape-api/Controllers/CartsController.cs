@@ -172,7 +172,7 @@ namespace keepscape_api.Controllers
         }
 
         [HttpPost("checkout")]
-        public async Task<IActionResult> Checkout()
+        public async Task<IActionResult> Checkout(IEnumerable<Guid> cartItemIds)
         {
             try
             {
@@ -188,7 +188,7 @@ namespace keepscape_api.Controllers
                     return BadRequest("Invalid credentials.");
                 }
 
-                var success = await _cartService.Checkout(userId);
+                var success = await _cartService.Checkout(userId, cartItemIds);
 
                 if (success == false)
                 {

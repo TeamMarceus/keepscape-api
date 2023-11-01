@@ -9,6 +9,6 @@ namespace keepscape_api.Services.Carts
         Task<int> GetCount(Guid userId);
         Task<CartResponseDto?> Update(Guid userId, CartUpdateDto cartUpdateDto);
         Task<CartResponseDto?> Delete(Guid userId, IEnumerable<Guid> cartItemIds);
-        Task<bool> Checkout(Guid userId);
+        Task<bool> Checkout(Guid userId, IEnumerable<Guid> cartItemIds);
     }
 }

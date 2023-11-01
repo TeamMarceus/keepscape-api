@@ -190,6 +190,41 @@ namespace keepscape_api.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
+
+        [HttpPost("{productId}/checkout")]
+        [Authorize(Policy = "Buyer")]
+        public async Task<IActionResult> CheckoutProduct(Guid productId)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var buyerId = Guid.TryParse(User.FindFirstValue("UserId"), out Guid buyerIdParsed) ? buyerIdParsed : Guid.Empty;
+
+                if (buyerId == Guid.Empty)
+                {
+                    return BadRequest("Invalid credentials.");
+                }
+
+                var productCheckout = await _productService.CheckoutProduct(buyerId, productId);
+
+                if (!productCheckout)
+                {
+                    return BadRequest("Product cannot be checked out.");
+                }
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_productService.CheckoutProduct)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
         // Sellers
         [HttpGet("sellers")]
         [Authorize(Policy = "Seller")]

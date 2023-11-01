@@ -284,6 +284,30 @@ namespace keepscape_api.Controllers
             }
         }
 
+        [HttpGet("buyers/suggestions")]
+        [Authorize(Policy = "Buyer")]
+        public async Task<IActionResult> GetBuyerSuggestions()
+        {
+            try
+            {
+                var userId = Guid.TryParse(User.FindFirstValue("UserId"), out var parsedUserId) ? parsedUserId : Guid.Empty;
+
+                if (userId == Guid.Empty)
+                {
+                    return BadRequest("Invalid user id.");
+                }
+
+                var suggestions = await _userService.GetBuyerSuggestions(userId);
+
+                return Ok(suggestions);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_userService.GetBuyerSuggestions)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
         [HttpPut("buyers/suggestions")]
         [Authorize(Policy = "Buyer")]
         public async Task<IActionResult> CreateBuyerSuggestions()
@@ -299,7 +323,7 @@ namespace keepscape_api.Controllers
 
                 var userResponseDto = await _userService.CreateBuyerSuggestions(userId);
 
-                if (userResponseDto == null)
+                if (!userResponseDto)
                 {
                     return BadRequest("Invalid user id.");
                 }
