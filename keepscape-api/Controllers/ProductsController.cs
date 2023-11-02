@@ -193,7 +193,7 @@ namespace keepscape_api.Controllers
 
         [HttpPost("{productId}/checkout")]
         [Authorize(Policy = "Buyer")]
-        public async Task<IActionResult> CheckoutProduct(Guid productId)
+        public async Task<IActionResult> CheckoutProduct(Guid productId, ProductCheckoutDto productCheckoutDto)
         {
             try
             {
@@ -209,7 +209,7 @@ namespace keepscape_api.Controllers
                     return BadRequest("Invalid credentials.");
                 }
 
-                var productCheckout = await _productService.CheckoutProduct(buyerId, productId);
+                var productCheckout = await _productService.CheckoutProduct(buyerId, productId, productCheckoutDto);
 
                 if (!productCheckout)
                 {

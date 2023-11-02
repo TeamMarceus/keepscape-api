@@ -27,7 +27,36 @@ namespace keepscape_api.Services.Orders
             _mapper = mapper;
         }
 
-        public async Task<OrderSellerResponseDto?> CancelOrder(Guid userId, Guid orderId)
+        public async Task<OrderBuyerResponseDto?> CancelOrderBuyer(Guid userId, Guid orderId)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            var order = await _orderRepository.GetByIdAsync(orderId);
+
+            if (user == null || order == null)
+            {
+                return null;
+            }
+
+            var buyerProfileId = user.BuyerProfile != null ? user.BuyerProfile.Id : Guid.Empty;
+
+            if (buyerProfileId == Guid.Empty || order.BuyerProfileId != buyerProfileId)
+            {
+                return null;
+            }
+
+            if (order.Status != OrderStatus.Pending && order.Status != OrderStatus.AwaitingBuyer)
+            {
+                return null;
+            }
+
+            order.Status = OrderStatus.Cancelled;
+
+            await _orderRepository.UpdateAsync(order);
+
+            return _mapper.Map<OrderBuyerResponseDto>(order);
+        }
+
+        public async Task<OrderSellerResponseDto?> CancelOrderSeller(Guid userId, Guid orderId)
         {
             var user = await _userRepository.GetByIdAsync(userId);
             var order = await _orderRepository.GetByIdAsync(orderId);
@@ -56,7 +85,7 @@ namespace keepscape_api.Services.Orders
             return _mapper.Map<OrderSellerResponseDto>(order);
         }
 
-        public async Task<OrderBuyerResponseDto?> ConfirmOrder(Guid userId, Guid orderId)
+        public async Task<OrderBuyerResponseDto?> ConfirmOrderBuyer(Guid userId, Guid orderId)
         {
             var user = await _userRepository.GetByIdAsync(userId);
             var order = await _orderRepository.GetByIdAsync(orderId);
@@ -124,7 +153,7 @@ namespace keepscape_api.Services.Orders
             return _mapper.Map<OrderSellerResponseDto>(order);
         }
 
-        public async Task<OrderSellerResponseDto?> DeliverOrder(Guid userId, Guid orderId)
+        public async Task<OrderSellerResponseDto?> DeliverOrderSeller(Guid userId, Guid orderId)
         {
             var user = await _userRepository.GetByIdAsync(userId);
             var order = await _orderRepository.GetByIdAsync(orderId);

@@ -18,7 +18,7 @@ namespace keepscape_api.Services.Users
         Task<UserResponseBaseDto?> Register(UserCreateBaseDto userCreateDto);
         Task<UserResponseBaseDto?> Update(Guid userId, UserUpdateBaseDto userUpdateDto);
         Task<bool> CreateBuyerSuggestions(Guid userId);
-        Task<IEnumerable<KeyValuePair<string, string>>> GetBuyerSuggestions(Guid userId);
+        Task<IEnumerable<UserBuyerSuggestionsDto>> GetBuyerSuggestions(Guid userId);
         Task<bool> Update(Guid userId, UserStatusUpdateDto userStatusUpdateDto);
         Task<bool> UpdatePassword(Guid userId, UserUpdatePasswordDto userUpdatePasswordDto);
         Task<bool> UpdatePasswordWithCode(UserUpdatePasswordWithCodeDto userUpdatePasswordWithCodeDto);

@@ -1,4 +1,5 @@
-﻿using keepscape_api.Enums;
+﻿using keepscape_api.Dtos.Products;
+using keepscape_api.Enums;
 
 namespace keepscape_api.Dtos.Users
 {
@@ -81,5 +82,12 @@ namespace keepscape_api.Dtos.Users
     {
         public string UserStatus { get; init; } = Enums.UserStatus.OK.ToString();
         public string? Reason { get; init; }
+    }
+
+    public record UserBuyerSuggestionsDto
+    {
+        public string Category { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public IEnumerable<ProductResponseHomeDto> Products { get; set; } = new List<ProductResponseHomeDto>();
     }
 }

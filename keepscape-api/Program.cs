@@ -1,16 +1,13 @@
 using keepscape_api.Configurations;
 using keepscape_api.Data;
 using keepscape_api.Repositories;
-using keepscape_api.Repositories.Generics;
 using keepscape_api.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
-using keepscape_api.Models;
 using keepscape_api.Services.Users;
-using Google.Cloud.Storage.V1;
 using keepscape_api.Services.BaseImages;
 using keepscape_api.Services.Tokens;
 using keepscape_api.Services.Products;
@@ -18,7 +15,6 @@ using keepscape_api.Services.ConfirmationCodes;
 using keepscape_api.Services.Emails;
 using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
-using Google.Apis.Auth.OAuth2;
 using keepscape_api.Services.Announcements;
 using keepscape_api.Services.Dashboards;
 using keepscape_api.Services.Reports;
@@ -26,6 +22,8 @@ using keepscape_api.Services.Finances;
 using keepscape_api.Services.Orders;
 using keepscape_api.Services.Carts;
 using keepscape_api.Services.OpenAI;
+using Microsoft.Extensions.Azure;
+using Azure.Storage.Blobs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -79,16 +77,11 @@ async Task ConfigureServices(IServiceCollection services, IConfiguration configu
     var secretClient = new SecretClient(keyVault, new DefaultAzureCredential());
     KeyVaultSecret dbSecret = await secretClient.GetSecretAsync("prod-new-db");
     KeyVaultSecret jwtSecret = await secretClient.GetSecretAsync("jwt-secret");
-    KeyVaultSecret googleKey = await secretClient.GetSecretAsync("GoogleCloudServiceAccountKey");
     KeyVaultSecret openAPIKey = await secretClient.GetSecretAsync("open-API-secret");
+    KeyVaultSecret blobStorageConnectionString = await secretClient.GetSecretAsync("blob-storage-secret");
+
+    
     configuration["JwtConfig:Secret"] = jwtSecret.Value;
-
-    GoogleCredential googleCredential;
-    using (var jsonStream = new MemoryStream(Encoding.UTF8.GetBytes(googleKey.Value)))
-    {
-        googleCredential = GoogleCredential.FromStream(jsonStream);
-    }
-
     services.AddDbContext<APIDbContext>(options =>
     {
         options.UseSqlServer(dbSecret.Value)
@@ -162,7 +155,7 @@ async Task ConfigureServices(IServiceCollection services, IConfiguration configu
         options.AddPolicy("Admin|Seller", policy => policy.RequireClaim("Role", "Admin", "Seller"));
     });
     services.AddTransient<APIDbContext>();
-    services.AddSingleton(sp => StorageClient.Create(googleCredential));
+    services.AddSingleton(x => new BlobServiceClient(blobStorageConnectionString.Value));
 
     services.AddScoped<IAnnouncementRepository, AnnouncementRepository>();
     services.AddScoped<IBalanceRepository, BalanceRepository>();

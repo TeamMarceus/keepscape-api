@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using keepscape_api.Dtos.Products;
 using keepscape_api.Dtos.Users;
 using keepscape_api.Enums;
 using keepscape_api.Models;
@@ -8,6 +9,7 @@ using keepscape_api.Services.BaseImages;
 using keepscape_api.Services.ConfirmationCodes;
 using keepscape_api.Services.Emails;
 using keepscape_api.Services.OpenAI;
+using keepscape_api.Services.Products;
 using keepscape_api.Services.Tokens;
 using Microsoft.AspNetCore.Identity;
 using System.Text.RegularExpressions;
@@ -26,6 +28,7 @@ namespace keepscape_api.Services.Users
         private readonly IEmailService _emailService;
         private readonly IConfirmationCodeService _confirmationCodeService;
         private readonly IOpenAIService _openAIService;
+        private readonly IProductService _productService;
         private readonly IMapper _mapper;
 
         public UserService(IUserRepository userRepository,          
@@ -38,6 +41,7 @@ namespace keepscape_api.Services.Users
             IEmailService emailService,
             IConfirmationCodeService confirmationCodeService,
             IOpenAIService openAIService,
+            IProductService productService,
             IMapper mapper)
         {
             _userRepository = userRepository;
@@ -50,6 +54,7 @@ namespace keepscape_api.Services.Users
             _emailService = emailService;
             _confirmationCodeService = confirmationCodeService;
             _openAIService = openAIService;
+            _productService = productService;
             _mapper = mapper;
         }
 
@@ -85,12 +90,12 @@ namespace keepscape_api.Services.Users
 
         public async Task<UserBuyersPagedDto> GetBuyers(UserQuery userQuery)
         {
-            var buyers = await _userRepository.GetBuyers(userQuery);
+            var (Buyers, PageCount) = await _userRepository.GetBuyers(userQuery);
 
             return new UserBuyersPagedDto
             {
-                Buyers = buyers.Buyers.Select(buyer => _mapper.Map<UserResponseBuyerDto>(buyer)),
-                PageCount = buyers.PageCount
+                Buyers = Buyers.Select(buyer => _mapper.Map<UserResponseBuyerDto>(buyer)),
+                PageCount = PageCount
             };
         }
 
@@ -141,12 +146,12 @@ namespace keepscape_api.Services.Users
 
         public async Task<UserSellersPagedDto> GetSellers(UserQuery userQuery)
         {
-            var sellers = await _userRepository.GetSellers(userQuery);
+            var (Sellers, PageCount) = await _userRepository.GetSellers(userQuery);
 
             return new UserSellersPagedDto
             {
-                Sellers = sellers.Sellers.Select(seller => _mapper.Map<UserResponseSellerDto>(seller)),
-                PageCount = sellers.PageCount
+                Sellers = Sellers.Select(seller => _mapper.Map<UserResponseSellerDto>(seller)),
+                PageCount = PageCount
             };
         }
 
@@ -611,7 +616,7 @@ namespace keepscape_api.Services.Users
             var promptForAI = $"Given the following categories and buyer attitude:\nCategories:\n{string.Join("\n", categories.Select(x => x.Name))}"+
                 $"\nDescription: {user.BuyerProfile!.Description}, Interests: {user.BuyerProfile!.Interests}, Preferences: {user.BuyerProfile!.Preferences}\n"+
                 "Choose strictly the best category that the buyer will most likely love in the list above. Rank the top 3 and explain why in the format:\n"+
-                "\nAddress the description in second person. Connect the description to the nice things in Region 7 in the Philippines.\n"+
+                "\nAddress the description as if you're talking with the person. Connect the description to the nice things in Region 7 in the Philippines.\n"+
                 "[START][1] CategoryName : Description [ENDS HERE]\n" +
                 "[START][2] CategoryName : Description [ENDS HERE]\n" +
                 "[START][3] CategoryName : Description [ENDS HERE]\n"
@@ -701,25 +706,25 @@ namespace keepscape_api.Services.Users
             return true;
         }
 
-        public async Task<IEnumerable<KeyValuePair<string, string>>> GetBuyerSuggestions(Guid userId)
+        public async Task<IEnumerable<UserBuyerSuggestionsDto>> GetBuyerSuggestions(Guid userId)
         {
             var user = await _userRepository.GetByIdAsync(userId);
 
             if (user == null)
             {
-                return Enumerable.Empty<KeyValuePair<string, string>>();
+                return Enumerable.Empty<UserBuyerSuggestionsDto>();
             }
 
             if (user.UserType != UserType.Buyer)
             {
-                return Enumerable.Empty<KeyValuePair<string, string>>();
+                return Enumerable.Empty<UserBuyerSuggestionsDto>();
             }
 
             var buyerProfile = await _buyerProfileRepository.GetProfileByUserId(user.Id);
 
             if (buyerProfile == null)
             {
-                return Enumerable.Empty<KeyValuePair<string, string>>();
+                return Enumerable.Empty<UserBuyerSuggestionsDto>();
             }
 
             if (buyerProfile.BuyerCategoryPreferences == null)
@@ -728,25 +733,25 @@ namespace keepscape_api.Services.Users
 
                 if (!created)
                 {
-                    return Enumerable.Empty<KeyValuePair<string, string>>();
+                    return Enumerable.Empty<UserBuyerSuggestionsDto>();
                 }
 
                 buyerProfile = await _buyerProfileRepository.GetProfileByUserId(user.Id);
 
                 if (buyerProfile == null)
                 {
-                    return Enumerable.Empty<KeyValuePair<string, string>>();
+                    return Enumerable.Empty<UserBuyerSuggestionsDto>();
                 }
 
                 if (buyerProfile.BuyerCategoryPreferences == null)
                 {
-                    return Enumerable.Empty<KeyValuePair<string, string>>();
+                    return Enumerable.Empty<UserBuyerSuggestionsDto>();
                 }
             }
 
             var categories = await _categoryRepository.GetAllAsync();
 
-            var buyerSuggestions = new List<KeyValuePair<string, string>>();
+            var buyerSuggestions = new List<UserBuyerSuggestionsDto>();
 
             foreach (var buyerCategoryPreference in buyerProfile.BuyerCategoryPreferences)
             {
@@ -757,7 +762,20 @@ namespace keepscape_api.Services.Users
                     continue;
                 }
 
-                buyerSuggestions.Add(new KeyValuePair<string, string>(category.Name, buyerCategoryPreference.Description));
+                var products = await _productService.Get(new ProductQuery
+                {
+                    Categories = new List<string>() { category.Name }, 
+                    Page = 1,
+                    PageSize = 15
+                }
+                );
+
+                buyerSuggestions.Add(new UserBuyerSuggestionsDto
+                {
+                    Category = category.Name,
+                    Description = buyerCategoryPreference.Description,
+                    Products = products.Products.Select(p => _mapper.Map<ProductResponseHomeDto>(p))
+                });
             }
 
             return buyerSuggestions;

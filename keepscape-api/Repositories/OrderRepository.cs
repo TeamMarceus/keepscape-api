@@ -211,18 +211,6 @@ namespace keepscape_api.Repositories
             return (await query.ToListAsync(), pageCount);
         }
 
-        public new async Task<Order> AddAsync(Order order)
-        {
-            foreach (var item in order.Items)
-            {
-                _context.Products.Attach(item.Product!);
-                _context.SellerProfiles.Attach(item.Product!.SellerProfile!);
-                _context.BuyerProfiles.Attach(order.BuyerProfile!);
-            }
-
-            return await base.AddAsync(order);
-        }
-
         public async Task<int> GetByBuyerProfileIdCount(Guid buyerProfileId)
         {
             return await _dbSet.CountAsync(

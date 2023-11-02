@@ -88,7 +88,7 @@ namespace keepscape_api.Controllers
 
         [HttpPost("buyers/{orderId}/confirm")]
         [Authorize(Policy = "Buyer")]
-        public async Task<IActionResult> ConfirmOrder(Guid orderId)
+        public async Task<IActionResult> ConfirmOrderBuyer(Guid orderId)
         {
             try
             {
@@ -104,7 +104,7 @@ namespace keepscape_api.Controllers
                     return BadRequest("Invalid credentials.");
                 }
 
-                var order = await _orderService.ConfirmOrder(buyerId, orderId);
+                var order = await _orderService.ConfirmOrderBuyer(buyerId, orderId);
 
                 if (order == null)
                 {
@@ -115,7 +115,41 @@ namespace keepscape_api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"{nameof(_orderService.ConfirmOrder)} threw an exception");
+                _logger.LogError(ex, $"{nameof(_orderService.ConfirmOrderBuyer)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpPost("buyers/{orderId}/cancel")]
+        [Authorize(Policy = "Buyer")]
+        public async Task<IActionResult> CancelOrderBuyer(Guid orderId)
+        {
+            try
+            {
+                if (ModelState.IsValid == false)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var buyerId = Guid.TryParse(User.FindFirstValue("UserId"), out var id) ? id : Guid.Empty;
+
+                if (buyerId == Guid.Empty)
+                {
+                    return BadRequest("Invalid credentials.");
+                }
+
+                var order = await _orderService.CancelOrderBuyer(buyerId, orderId);
+
+                if (order == null)
+                {
+                    return BadRequest("Invalid credentials.");
+                }
+
+                return Ok(order);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_orderService.CancelOrderBuyer)} threw an exception");
                 return StatusCode(500, "Internal server error");
             }
         }
@@ -192,7 +226,7 @@ namespace keepscape_api.Controllers
 
         [HttpPost("sellers/{orderId}/cancel")]
         [Authorize(Policy = "Seller")]
-        public async Task<IActionResult> CancelOrder(Guid orderId)
+        public async Task<IActionResult> CancelOrderSeller(Guid orderId)
         {
             try
             {
@@ -208,7 +242,7 @@ namespace keepscape_api.Controllers
                     return BadRequest("Invalid credentials.");
                 }
 
-                var order = await _orderService.CancelOrder(sellerId, orderId);
+                var order = await _orderService.CancelOrderSeller(sellerId, orderId);
 
                 if (order == null)
                 {
@@ -219,13 +253,13 @@ namespace keepscape_api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"{nameof(_orderService.CancelOrder)} threw an exception");
+                _logger.LogError(ex, $"{nameof(_orderService.CancelOrderSeller)} threw an exception");
                 return StatusCode(500, "Internal server error");
             }
         }
 
         [HttpPost("sellers/{orderId}/deliver")]
-        public async Task<IActionResult> DeliverOrder(Guid orderId)
+        public async Task<IActionResult> DeliverOrderSeller(Guid orderId)
         {
             try
             {
@@ -241,7 +275,7 @@ namespace keepscape_api.Controllers
                     return BadRequest("Invalid credentials.");
                 }
 
-                var order = await _orderService.DeliverOrder(sellerId, orderId);
+                var order = await _orderService.DeliverOrderSeller(sellerId, orderId);
 
                 if (order == null)
                 {
@@ -252,7 +286,7 @@ namespace keepscape_api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"{nameof(_orderService.DeliverOrder)} threw an exception");
+                _logger.LogError(ex, $"{nameof(_orderService.DeliverOrderSeller)} threw an exception");
                 return StatusCode(500, "Internal server error");
             }
         }

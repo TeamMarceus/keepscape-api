@@ -585,7 +585,7 @@ namespace keepscape_api.Services.Products
             return seller;
         }
 
-        public async Task<bool> CheckoutProduct(Guid userId, Guid productId)
+        public async Task<bool> CheckoutProduct(Guid userId, Guid productId, ProductCheckoutDto productCheckoutDto)
         {
             var user = await _userRepository.GetByIdAsync(userId);
 
@@ -608,15 +608,17 @@ namespace keepscape_api.Services.Products
 
             var order = new Order
             {
-                BuyerProfile = user.BuyerProfile!,
-                SellerProfile = product.SellerProfile!,
+                BuyerProfileId = user.BuyerProfile!.Id,
+                SellerProfileId = product.SellerProfile!.Id,
                 Status = OrderStatus.Pending,
                 Items = new List<OrderItem>
                 {
                     new OrderItem
                     {
                         ProductId = product.Id,
-                        Quantity = 1
+                        Quantity = productCheckoutDto.Quantity,
+                        CustomizationMessage = productCheckoutDto.CustomizationMessage,
+                        Price = product.BuyerPrice * productCheckoutDto.Quantity
                     }
                 }
             };

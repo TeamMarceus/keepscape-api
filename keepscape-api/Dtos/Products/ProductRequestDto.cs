@@ -86,4 +86,12 @@ namespace keepscape_api.Dtos.Products
         [Required]
         public IFormFile Image { get; init; } = null!;
     }
+
+    public record ProductCheckoutDto
+    {
+        [Required]
+        [Range(1, 1000000, ErrorMessage = $"{nameof(Quantity)} must be between 1 and 1000000")]
+        public int Quantity { get; init; }
+        public string? CustomizationMessage { get; init; }
+    }
 }

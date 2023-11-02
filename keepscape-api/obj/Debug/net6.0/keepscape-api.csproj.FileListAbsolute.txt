@@ -98,3 +98,10 @@ D:\College\BSCS\CS Year 4\Keepscape\keepscape-api\obj\Debug\net6.0\refint\keepsc
 D:\College\BSCS\CS Year 4\Keepscape\keepscape-api\obj\Debug\net6.0\keepscape-api.pdb
 D:\College\BSCS\CS Year 4\Keepscape\keepscape-api\obj\Debug\net6.0\keepscape-api.genruntimeconfig.cache
 D:\College\BSCS\CS Year 4\Keepscape\keepscape-api\obj\Debug\net6.0\ref\keepscape-api.dll
+D:\College\BSCS\CS Year 4\Keepscape\keepscape-api\bin\Debug\net6.0\Azure.Storage.Blobs.dll
+D:\College\BSCS\CS Year 4\Keepscape\keepscape-api\bin\Debug\net6.0\Azure.Storage.Common.dll
+D:\College\BSCS\CS Year 4\Keepscape\keepscape-api\bin\Debug\net6.0\System.Diagnostics.DiagnosticSource.dll
+D:\College\BSCS\CS Year 4\Keepscape\keepscape-api\bin\Debug\net6.0\System.IO.Hashing.dll
+D:\College\BSCS\CS Year 4\Keepscape\keepscape-api\bin\Debug\net6.0\Azure.Storage.Files.Shares.dll
+D:\College\BSCS\CS Year 4\Keepscape\keepscape-api\bin\Debug\net6.0\Azure.Storage.Queues.dll
+D:\College\BSCS\CS Year 4\Keepscape\keepscape-api\bin\Debug\net6.0\Microsoft.Extensions.Azure.dll

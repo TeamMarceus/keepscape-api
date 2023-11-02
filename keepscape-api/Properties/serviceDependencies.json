@@ -11,6 +11,11 @@
     "mssql1": {
       "type": "mssql",
       "connectionId": "prod-new-db"
+    },
+    "storage1": {
+      "type": "storage",
+      "connectionId": "blob-storage-secret",
+      "dynamicId": null
     }
   }
 }

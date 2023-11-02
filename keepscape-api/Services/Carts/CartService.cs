@@ -55,7 +55,7 @@ namespace keepscape_api.Services.Carts
                 return null;
             }
 
-            if (product.Quantity < cartRequestDto.Quantity)
+            if (product.Quantity < cartRequestDto.Quantity || product.IsHidden)
             {
                 return null;
             }
@@ -123,6 +123,7 @@ namespace keepscape_api.Services.Carts
 
             foreach (var sellerIdToItem in sellerIdToItems)
             {
+
                 var sellerId = sellerIdToItem.Key;
                 var items = sellerIdToItem.Value;
 
@@ -132,7 +133,7 @@ namespace keepscape_api.Services.Carts
                     SellerProfileId = sellerId,
                     Items = items.Where(x => x.Product!.Quantity > x.Quantity).Select(x => new OrderItem
                     {
-                        Product = x.Product,
+                        ProductId = x.Product!.Id,
                         Quantity = x.Quantity,
                         CustomizationMessage = x.CustomizationMessage,
                         Price = x.Product!.BuyerPrice * x.Quantity
@@ -214,6 +215,7 @@ namespace keepscape_api.Services.Carts
             var sellers = cart.Items.GroupBy(i => i.Product!.SellerProfileId).Select(g => g.First().Product!.SellerProfile);
 
             var cartSellers = new List<CartSellerDto>();
+            var hiddenItems = new List<CartSellerDto>();
 
             foreach(var seller in sellers)
             {
@@ -221,12 +223,34 @@ namespace keepscape_api.Services.Carts
                 {
                     Id = seller!.UserId,
                     SellerName = seller.Name,
-                    CartItems = cart.Items.Where(x => x.Product!.SellerProfile!.UserId == seller.UserId && x.Product.Quantity > x.Quantity).Select(x => _mapper.Map<CartItemResponseDto>(x)),
+                    CartItems = cart.Items.Where(x => x.Product!.SellerProfile!.UserId == seller.UserId && 
+                                x.Product.Quantity > x.Quantity &&
+                                !x.Product.IsHidden
+                                ).Select(x => _mapper.Map<CartItemResponseDto>(x)),
+
+                });
+
+                var hiddenProducts = cart.Items.Where(x => x.Product!.SellerProfile!.UserId == seller.UserId && 
+                                    x.Product.Quantity < x.Quantity ||
+                                    x.Product.IsHidden
+                                    )
+                                    .ToList();
+
+                if (hiddenProducts.IsNullOrEmpty())
+                {
+                    continue;
+                }
+
+                hiddenItems.Add(new CartSellerDto
+                {
+                    Id = seller!.UserId,
+                    SellerName = seller.Name,
+                    CartItems = hiddenProducts.Select(x => _mapper.Map<CartItemResponseDto>(x))
                 });
             }
             
-            var message = cart.Items.Any(x => x.Product!.Quantity < x.Quantity) ? "Some items are out of stock" : null;
-            var hiddenItems = cart.Items.Where(x => x.Product!.Quantity < x.Quantity).Select(x => _mapper.Map<CartItemResponseDto>(x));
+            var message = !hiddenItems.IsNullOrEmpty() ? "Some items are out of stock or unavailable" : null;
+        
             return new CartResponseDto
             {
                 Id = cart.Id,

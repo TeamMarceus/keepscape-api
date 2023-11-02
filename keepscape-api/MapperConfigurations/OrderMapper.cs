@@ -91,6 +91,10 @@ namespace keepscape_api.MapperConfigurations
                 }).OrderByDescending(i => i.DateTime)
                 ));
             CreateMap<Order, OrderBuyerResponseDto>()
+                .ForMember(dest => dest.DeliveryAddress, opt => opt.MapFrom(src => src.BuyerProfile!.DeliveryAddress))
+                .ForMember(dest => dest.DeliveryFullName, opt => opt.MapFrom(src => src.BuyerProfile!.DeliveryFullName))
+                .ForMember(dest => dest.AltMobileNumber, opt => opt.MapFrom(src => src.BuyerProfile!.AltMobileNumber))
+                .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.BuyerProfile!.User!.PhoneNumber))
                 .ForMember(dest => dest.Seller, opt => opt.MapFrom(src => new OrderSellerDto
                 {
                     Id = src.SellerProfile!.User!.Id,

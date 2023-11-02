@@ -1,30 +1,35 @@
-﻿using Google.Cloud.Storage.V1;
+﻿using Azure.Storage.Blobs;
+using Azure;
+using Azure.Storage.Blobs.Models;
 
 namespace keepscape_api.Services.BaseImages
 {
     public class ImageService : IImageService
     {
-        private readonly StorageClient _storageClient;
-        private readonly string _bucketName = "keepscape_storage";
+        private readonly BlobServiceClient _blobServiceClient;
+        private readonly string _containerName = "keepscapestorage";
 
-        public ImageService(StorageClient storageClient)
+        public ImageService(BlobServiceClient blobServiceClient)
         {
-            _storageClient = storageClient;
+            _blobServiceClient = blobServiceClient;
         }
+
         public async Task<string?> Get(string objectName, Guid id)
         {
             string objectPath = $"{objectName}/{id}";
+            BlobContainerClient containerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
+            BlobClient blobClient = containerClient.GetBlobClient(objectPath);
 
             try
             {
-                var obj = await _storageClient.GetObjectAsync(_bucketName, objectPath);
+                var blobDownloadInfo = await blobClient.DownloadAsync();
 
-                if (obj != null)
+                if (blobDownloadInfo != null)
                 {
-                    return obj.MediaLink;
+                    return blobClient.Uri.AbsoluteUri;
                 }
             }
-            catch (Google.GoogleApiException ex) when (ex.Error.Code == 404)
+            catch (RequestFailedException ex) when (ex.Status == 404)
             {
                 return null;
             }
@@ -34,32 +39,45 @@ namespace keepscape_api.Services.BaseImages
 
         public async Task<string?> Upload(string objectName, IFormFile file)
         {
-            string objectPath = $"{objectName}/{Guid.NewGuid()}";
-
             if (file.Length <= 0)
             {
                 return null;
             }
 
-            using (var stream = file.OpenReadStream())
-            {
-                var obj = await _storageClient.
-                    UploadObjectAsync(_bucketName, objectPath, file.ContentType, stream);
+            string objectPath = $"{objectName}/{Guid.NewGuid()}";
+            BlobContainerClient containerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
+            BlobClient blobClient = containerClient.GetBlobClient(objectPath);
 
-                return $"https://storage.googleapis.com/{_bucketName}/{objectPath}";
+            try
+            {
+                using (var stream = file.OpenReadStream())
+                {
+                    BlobHttpHeaders headers = new BlobHttpHeaders
+                    {
+                        ContentType = file.ContentType
+                    };
+
+                    await blobClient.UploadAsync(stream, headers);
+                    return blobClient.Uri.AbsoluteUri;
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
             }
         }
 
         public async Task<bool> Delete(string url)
         {
-            string objectPath = url.Split($"{_bucketName}/")[1];
+            Uri uri = new Uri(url);
+            BlobClient blobClient = new BlobClient(uri);
 
             try
             {
-                await _storageClient.DeleteObjectAsync(_bucketName, objectPath);
+                await blobClient.DeleteIfExistsAsync();
                 return true;
             }
-            catch (Google.GoogleApiException ex) when (ex.Error.Code == 404)
+            catch (RequestFailedException ex) when (ex.Status == 404)
             {
                 return false;
             }

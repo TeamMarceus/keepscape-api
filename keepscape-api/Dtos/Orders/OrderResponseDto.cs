@@ -88,6 +88,10 @@ namespace keepscape_api.Dtos.Orders
         public string? DeliveryFeeProofImageUrl { get; init; }
         public decimal DeliveryFee { get; init; }
         public decimal TotalPrice { get; init; }
+        public string DeliveryFullName { get; init; } = string.Empty;
+        public string DeliveryAddress { get; init; } = string.Empty;
+        public string AltMobileNumber { get; init; } = string.Empty;
+        public string PhoneNumber { get; init; } = string.Empty;
         public string Status { get; init; } = OrderStatus.Pending.ToString();
     }
 
