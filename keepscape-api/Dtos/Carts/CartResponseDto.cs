@@ -25,5 +25,6 @@
         public string CustomizationMessage { get; set; } = string.Empty;
         public int Quantity { get; set; }
         public string ProductImageUrl { get; set; } = string.Empty;
+        public int TotalStock { get; set; }
     }
 }

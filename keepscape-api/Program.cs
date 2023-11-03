@@ -22,7 +22,6 @@ using keepscape_api.Services.Finances;
 using keepscape_api.Services.Orders;
 using keepscape_api.Services.Carts;
 using keepscape_api.Services.OpenAI;
-using Microsoft.Extensions.Azure;
 using Azure.Storage.Blobs;
 
 var builder = WebApplication.CreateBuilder(args);

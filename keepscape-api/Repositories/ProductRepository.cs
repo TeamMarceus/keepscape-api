@@ -34,14 +34,11 @@ namespace keepscape_api.Repositories
 
 
             int pageCount = 1;
+            query = query.Where(p => p.IsHidden == productQueryParameters.IsHidden);
 
             if (productQueryParameters.SellerProfileId != null)
             {
                 query = query.Where(p => p.SellerProfileId == productQueryParameters.SellerProfileId);
-            }
-            if (productQueryParameters.IsHidden)
-            {
-                query = query.Where(p => p.IsHidden == productQueryParameters.IsHidden);
             }
             if (!productQueryParameters.Categories.IsNullOrEmpty())
             {

@@ -10,6 +10,7 @@ namespace keepscape_api.Services.Orders
         Task<int> GetBuyerOrdersCount(Guid userId);
         Task<OrderBuyerResponsePaginatedDto?> GetBuyerOrders(Guid userId, OrderQuery orderQuery);
         Task<OrderSellerResponseDto?> UpdateDeliveryFee(Guid userId, Guid orderId, OrderUpdateDeliveryFeeDto orderUpdateDeliveryFeeDto);
+        Task<OrderBuyerResponseDto?> PayOrderBuyer(Guid userId, Guid orderId, Guid paypalOrderId);
         Task<OrderSellerResponseDto?> CancelOrderSeller(Guid userId, Guid orderId);
         Task<OrderSellerResponseDto?> DeliverOrderSeller(Guid userId, Guid orderId);
         Task<OrderBuyerResponseDto?> ConfirmOrderBuyer(Guid userId, Guid orderId);

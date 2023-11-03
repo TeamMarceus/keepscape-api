@@ -4,6 +4,9 @@ namespace keepscape_api.Dtos.Orders
 {
     public record OrderRequestDto
     {
+        public Guid ProductId { get; init; }
+        public int Quantity { get; init; }
+        public string? CustomizationMessage { get; init; }
     }
 
     public record OrderUpdateDeliveryFeeDto
@@ -22,5 +25,11 @@ namespace keepscape_api.Dtos.Orders
         public string Log { get; init; } = null!;
         [Required]
         public DateTime DateTime { get; init; }
+    }
+
+    public record OrderPaypalDto
+    {
+        [Required]
+        public Guid PaypalOrderId { get; init; }
     }
 }

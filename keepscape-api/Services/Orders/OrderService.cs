@@ -5,6 +5,7 @@ using keepscape_api.Models;
 using keepscape_api.QueryModels;
 using keepscape_api.Repositories.Interfaces;
 using keepscape_api.Services.BaseImages;
+using keepscape_api.Services.Paypal;
 
 namespace keepscape_api.Services.Orders
 {
@@ -13,17 +14,20 @@ namespace keepscape_api.Services.Orders
         private readonly IOrderRepository _orderRepository;
         private readonly IUserRepository _userRepository;
         private readonly IImageService _imageService;
+        private readonly IPaypalService _paypalService;
         private readonly IMapper _mapper;
 
         public OrderService(
             IOrderRepository orderRepository, 
             IUserRepository userRepository,
             IImageService imageService,
+            IPaypalService paypalService,
             IMapper mapper)
         {
             _orderRepository = orderRepository;
             _userRepository = userRepository;
             _imageService = imageService;
+            _paypalService = paypalService;
             _mapper = mapper;
         }
 
@@ -129,6 +133,11 @@ namespace keepscape_api.Services.Orders
             if (sellerProfileId == Guid.Empty || order.SellerProfileId != sellerProfileId)
             {
                 return null;
+            }
+
+            if (order.Status == OrderStatus.AwaitingSeller)
+            {
+                order.Status = OrderStatus.Ongoing;
             }
 
             if (order.Status != OrderStatus.Ongoing)
@@ -250,6 +259,42 @@ namespace keepscape_api.Services.Orders
                 Orders = orderSellerResponseDtos,
                 PageCount = pageCount
             };
+        }
+
+        public async Task<OrderBuyerResponseDto?> PayOrderBuyer(Guid userId, Guid orderId, Guid paypalOrderId)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            var order = await _orderRepository.GetByIdAsync(orderId);
+
+            if (user == null || order == null)
+            {
+                return null;
+            }
+
+            var buyerProfileId = user.BuyerProfile != null ? user.BuyerProfile.Id : Guid.Empty;
+
+            if (buyerProfileId == Guid.Empty || order.BuyerProfileId != buyerProfileId)
+            {
+                return null;
+            }
+
+            if (order.Status != OrderStatus.AwaitingBuyer)
+            {
+                return null;
+            }
+
+            var isPaypalPaymentValid = await _paypalService.ValidatePaypalPayment(userId, paypalOrderId);
+
+            if (!isPaypalPaymentValid)
+            {
+                return null;
+            }
+
+            order.Status = OrderStatus.AwaitingSeller;
+
+            await _orderRepository.UpdateAsync(order);
+
+            return _mapper.Map<OrderBuyerResponseDto>(order);
         }
 
         public async Task<OrderSellerResponseDto?> UpdateDeliveryFee(Guid userId, Guid orderId, OrderUpdateDeliveryFeeDto orderUpdateDeliveryFeeDto)

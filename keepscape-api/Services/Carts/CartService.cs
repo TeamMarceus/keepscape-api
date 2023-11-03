@@ -231,8 +231,8 @@ namespace keepscape_api.Services.Carts
                 });
 
                 var hiddenProducts = cart.Items.Where(x => x.Product!.SellerProfile!.UserId == seller.UserId && 
-                                    x.Product.Quantity < x.Quantity ||
-                                    x.Product.IsHidden
+                                    (x.Product.Quantity < x.Quantity ||
+                                    x.Product.IsHidden)
                                     )
                                     .ToList();
 

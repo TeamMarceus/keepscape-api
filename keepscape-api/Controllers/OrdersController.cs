@@ -154,6 +154,40 @@ namespace keepscape_api.Controllers
             }
         }
 
+        [HttpPost("buyers/{orderId}/pay")]
+        [Authorize(Policy = "Buyer")]
+        public async Task<IActionResult> PayOrderBuyer(Guid orderId, [FromBody] OrderPaypalDto orderPaypalDto)
+        {
+            try
+            {
+                if (ModelState.IsValid == false)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var buyerId = Guid.TryParse(User.FindFirstValue("UserId"), out var id) ? id : Guid.Empty;
+
+                if (buyerId == Guid.Empty)
+                {
+                    return BadRequest("Invalid credentials.");
+                }
+
+                var order = await _orderService.PayOrderBuyer(buyerId, orderId, orderPaypalDto.PaypalOrderId);
+
+                if (order == null)
+                {
+                    return BadRequest("Invalid credentials.");
+                }
+
+                return Ok(order);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_orderService.PayOrderBuyer)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
         // Sellers
         [HttpGet("sellers")]
         [Authorize(Policy = "Seller")]

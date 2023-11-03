@@ -63,6 +63,7 @@ namespace keepscape_api.Services.BaseImages
             }
             catch (Exception ex)
             {
+                Console.Write(ex.Message);
                 return null;
             }
         }
