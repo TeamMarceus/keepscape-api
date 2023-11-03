@@ -16,6 +16,7 @@ namespace keepscape_api.Data
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<OrderDeliveryLog> OrderDeliveryLogs { get; set; }
+        public DbSet<OrderPayment> OrderPayments { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<ProductImage> ProductImages { get; set; }
         public DbSet<ProductReview> ProductReviews { get; set; }
@@ -275,6 +276,9 @@ namespace keepscape_api.Data
             modelBuilder.Entity<OrderItem>()
                 .Property(oi => oi.Price)
                 .HasPrecision(18, 2);
+            modelBuilder.Entity<OrderPayment>()
+                .Property(op => op.PaymentMethod)
+                .HasConversion<string>();
 
             // SellerApplication
             modelBuilder.Entity<SellerApplication>()

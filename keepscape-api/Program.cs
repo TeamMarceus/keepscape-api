@@ -175,6 +175,7 @@ async Task ConfigureServices(IServiceCollection services, IConfiguration configu
     services.AddScoped<IUserRepository, UserRepository>();
     services.AddScoped<ISellerApplicationRepository, SellerApplicationRepository>();
     services.AddScoped<IBaseImageRepository, BaseImageRepository>();
+    services.AddScoped<IOrderPaymentRepository, OrderPaymentRepository>();
 
     services.AddScoped<IAnnouncementService, AnnouncementService>();
     services.AddScoped<IUserService, UserService>();

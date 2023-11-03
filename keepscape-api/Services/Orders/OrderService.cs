@@ -13,6 +13,7 @@ namespace keepscape_api.Services.Orders
     {
         private readonly IOrderRepository _orderRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IOrderPaymentRepository _orderPaymentRepository;
         private readonly IImageService _imageService;
         private readonly IPaypalService _paypalService;
         private readonly IMapper _mapper;
@@ -20,12 +21,14 @@ namespace keepscape_api.Services.Orders
         public OrderService(
             IOrderRepository orderRepository, 
             IUserRepository userRepository,
+            IOrderPaymentRepository orderPaymentRepository,
             IImageService imageService,
             IPaypalService paypalService,
             IMapper mapper)
         {
             _orderRepository = orderRepository;
             _userRepository = userRepository;
+            _orderPaymentRepository = orderPaymentRepository;
             _imageService = imageService;
             _paypalService = paypalService;
             _mapper = mapper;
@@ -290,9 +293,17 @@ namespace keepscape_api.Services.Orders
                 return null;
             }
 
+            var orderPayment = new OrderPayment
+            {
+                OrderId = order.Id,
+                PaymentMethod = PaymentMethod.Paypal,
+                PaymentMethodOrderId = paypalOrderId.ToString()
+            };
+
             order.Status = OrderStatus.AwaitingSeller;
 
             await _orderRepository.UpdateAsync(order);
+            await _orderPaymentRepository.AddAsync(orderPayment);
 
             return _mapper.Map<OrderBuyerResponseDto>(order);
         }
