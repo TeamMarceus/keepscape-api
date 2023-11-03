@@ -8,6 +8,6 @@ namespace keepscape_api.Models
         public Guid OrderId { get; set; }
         public PaymentMethod PaymentMethod { get; set; }
         public string PaymentMethodOrderId { get; set; } = null!;
-        public Order Order { get; set; } = null!;
+        public virtual Order Order { get; set; } = null!;
     }
 }

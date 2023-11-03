@@ -23,6 +23,7 @@ using keepscape_api.Services.Orders;
 using keepscape_api.Services.Carts;
 using keepscape_api.Services.OpenAI;
 using Azure.Storage.Blobs;
+using keepscape_api.Services.Paypal;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -190,4 +191,5 @@ async Task ConfigureServices(IServiceCollection services, IConfiguration configu
     services.AddScoped<IOrderService, OrderService>();
     services.AddScoped<ICartService, CartService>();
     services.AddScoped<IOpenAIService, OpenAIService>();
+    services.AddScoped<IPaypalService, PaypalService>();
 }
