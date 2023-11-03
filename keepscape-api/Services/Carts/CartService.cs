@@ -317,6 +317,17 @@ namespace keepscape_api.Services.Carts
                     continue;
                 }
                 cartItem.Quantity = cartItemUpdate.Quantity != null ? cartItemUpdate.Quantity.Value : cartItem.Quantity;
+
+                if (cartItem.Quantity <= 0)
+                {
+                    cart.Items.Remove(cartItem);
+                    continue;
+                }
+
+                if (cartItem.Quantity > cartItem.Product!.Quantity)
+                {
+                    cartItem.Quantity = cartItem.Product!.Quantity;
+                }
                 
                 if (cartItem.Product!.IsCustomizable)
                 {
