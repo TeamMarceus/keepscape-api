@@ -117,6 +117,35 @@ namespace keepscape_api.Controllers
             }
         }
 
+        [HttpPost("orders/{orderId}")]
+        [Authorize(Policy = "Buyer")]
+        public async Task<IActionResult> CreateOrderReport(Guid orderId, ReportRequestDto reportRequestDto)
+        {
+            try
+            {
+                var userId = Guid.TryParse(User.FindFirstValue("UserId"), out var id) ? id : Guid.Empty;
+
+                if (userId == Guid.Empty)
+                {
+                    return BadRequest("Invalid credentials.");
+                }
+
+                var result = await _reportService.CreateOrderReport(orderId, userId, reportRequestDto);
+
+                if (!result)
+                {
+                    return NotFound();
+                }
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_reportService.CreateOrderReport)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
         [HttpGet("orders")]
         [Authorize(Policy = "Admin")]
         public async Task<IActionResult> GetOrderWithReports([FromQuery] OrderReportQuery orderReportQuery)

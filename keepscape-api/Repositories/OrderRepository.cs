@@ -98,7 +98,7 @@ namespace keepscape_api.Repositories
                 }
                 else if (orderQuery.Status == "Onhold")
                 {
-                    query = query.Where(o => o.Status == OrderStatus.AwaitingConfirmation || o.Status == OrderStatus.AwaitingBuyer);
+                    query = query.Where(o => o.Status == OrderStatus.AwaitingConfirmation || o.Status == OrderStatus.AwaitingBuyer || o.Status == OrderStatus.Reported);
                 }
                 else
                 {
@@ -246,7 +246,7 @@ namespace keepscape_api.Repositories
                 }
                 else if (orderQuery.Status == "Onhold")
                 {
-                    query = query.Where(o => o.Status == OrderStatus.AwaitingConfirmation || o.Status == OrderStatus.AwaitingBuyer);
+                    query = query.Where(o => o.Status == OrderStatus.AwaitingConfirmation || o.Status == OrderStatus.Reported);
                 }
                 else
                 {
