@@ -2,6 +2,6 @@
 {
     public interface IPaypalService
     {
-        public Task<bool> ValidatePaypalPayment(Guid userId, Guid PaypalOrderId);
+        public Task<bool> ValidatePaypalPayment(Guid userId, string paypalOrderId);
     }
 }

@@ -11,19 +11,28 @@ namespace keepscape_api.Services.Paypal
         private readonly string _sandboxUrl = "https://api.sandbox.paypal.com/v2/checkout/orders/";
         private readonly string _authUrl = "https://api.sandbox.paypal.com/v1/oauth2/token";
 
-        public async Task<bool> ValidatePaypalPayment(Guid userId, Guid PaypalOrderId)
+        public async Task<bool> ValidatePaypalPayment(Guid userId, string paypalOrderId)
         {
             using (var httpClient = new HttpClient())
             {
-                string APIUrl = _sandboxUrl + PaypalOrderId.ToString();
+                string APIUrl = _sandboxUrl + paypalOrderId;
 
                 string credentials = Convert.ToBase64String(Encoding.ASCII.GetBytes(_clientId + ":" + _clientSecret));
 
                 httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", credentials);
+                
+                // Add body to http request
+                var body = new Dictionary<string, string>
+                {
+                    { "grant_type", "client_credentials" }
+                };
 
-                var response = await httpClient.GetAsync(_authUrl);
+                var content = new FormUrlEncodedContent(body);
+
+                var response = await httpClient.PostAsync(_authUrl, content);
 
                 var jsonAccess = JObject.Parse(await response.Content.ReadAsStringAsync());
+
                 var access_token = jsonAccess["access_token"];
 
                 if (access_token == null)

@@ -30,6 +30,6 @@ namespace keepscape_api.Dtos.Orders
     public record OrderPaypalDto
     {
         [Required]
-        public Guid PaypalOrderId { get; init; }
+        public string PaypalOrderId { get; init; } = null!;
     }
 }

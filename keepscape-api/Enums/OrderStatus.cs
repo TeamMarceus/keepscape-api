@@ -4,7 +4,6 @@
     {
         Pending,
         AwaitingBuyer,
-        AwaitingSeller,
         Ongoing,
         AwaitingConfirmation,
         Reported,

@@ -138,11 +138,6 @@ namespace keepscape_api.Services.Orders
                 return null;
             }
 
-            if (order.Status == OrderStatus.AwaitingSeller)
-            {
-                order.Status = OrderStatus.Ongoing;
-            }
-
             if (order.Status != OrderStatus.Ongoing)
             {
                 return null;
@@ -264,7 +259,7 @@ namespace keepscape_api.Services.Orders
             };
         }
 
-        public async Task<OrderBuyerResponseDto?> PayOrderBuyer(Guid userId, Guid orderId, Guid paypalOrderId)
+        public async Task<OrderBuyerResponseDto?> PayOrderBuyer(Guid userId, Guid orderId, string paypalOrderId)
         {
             var user = await _userRepository.GetByIdAsync(userId);
             var order = await _orderRepository.GetByIdAsync(orderId);
@@ -286,6 +281,13 @@ namespace keepscape_api.Services.Orders
                 return null;
             }
 
+            var orderPaymentExists = await _orderPaymentRepository.GetOrderPaymentByPaymentMethodOrderId(paypalOrderId, PaymentMethod.Paypal);
+
+            if (orderPaymentExists != null)
+            {
+                return null;
+            }
+
             var isPaypalPaymentValid = await _paypalService.ValidatePaypalPayment(userId, paypalOrderId);
 
             if (!isPaypalPaymentValid)
@@ -300,7 +302,7 @@ namespace keepscape_api.Services.Orders
                 PaymentMethodOrderId = paypalOrderId.ToString()
             };
 
-            order.Status = OrderStatus.AwaitingSeller;
+            order.Status = OrderStatus.Ongoing;
 
             await _orderRepository.UpdateAsync(order);
             await _orderPaymentRepository.AddAsync(orderPayment);
