@@ -59,7 +59,23 @@ namespace keepscape_api.Services.Reports
 
             order.Status = OrderStatus.Reported;
 
-            return true;
+            order.OrderReport = new OrderReport
+            {
+                OrderId = orderId,
+                UserId = userId,
+                Reason = reportRequestDto.Reason
+            };
+
+            var subject = $"Order with id {order.Id} has been reported";
+            var email = $"<p>Hi {order.SellerProfile!.User!.FirstName},</p>" +
+                        $"<p>Your order with id {order.Id} has been reported.</p>" +
+                        $"<p>Reason: {reportRequestDto.Reason}</p>" +
+                        $"<p>Please check your order and resolve the issue.</p>" + 
+                        $"<p>Thank you for using Keepscape!</p>";
+
+            await _emailService.SendEmailAsync(order.SellerProfile!.User!.Email, subject, email);
+
+            return await _orderRepository.UpdateAsync(order);
         }
 
         public async Task<bool> CreateProductReport(Guid productId, Guid userId, ReportRequestDto reportRequestDto)

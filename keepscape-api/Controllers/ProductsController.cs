@@ -553,6 +553,40 @@ namespace keepscape_api.Controllers
             }
         }
 
+        [HttpGet("{productId}/review")]
+        [Authorize(Policy = "Buyer")]
+        public async Task<IActionResult> GetReview(Guid productId)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var userId = Guid.TryParse(User.FindFirstValue("UserId"), out Guid userIdParsed) ? userIdParsed : Guid.Empty;
+
+                if (userId == Guid.Empty)
+                {
+                    return BadRequest("Invalid credentials.");
+                }
+
+                var productReview = await _productService.GetReview(userId, productId);
+
+                if (productReview == null)
+                {
+                    return NoContent();
+                }
+
+                return Ok(productReview);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_productService.GetReview)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
         [HttpPut("{productId}/reviews")]
         [Authorize(Policy = "Buyer")]
         public async Task<IActionResult> UpdateReview(Guid productId, [FromBody] ProductReviewUpdateDto productReviewUpdateDto)

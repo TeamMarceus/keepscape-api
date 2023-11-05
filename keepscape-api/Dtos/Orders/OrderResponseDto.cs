@@ -13,7 +13,7 @@ namespace keepscape_api.Dtos.Orders
         public Guid ProductId { get; init; }
         public string ProductName { get; init; } = string.Empty;
         public string ProductImageUrl { get; init; } = string.Empty;
-        public string CustomizedMessage { get; init; } = string.Empty;
+        public string CustomizationMessage { get; init; } = string.Empty;
         public int Quantity { get; init; }
         public decimal Price { get; init; }
     }
