@@ -12,5 +12,6 @@ namespace keepscape_api.Models
         public string? QRImageUrl { get; set; }
         public virtual Order? Order { get; set; }
         public virtual Product? Product { get; set; }
+        public virtual OrderItemGift? Gift { get; set; }
     }
 }

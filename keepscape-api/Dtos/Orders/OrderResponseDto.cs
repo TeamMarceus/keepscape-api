@@ -14,6 +14,7 @@ namespace keepscape_api.Dtos.Orders
         public string ProductName { get; init; } = string.Empty;
         public string ProductImageUrl { get; init; } = string.Empty;
         public string CustomizationMessage { get; init; } = string.Empty;
+        public string QRImageUrl { get; init; } = string.Empty;
         public int Quantity { get; init; }
         public decimal Price { get; init; }
     }
@@ -109,5 +110,11 @@ namespace keepscape_api.Dtos.Orders
     {
         public IEnumerable<OrderBuyerResponseDto> Orders { get; init; } = new List<OrderBuyerResponseDto>();
         public int PageCount { get; init; } = 0;
+    }
+
+    public record OrderItemGiftDto
+    {
+        public string Place { get; init; } = string.Empty;
+        public string Message { get; init; } = string.Empty;
     }
 }

@@ -1,5 +1,5 @@
 ﻿using keepscape_api.Data;
-using keepscape_api.Models.Categories;
+using keepscape_api.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace keepscape_api.Repositories.Interfaces

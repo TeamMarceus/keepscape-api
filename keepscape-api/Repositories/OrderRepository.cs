@@ -21,7 +21,9 @@ namespace keepscape_api.Repositories
                 .Include(o => o.OrderReport)
                 .Include(o => o.DeliveryLogs)
                 .Include(o => o.Items)
-                .ThenInclude(oi => oi.Product)
+                    .ThenInclude(oi => oi.Product)
+                .Include(o => o.Items)
+                    .ThenInclude(oi => oi.Gift)
                 .Where(o => o.BuyerProfileId == buyerProfileId)
                 .ToListAsync();
         }
@@ -34,7 +36,9 @@ namespace keepscape_api.Repositories
                 .Include(o => o.OrderReport)
                 .Include(o => o.DeliveryLogs)
                 .Include(o => o.Items)
-                .ThenInclude(oi => oi.Product)
+                    .ThenInclude(oi => oi.Product)
+                .Include(o => o.Items)
+                    .ThenInclude(oi => oi.Gift)
                 .Where(o => o.SellerProfileId == sellerProfileId)
                 .ToListAsync();
         }
@@ -47,7 +51,9 @@ namespace keepscape_api.Repositories
                 .Include(o => o.OrderReport)
                 .Include(o => o.DeliveryLogs)
                 .Include(o => o.Items)
-                .ThenInclude(oi => oi.Product)
+                    .ThenInclude(oi => oi.Product)
+                .Include(o => o.Items)
+                    .ThenInclude(oi => oi.Gift)
                 .SingleOrDefaultAsync(o => o.Id == id);
         }
 
@@ -59,7 +65,9 @@ namespace keepscape_api.Repositories
                 .Include(o => o.OrderReport)
                 .Include(o => o.DeliveryLogs)
                 .Include(o => o.Items)
-                .ThenInclude(oi => oi.Product)
+                    .ThenInclude(oi => oi.Product)
+                .Include(o => o.Items)
+                    .ThenInclude(oi => oi.Gift)
                 .ToListAsync();
         }
 
@@ -82,6 +90,8 @@ namespace keepscape_api.Repositories
                 .Include(o => o.DeliveryLogs)
                 .Include(o => o.Items)
                     .ThenInclude(oi => oi.Product)
+                .Include(o => o.Items)
+                    .ThenInclude(oi => oi.Gift)
                 .Where(p => p.SellerProfileId == sellerProfileId)
                 .AsQueryable();
 
@@ -163,6 +173,8 @@ namespace keepscape_api.Repositories
                 .Include(o => o.DeliveryLogs)
                 .Include(o => o.Items)
                     .ThenInclude(oi => oi.Product)
+                .Include(o => o.Items)
+                    .ThenInclude(oi => oi.Gift)
                 .Where(o => (o.OrderReport != null && o.Status == OrderStatus.Reported) || 
                 (o.Status == OrderStatus.AwaitingConfirmation && o.DateTimeUpdated < confirmationMaxDate))
                 .AsQueryable();
@@ -230,6 +242,8 @@ namespace keepscape_api.Repositories
                 .Include(o => o.DeliveryLogs)
                 .Include(o => o.Items)
                     .ThenInclude(oi => oi.Product)
+                .Include(o => o.Items)
+                    .ThenInclude(oi => oi.Gift)
                 .Where(p => p.BuyerProfileId == buyerProfileId)
                 .AsQueryable();
 

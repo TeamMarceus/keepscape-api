@@ -15,6 +15,7 @@ namespace keepscape_api.Data
         public DbSet<CartItem> CartItems { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<OrderItemGift> OrderItemGifts { get; set; }
         public DbSet<OrderDeliveryLog> OrderDeliveryLogs { get; set; }
         public DbSet<OrderPayment> OrderPayments { get; set; }
         public DbSet<Product> Products { get; set; }
@@ -276,6 +277,12 @@ namespace keepscape_api.Data
             modelBuilder.Entity<OrderItem>()
                 .Property(oi => oi.Price)
                 .HasPrecision(18, 2);
+            modelBuilder.Entity<OrderItemGift>()
+                .HasOne(oi => oi.Place)
+                .WithMany()
+                .HasForeignKey(oi => oi.PlaceId)
+                .OnDelete(DeleteBehavior.NoAction)
+                .IsRequired(true);
             modelBuilder.Entity<OrderPayment>()
                 .Property(op => op.PaymentMethod)
                 .HasConversion<string>();

@@ -43,6 +43,7 @@ namespace keepscape_api.MapperConfigurations
                     ProductId = i.ProductId,
                     ProductName = i.Product != null ? i.Product.Name : "",
                     ProductImageUrl = i.Product != null ? !i.Product.Images.IsNullOrEmpty() ? i.Product.Images.First().ImageUrl : "" : "",
+                    QRImageUrl = i.QRImageUrl ?? "",
                     CustomizationMessage = i.CustomizationMessage ?? "",
                     Quantity = i.Quantity,
                     Price = i.Price,
@@ -80,6 +81,7 @@ namespace keepscape_api.MapperConfigurations
                     ProductId = i.ProductId,
                     ProductName = i.Product != null ? i.Product.Name : "",
                     ProductImageUrl = i.Product != null ? !i.Product.Images.IsNullOrEmpty() ? i.Product.Images.First().ImageUrl : "" : "",
+                    QRImageUrl = i.QRImageUrl ?? "",
                     CustomizationMessage = i.CustomizationMessage ?? "",
                     Quantity = i.Quantity,
                     Price = i.Price,
@@ -111,6 +113,7 @@ namespace keepscape_api.MapperConfigurations
                     ProductId = i.ProductId,
                     ProductName = i.Product != null ? i.Product.Name : "",
                     ProductImageUrl = i.Product != null ? !i.Product.Images.IsNullOrEmpty() ? i.Product.Images.First().ImageUrl : "" : "",
+                    QRImageUrl = i.QRImageUrl ?? "",
                     CustomizationMessage = i.CustomizationMessage ?? "",
                     Quantity = i.Quantity,
                     Price = i.Price,
@@ -121,6 +124,8 @@ namespace keepscape_api.MapperConfigurations
                     Log = i.Log,
                 }).OrderByDescending(i => i.DateTime)
                 ));
+            CreateMap<OrderItemGift, OrderItemGiftDto>()
+                .ForMember(dest => dest.Place, opt => opt.MapFrom(src => src.Place!.Name));
         }
     }
 }

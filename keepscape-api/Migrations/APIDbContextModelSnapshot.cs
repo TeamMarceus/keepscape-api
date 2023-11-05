@@ -327,30 +327,6 @@ namespace keepscape_api.Migrations
                     b.ToTable("Categories");
                 });
 
-            modelBuilder.Entity("keepscape_api.Models.Categories.Place", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("DateTimeCreated")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("DateTimeUpdated")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ImageUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Places");
-                });
-
             modelBuilder.Entity("keepscape_api.Models.Checkouts.Products.ProductImage", b =>
                 {
                     b.Property<Guid>("Id")
@@ -523,6 +499,42 @@ namespace keepscape_api.Migrations
                     b.ToTable("OrderItems");
                 });
 
+            modelBuilder.Entity("keepscape_api.Models.OrderItemGift", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("DateTimeCreated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DateTimeUpdated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Message")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("OrderItemId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PlaceId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderItemId")
+                        .IsUnique();
+
+                    b.HasIndex("PlaceId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("OrderItemGifts");
+                });
+
             modelBuilder.Entity("keepscape_api.Models.OrderPayment", b =>
                 {
                     b.Property<Guid>("Id")
@@ -588,6 +600,30 @@ namespace keepscape_api.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("OrderReports");
+                });
+
+            modelBuilder.Entity("keepscape_api.Models.Place", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("DateTimeCreated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DateTimeUpdated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Places");
                 });
 
             modelBuilder.Entity("keepscape_api.Models.Product", b =>
@@ -1065,6 +1101,33 @@ namespace keepscape_api.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("keepscape_api.Models.OrderItemGift", b =>
+                {
+                    b.HasOne("keepscape_api.Models.OrderItem", "OrderItem")
+                        .WithOne("Gift")
+                        .HasForeignKey("keepscape_api.Models.OrderItemGift", "OrderItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("keepscape_api.Models.Place", "Place")
+                        .WithMany()
+                        .HasForeignKey("PlaceId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("keepscape_api.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("OrderItem");
+
+                    b.Navigation("Place");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("keepscape_api.Models.OrderPayment", b =>
                 {
                     b.HasOne("keepscape_api.Models.Order", "Order")
@@ -1097,7 +1160,7 @@ namespace keepscape_api.Migrations
 
             modelBuilder.Entity("keepscape_api.Models.Product", b =>
                 {
-                    b.HasOne("keepscape_api.Models.Categories.Place", "Place")
+                    b.HasOne("keepscape_api.Models.Place", "Place")
                         .WithMany("Products")
                         .HasForeignKey("PlaceId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1205,11 +1268,6 @@ namespace keepscape_api.Migrations
                     b.Navigation("Items");
                 });
 
-            modelBuilder.Entity("keepscape_api.Models.Categories.Place", b =>
-                {
-                    b.Navigation("Products");
-                });
-
             modelBuilder.Entity("keepscape_api.Models.Order", b =>
                 {
                     b.Navigation("DeliveryLogs");
@@ -1217,6 +1275,16 @@ namespace keepscape_api.Migrations
                     b.Navigation("Items");
 
                     b.Navigation("OrderReport");
+                });
+
+            modelBuilder.Entity("keepscape_api.Models.OrderItem", b =>
+                {
+                    b.Navigation("Gift");
+                });
+
+            modelBuilder.Entity("keepscape_api.Models.Place", b =>
+                {
+                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("keepscape_api.Models.Product", b =>

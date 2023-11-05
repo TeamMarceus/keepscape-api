@@ -11,6 +11,8 @@ namespace keepscape_api.Services.Orders
         Task<OrderBuyerResponsePaginatedDto?> GetBuyerOrders(Guid userId, OrderQuery orderQuery);
         Task<OrderSellerResponseDto?> UpdateDeliveryFee(Guid userId, Guid orderId, OrderUpdateDeliveryFeeDto orderUpdateDeliveryFeeDto);
         Task<OrderBuyerResponseDto?> PayOrderBuyer(Guid userId, Guid orderId, string paypalOrderId);
+        Task<bool> GenerateGiftMessage(Guid orderId);
+        Task<OrderItemGiftDto?> GetGiftMessage(Guid orderItemId);
         Task<OrderSellerResponseDto?> CancelOrderSeller(Guid userId, Guid orderId);
         Task<OrderSellerResponseDto?> DeliverOrderSeller(Guid userId, Guid orderId);
         Task<OrderBuyerResponseDto?> ConfirmOrderBuyer(Guid userId, Guid orderId);

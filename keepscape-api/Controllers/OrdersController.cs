@@ -188,6 +188,68 @@ namespace keepscape_api.Controllers
             }
         }
 
+        [HttpPost("buyers/{orderId}/gift")]
+        [Authorize(Policy = "Buyer")]
+        public async Task<IActionResult> GenerateGiftMessage(Guid orderId)
+        {
+            try
+            {
+                if (ModelState.IsValid == false)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var buyerId = Guid.TryParse(User.FindFirstValue("UserId"), out var id) ? id : Guid.Empty;
+
+                if (buyerId == Guid.Empty)
+                {
+                    return BadRequest("Invalid credentials.");
+                }
+
+                var isGiftMessageGenerated = await _orderService.GenerateGiftMessage(orderId);
+
+                if (isGiftMessageGenerated == false)
+                {
+                    return BadRequest("Product not bought.");
+                }
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_orderService.GenerateGiftMessage)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpGet("buyers/orders/gift/{orderItemId}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetGiftMessage(Guid orderItemId)
+        {
+            try
+            {
+                if (ModelState.IsValid == false)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var giftMessage = await _orderService.GetGiftMessage(orderItemId);
+
+                if (giftMessage == null)
+                {
+                    return BadRequest("Missing information.");
+                }
+
+                return Ok(giftMessage);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(_orderService.GetGiftMessage)} threw an exception");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+
         // Sellers
         [HttpGet("sellers")]
         [Authorize(Policy = "Seller")]
