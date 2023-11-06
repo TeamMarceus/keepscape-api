@@ -68,6 +68,15 @@ namespace keepscape_api.Services.Orders
 
             order.Status = OrderStatus.Cancelled;
 
+            foreach (var orderItem in order.Items)
+            {
+                var product = orderItem.Product;
+
+                if (product == null) { continue; }
+
+                product.Quantity += orderItem.Quantity;
+            }
+
             await _orderRepository.UpdateAsync(order);
 
             return _mapper.Map<OrderBuyerResponseDto>(order);
