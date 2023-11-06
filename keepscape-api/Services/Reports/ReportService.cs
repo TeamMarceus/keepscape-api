@@ -235,11 +235,14 @@ namespace keepscape_api.Services.Reports
                 return false;
             }
 
-            balance.Amount += order.Items.Select(i => i.Product!.SellerPrice * i.Quantity).Sum();
+            var totalSellerPrice = order.Items.Select(i => i.Product!.SellerPrice * i.Quantity).Sum();
+            var totalDeliveryFee = order.DeliveryFee;
+            var totalAmount = totalSellerPrice + totalDeliveryFee;
+
+            balance.Amount += totalAmount;
             balance.Histories.Add(new BalanceLog
             {
-                Amount = order.TotalPrice,
-                DateTimeCreated = DateTime.UtcNow,
+                Amount = totalAmount,
                 Remarks = $"Order with id {order.Id} has been delivered."
             });
 
