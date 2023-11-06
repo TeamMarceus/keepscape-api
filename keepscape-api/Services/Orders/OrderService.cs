@@ -196,7 +196,17 @@ namespace keepscape_api.Services.Orders
                 DateTime = DateTime.UtcNow
             });
 
+            foreach (var orderItem in order.Items)
+            {
+                var product = orderItem.Product;
+
+                if (product == null) { continue; }
+
+                product.TotalSold += orderItem.Quantity;
+            }
+
             await _orderRepository.UpdateAsync(order);
+
 
             return _mapper.Map<OrderSellerResponseDto>(order);
         }
