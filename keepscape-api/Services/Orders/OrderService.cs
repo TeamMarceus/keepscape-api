@@ -16,6 +16,7 @@ namespace keepscape_api.Services.Orders
         private readonly IUserRepository _userRepository;
         private readonly IOrderPaymentRepository _orderPaymentRepository;
         private readonly IOrderItemRepository _orderItemRepository;
+        private readonly IBalanceRepository _balanceRepository;
         private readonly IImageService _imageService;
         private readonly IPaypalService _paypalService;
         private readonly IOpenAIService _openAIService;
@@ -26,6 +27,7 @@ namespace keepscape_api.Services.Orders
             IUserRepository userRepository,
             IOrderPaymentRepository orderPaymentRepository,
             IOrderItemRepository orderItemRepository,
+            IBalanceRepository balanceRepository,
             IImageService imageService,
             IPaypalService paypalService,
             IOpenAIService openAIService,
@@ -35,6 +37,7 @@ namespace keepscape_api.Services.Orders
             _userRepository = userRepository;
             _orderPaymentRepository = orderPaymentRepository;
             _orderItemRepository = orderItemRepository;
+            _balanceRepository = balanceRepository;
             _imageService = imageService;
             _paypalService = paypalService;
             _openAIService = openAIService;
@@ -123,7 +126,25 @@ namespace keepscape_api.Services.Orders
 
             order.Status = OrderStatus.Delivered;
 
+            var seller = order.SellerProfile!.User!;
+
+            var sellerBalance = await _balanceRepository.GetByUserId(seller.Id);
+
+            if (sellerBalance == null) { return null; }
+
+            var totalSellerPrice = order.Items.Sum(x => x.Product!.SellerPrice * x.Quantity);
+            var totalDeliveryFee = order.DeliveryFee;
+            var totalAmount = totalSellerPrice + totalDeliveryFee;
+
+            sellerBalance.Amount += totalAmount;
+            sellerBalance.Histories.Add(new BalanceLog
+            {
+                Amount = totalAmount,
+                Remarks = $"Order with ID {order.Id} successfully delivered!"
+            });
+
             await _orderRepository.UpdateAsync(order);
+            await _balanceRepository.UpdateAsync(sellerBalance);
 
             return _mapper.Map<OrderBuyerResponseDto>(order);
         }
