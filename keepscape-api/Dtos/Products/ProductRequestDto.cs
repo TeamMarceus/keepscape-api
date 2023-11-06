@@ -10,7 +10,7 @@ namespace keepscape_api.Dtos.Products
         public string Name { get; init; } = string.Empty;
         [Required]
         [MinLength(2, ErrorMessage = $"{nameof(Description)} can have at least 2 characters")]
-        [MaxLength(500, ErrorMessage = $"{nameof(Description)} can have at most 500 characters")]
+        [MaxLength(5000, ErrorMessage = $"{nameof(Description)} can have at most 500 characters")]
         public string Description { get; init; } = string.Empty;
         [Required]
         [Range(0, 1000000, ErrorMessage = $"{nameof(BuyerPrice)} must be between 0 and 1000000")]
@@ -57,7 +57,7 @@ namespace keepscape_api.Dtos.Products
         [MaxLength(50, ErrorMessage = $"{nameof(Name)} can have at most 50 characters")]
         public string? Name { get; init; }
         [MinLength(2, ErrorMessage = $"{nameof(Description)} can have at least 2 characters")]
-        [MaxLength(500, ErrorMessage = $"{nameof(Description)} can have at most 500 characters")]
+        [MaxLength(5000, ErrorMessage = $"{nameof(Description)} can have at most 500 characters")]
         public string? Description { get; init; }
         [Range(0, 1000000, ErrorMessage = $"{nameof(BuyerPrice)} must be between 0 and 1000000")]
         public decimal? BuyerPrice { get; init; }
@@ -93,5 +93,11 @@ namespace keepscape_api.Dtos.Products
         [Range(1, 1000000, ErrorMessage = $"{nameof(Quantity)} must be between 1 and 1000000")]
         public int Quantity { get; init; }
         public string? CustomizationMessage { get; init; }
+    }
+
+    public record ProductCategoryPlaceUpdateDto
+    {
+        [Required]
+        public IFormFile Image { get; init; } = null!;
     }
 }

@@ -190,6 +190,11 @@ namespace keepscape_api.Services.Orders
             }
 
             order.Status = OrderStatus.AwaitingConfirmation;
+            order.DeliveryLogs.Add(new OrderDeliveryLog
+            {
+                Log = "Marked as Delivered",
+                DateTime = DateTime.UtcNow
+            });
 
             await _orderRepository.UpdateAsync(order);
 

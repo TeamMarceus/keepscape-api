@@ -228,12 +228,6 @@ namespace keepscape_api.Services.Reports
             order.OrderReport!.IsResolved = true;
             order.Status = OrderStatus.Delivered;
 
-            foreach (var item in order.Items)
-            {
-                item.Product!.Quantity -= item.Quantity;
-                item.Product!.TotalSold += item.Quantity;
-            }
-
             var balance = await _balanceRepository.GetByUserId(order.SellerProfile!.UserId);
 
             if (balance == null)

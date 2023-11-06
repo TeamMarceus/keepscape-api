@@ -620,7 +620,8 @@ namespace keepscape_api.Services.Products
                         CustomizationMessage = productCheckoutDto.CustomizationMessage,
                         Price = product.BuyerPrice * productCheckoutDto.Quantity
                     }
-                }
+                },
+                TotalPrice = product.BuyerPrice * productCheckoutDto.Quantity
             };
 
             await _orderRepository.AddAsync(order);

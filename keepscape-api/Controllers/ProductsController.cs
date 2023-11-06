@@ -344,7 +344,7 @@ namespace keepscape_api.Controllers
         [HttpPut("categories/{categoryId}")]
         [Authorize(Policy = "Admin")]
         [Consumes("multipart/form-data")]
-        public async Task<IActionResult> UpdateCategory(Guid categoryId, [FromForm] IFormFile image)
+        public async Task<IActionResult> UpdateCategory(Guid categoryId, [FromForm] ProductCategoryPlaceUpdateDto productCategoryPlaceUpdateDto)
         {
             try
             {
@@ -353,7 +353,7 @@ namespace keepscape_api.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var categoryUpdated = await _productService.UpdateCategory(categoryId, image);
+                var categoryUpdated = await _productService.UpdateCategory(categoryId, productCategoryPlaceUpdateDto.Image);
 
                 if (!categoryUpdated)
                 {
@@ -449,7 +449,7 @@ namespace keepscape_api.Controllers
         [HttpPut("places/{placeId}")]
         [Authorize(Policy = "Admin")]
         [Consumes("multipart/form-data")]
-        public async Task<IActionResult> UpdatePlace(Guid placeId, [FromForm] IFormFile image)
+        public async Task<IActionResult> UpdatePlace(Guid placeId, [FromForm] ProductCategoryPlaceUpdateDto productCategoryPlaceUpdateDto)
         {
             try
             {
@@ -458,7 +458,7 @@ namespace keepscape_api.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var placeUpdated = await _productService.UpdatePlace(placeId, image);
+                var placeUpdated = await _productService.UpdatePlace(placeId, productCategoryPlaceUpdateDto.Image);
 
                 if (!placeUpdated)
                 {
