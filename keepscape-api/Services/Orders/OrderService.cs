@@ -311,6 +311,11 @@ namespace keepscape_api.Services.Orders
 
             order.Status = OrderStatus.Ongoing;
 
+            foreach (var orderItem in order.Items)
+            {
+                orderItem.Product!.Quantity -= orderItem.Quantity;
+            }
+
             await _orderRepository.UpdateAsync(order);
             await _orderPaymentRepository.AddAsync(orderPayment);
 

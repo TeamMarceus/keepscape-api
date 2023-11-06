@@ -110,6 +110,10 @@ namespace keepscape_api.Repositories
                 {
                     query = query.Where(o => o.Status == OrderStatus.AwaitingConfirmation || o.Status == OrderStatus.AwaitingBuyer || o.Status == OrderStatus.Reported);
                 }
+                else if (orderQuery.Status == "AwaitingConfirmation")
+                {
+                    query = query.Where(o => o.Status == OrderStatus.AwaitingConfirmation || o.Status == OrderStatus.Reported);
+                }
                 else
                 {
                     var orderStatus = Enum.TryParse<OrderStatus>(orderQuery.Status, out var status);
