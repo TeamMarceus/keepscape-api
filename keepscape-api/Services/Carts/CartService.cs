@@ -60,22 +60,34 @@ namespace keepscape_api.Services.Carts
                 return null;
             }
 
-            var existingCartItem = cart.Items.Where(x => x.ProductId == cartRequestDto.ProductId);
+            var existingCartItem = cart.Items.Where(x => x.ProductId == cartRequestDto.ProductId).SingleOrDefault();
 
-            if (!existingCartItem.IsNullOrEmpty() && !existingCartItem.First().Product!.IsCustomizable)
+            if (existingCartItem != null)
             {
-                existingCartItem.First().Quantity += cartRequestDto.Quantity;
-            }
-            else if (
-                !existingCartItem.IsNullOrEmpty() && 
-                existingCartItem.Any(x => x.Product!.IsCustomizable) &&
-                existingCartItem.Any(x => x.CustomizationMessage == cartRequestDto.CustomizationMessage)
-            ) 
-            { 
-                existingCartItem.First(x => x.CustomizationMessage == cartRequestDto.CustomizationMessage).Quantity += cartRequestDto.Quantity;
+                existingCartItem.Quantity += cartRequestDto.Quantity;
+
+                if (existingCartItem.Quantity > existingCartItem.Product!.Quantity)
+                {
+                    existingCartItem.Quantity = existingCartItem.Product!.Quantity;
+                }
+
+                if (existingCartItem.Product!.IsCustomizable)
+                {
+                    existingCartItem.CustomizationMessage = existingCartItem.CustomizationMessage + "\n\n" + cartRequestDto.CustomizationMessage;
+                }
             }
             else
             {
+                if (product.Quantity < cartRequestDto.Quantity)
+                {
+                    cartRequestDto.Quantity = product.Quantity;
+                }
+
+                if (product.IsHidden || product.DateTimeDeleted != null)
+                {
+                    return null;
+                }
+
                 var cartItem = new CartItem
                 {
                     ProductId = product.Id,
@@ -219,21 +231,31 @@ namespace keepscape_api.Services.Carts
 
             foreach(var seller in sellers)
             {
+                if (seller == null)
+                {
+                    continue;
+                }
+
+                var cartItems = cart.Items.Where(x => x.Product!.SellerProfile!.UserId == seller.UserId && !x.Product.IsHidden).ToList();
+
+                foreach(var cartItem in cartItems)
+                {
+                    if (cartItem.Product!.Quantity < cartItem.Quantity)
+                    {
+                        cartItem.Quantity = cartItem.Product!.Quantity;
+                    }
+                }
+
                 cartSellers.Add(new CartSellerDto
                 {
                     Id = seller!.UserId,
                     SellerName = seller.Name,
-                    CartItems = cart.Items.Where(x => x.Product!.SellerProfile!.UserId == seller.UserId && 
-                                x.Product.Quantity > x.Quantity &&
-                                !x.Product.IsHidden
-                                ).Select(x => _mapper.Map<CartItemResponseDto>(x)),
+                    CartItems = cartItems.Select(x => _mapper.Map<CartItemResponseDto>(x))
 
                 });
 
                 var hiddenProducts = cart.Items.Where(x => x.Product!.SellerProfile!.UserId == seller.UserId && 
-                                    (x.Product.Quantity < x.Quantity ||
-                                    x.Product.IsHidden)
-                                    )
+                                    (x.Product.IsHidden || x.Quantity <= 0)).Distinct()
                                     .ToList();
 
                 if (hiddenProducts.IsNullOrEmpty())

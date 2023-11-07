@@ -86,7 +86,8 @@
         public string Name { get; init; } = string.Empty;
         public string Description { get; init; } = string.Empty;
         public int Stars { get; init; }
-        public decimal Price { get; init; }
+        public decimal BuyerPrice { get; init; }
+        public decimal SellerPrice { get; init; }
         public int Quantity { get; init; }
         public bool IsCustomizable { get; init; }
         public bool IsHidden { get; init; }

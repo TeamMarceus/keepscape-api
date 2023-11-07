@@ -55,7 +55,6 @@ namespace keepscape_api.MapperConfigurations
                     Stars = (int)Math.Round(src.SellerProfile.Rating)
                 }: null))
                 .ForMember(dest => dest.TotalRatings, opt => opt.MapFrom(src => src.Reviews != null ? src.Reviews.Count : 0))
-                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.BuyerPrice))
                 .ForMember(dest => dest.Stars, opt => opt.MapFrom(src => (int)Math.Round(src.Rating)))
                 .ForMember(dest => dest.Province, opt => opt.MapFrom(src => src.Place != null ? new ProductCategoryPlaceDto
                 {

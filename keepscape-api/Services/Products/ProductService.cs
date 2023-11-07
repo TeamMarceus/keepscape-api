@@ -293,7 +293,7 @@ namespace keepscape_api.Services.Products
             if (user.UserType == UserType.Admin)
             {
                 var subject = "Your product has been deleted";
-                // Create an email message for product being deleted
+
                 var message = $@"<html>
                     <p>Dear {product.SellerProfile!.User!.FirstName} {product.SellerProfile!.User!.LastName},</p>
                     <p>Your product {product.Name} has been deleted.</p>
